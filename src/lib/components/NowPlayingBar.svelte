@@ -1,0 +1,63 @@
+<script lang="ts">
+  import { player } from '$lib/stores/player';
+  import { settings } from '$lib/stores/settings';
+
+  let { onExpand = () => {}, onQueueOpen = () => {} } = $props<{
+    onExpand?: () => void;
+    onQueueOpen?: () => void;
+  }>();
+
+  let status = $derived($player.status);
+  let currentTrack = $derived($player.currentTrack);
+  let serverUrl = $derived($settings.serverUrl);
+  let coverArtUrl = $derived(
+    currentTrack?.coverArt
+      ? `${serverUrl.replace(/\/$/, '')}/rest/getCoverArt?id=${currentTrack.coverArt}&size=80`
+      : ''
+  );
+</script>
+
+<div
+  class="fixed bottom-0 left-0 right-0 h-14 bg-surface border-t border-white/5 flex items-center px-4 gap-3 cursor-pointer z-50"
+  onclick={onExpand}
+  onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') onExpand(); }}
+  role="button"
+  tabindex="0"
+>
+  {#if status !== 'idle' && currentTrack}
+    <img src={coverArtUrl} alt="" class="w-10 h-10 rounded object-cover shrink-0" />
+    <div class="flex-1 min-w-0">
+      <div class="text-sm font-medium truncate">{currentTrack.title}</div>
+      <div class="text-xs text-text-dim truncate">{currentTrack.artist}</div>
+    </div>
+    <button
+      class="p-2 hover:text-accent transition-colors shrink-0"
+      onclick={(e) => { e.stopPropagation(); player.togglePlay(); }}
+      aria-label={status === 'playing' ? 'Pause' : 'Play'}
+    >
+      {#if status === 'playing'}
+        <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+          <rect x="6" y="4" width="4" height="16" rx="1" />
+          <rect x="14" y="4" width="4" height="16" rx="1" />
+        </svg>
+      {:else}
+        <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+          <polygon points="6,4 20,12 6,20" />
+        </svg>
+      {/if}
+    </button>
+    <button
+      class="p-2 hover:text-accent transition-colors shrink-0"
+      onclick={(e) => { e.stopPropagation(); onQueueOpen(); }}
+      aria-label="Queue"
+    >
+      <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+        <line x1="4" y1="6" x2="20" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        <line x1="4" y1="18" x2="20" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+    </button>
+  {:else}
+    <span class="text-sm text-text-dim">Nothing playing</span>
+  {/if}
+</div>
