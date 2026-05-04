@@ -69,7 +69,7 @@ Release signing is controlled via environment variables:
 
 Without these, Gradle builds an unsigned release APK.
 
-**NixOS users:** Use `sh build-apk.sh` instead — it patches `aapt2` for NixOS.
+On NixOS, `aapt2` is patched automatically via `scripts/patch-aapt2.sh`.
 
 ### iOS
 

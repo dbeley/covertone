@@ -20,6 +20,7 @@
             svelte-language-server
             caddy
             jdk21
+            patchelf
             shellcheck
             statix
           ];
