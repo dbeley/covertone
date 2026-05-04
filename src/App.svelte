@@ -27,6 +27,11 @@
         password: $settings.password,
       });
       player.setStreamBase(baseUrl);
+      player.setApiConfig({
+        server: $settings.serverUrl,
+        username: $settings.username,
+        password: $settings.password,
+      });
     }
   });
 </script>

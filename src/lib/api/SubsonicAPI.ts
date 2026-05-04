@@ -312,3 +312,31 @@ export function getStreamBaseUrl(config: {
   });
   return `${server}/rest/stream?${params.toString()}&id=`;
 }
+
+export async function scrobbleTrack(config: {
+  server: string;
+  username: string;
+  password: string;
+  id: string;
+  time?: number;
+  submission?: boolean;
+}): Promise<void> {
+  const server = config.server.replace(/\/$/, "");
+  const salt = Math.random().toString(36).substring(2, 12);
+  const token = md5(config.password + salt);
+  const params = new URLSearchParams({
+    u: config.username,
+    t: token,
+    s: salt,
+    v: "1.16.1",
+    c: "covertone",
+    f: "json",
+    id: config.id,
+    submission: (config.submission ?? true) ? "1" : "0",
+  });
+  if (config.time !== undefined) {
+    params.set("time", String(config.time));
+  }
+  const url = `${server}/rest/scrobble?${params.toString()}`;
+  await fetch(url);
+}

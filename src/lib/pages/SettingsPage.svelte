@@ -125,6 +125,23 @@
     </div>
   </section>
 
+  <section class="mb-8">
+    <h3 class="text-lg font-semibold mb-4 tracking-tight">Playback</h3>
+    <div class="flex items-center gap-3">
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input
+          type="checkbox"
+          checked={$settings.scrobbleEnabled}
+          onchange={(e) => settings.setScrobbleEnabled((e.target as HTMLInputElement).checked)}
+          class="sr-only peer"
+        />
+        <div class="w-10 h-5 bg-surface border border-border rounded-full peer-checked:bg-accent peer-checked:border-accent transition-all duration-150 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full {!$settings.scrobbleEnabled ? 'opacity-60' : ''}">
+        </div>
+      </label>
+      <span class="text-sm">Report plays to Navidrome (scrobbling)</span>
+    </div>
+  </section>
+
   <section>
     <h3 class="text-lg font-semibold mb-4 tracking-tight">About</h3>
     <p class="text-sm text-text-dim mb-2">Covertone v0.1.0 — A Subsonic/Navidrome music client</p>

@@ -1,5 +1,7 @@
 import { writable } from "svelte/store";
 import { AudioEngine } from "$lib/player/AudioEngine";
+import { scrobbleTrack } from "$lib/api/SubsonicAPI";
+import { settings } from "$lib/stores/settings";
 import type { Song } from "$lib/api/types";
 
 export type PlayerStatus = "idle" | "loading" | "playing" | "paused";
@@ -18,6 +20,8 @@ export interface PlayerState {
 function createPlayer() {
   let engine: AudioEngine | null = null;
   let streamBase = "";
+  let apiConfig: { server: string; username: string; password: string } | null = null;
+  let scrobbled = false;
 
   const { subscribe, set, update } = writable<PlayerState>({
     status: "idle",
@@ -30,20 +34,57 @@ function createPlayer() {
     favorited: false,
   });
 
+  function fireScrobble(id: string, submission: boolean, time?: number) {
+    if (!apiConfig) return;
+    if (!settings.get().scrobbleEnabled) return;
+    scrobbleTrack({
+      server: apiConfig.server,
+      username: apiConfig.username,
+      password: apiConfig.password,
+      id,
+      submission,
+      time,
+    });
+  }
+
   return {
     subscribe,
     setStreamBase(url: string) {
       streamBase = url;
     },
+    setApiConfig(config: { server: string; username: string; password: string }) {
+      apiConfig = config;
+    },
     playTrack(track: Song) {
+      let currentState: PlayerState | undefined;
+      update((s) => {
+        currentState = s;
+        return s;
+      });
+
+      if (currentState?.currentTrack && !scrobbled) {
+        fireScrobble(
+          currentState.currentTrack.id,
+          true,
+          Math.floor(currentState.currentTime),
+        );
+      }
+
       if (engine) engine.destroy();
       engine = new AudioEngine();
+      scrobbled = false;
 
       engine.onTimeUpdate(() => {
         update((s) => ({ ...s, currentTime: engine!.getCurrentTime() }));
       });
       engine.onEnded(() => {
-        update((s) => ({ ...s, status: "idle" }));
+        update((s) => {
+          if (s.currentTrack) {
+            fireScrobble(s.currentTrack.id, true);
+          }
+          return { ...s, status: "idle" };
+        });
+        scrobbled = true;
       });
       engine.onLoaded((duration) => {
         update((s) => ({ ...s, duration, status: "playing" }));
@@ -52,6 +93,8 @@ function createPlayer() {
       update((s) => ({ ...s, currentTrack: track, status: "loading" }));
       engine.load(`${streamBase}${track.id}`);
       engine.play();
+
+      fireScrobble(track.id, false);
     },
     pause() {
       if (engine) {

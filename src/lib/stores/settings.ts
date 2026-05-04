@@ -10,6 +10,7 @@ export interface SettingsState {
   username: string;
   password: string;
   isConfigured: boolean;
+  scrobbleEnabled: boolean;
 }
 
 const STORAGE_KEY = "covertone-settings";
@@ -60,6 +61,7 @@ function createSettings() {
     username: persisted.username ?? "",
     password: persisted.password ?? "",
     isConfigured: !!(persisted.serverUrl && persisted.username),
+    scrobbleEnabled: persisted.scrobbleEnabled ?? true,
   });
 
   return {
@@ -72,6 +74,13 @@ function createSettings() {
           appliedTheme: resolveAppliedTheme(theme),
         };
         persist({ theme });
+        return next;
+      });
+    },
+    setScrobbleEnabled(enabled: boolean) {
+      update((state) => {
+        const next = { ...state, scrobbleEnabled: enabled };
+        persist({ scrobbleEnabled: enabled });
         return next;
       });
     },
@@ -109,6 +118,7 @@ function createSettings() {
         username: "",
         password: "",
         isConfigured: false,
+        scrobbleEnabled: true,
       });
     },
     reload() {
@@ -121,6 +131,7 @@ function createSettings() {
         username: persisted.username ?? "",
         password: persisted.password ?? "",
         isConfigured: !!(persisted.serverUrl && persisted.username),
+        scrobbleEnabled: persisted.scrobbleEnabled ?? true,
       });
     },
   };
