@@ -5,7 +5,6 @@
   import { settings } from '$lib/stores/settings';
   import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import AlbumGrid from '$lib/components/AlbumGrid.svelte';
-  import ArtistCard from '$lib/components/ArtistCard.svelte';
   import type { Song, Artist, Album } from '$lib/api/types';
 
   let artistId = $derived($router.params.id);
@@ -84,7 +83,7 @@
     <p class="text-red-500">{error}</p>
   {:else if artist}
     <div class="flex flex-col sm:flex-row items-start gap-6 mb-8">
-      <img src={coverArtUrl} alt="" class="w-48 h-48 rounded-full object-cover shadow-xl shadow-black/10 ring-1 ring-border/50" />
+      <img src={coverArtUrl} alt="" loading="lazy" decoding="async" class="w-48 h-48 rounded-full object-cover shadow-xl shadow-black/10 ring-1 ring-border/50" />
       <div class="flex flex-col justify-center gap-1">
         <p class="text-xs text-text-dim uppercase tracking-widest font-medium">Artist</p>
         <h1 class="text-2xl font-bold tracking-tight">{artist.name}</h1>
@@ -138,14 +137,22 @@
         <h2 class="text-lg font-semibold mb-3 tracking-tight">Similar Artists</h2>
         <div class="flex gap-4 overflow-x-auto pb-2">
           {#each similarArtists as sArtist (sArtist.id)}
-            <ArtistCard
-              artist={{
-                id: sArtist.id,
-                name: sArtist.name,
-                coverArt: sArtist.artistImageUrl,
-              }}
-              coverArtUrl={sArtist.artistImageUrl ?? ''}
-            />
+            <div
+              class="cursor-pointer group flex flex-col items-center gap-2 text-center shrink-0 transition-all duration-200 active:scale-95"
+              onclick={() => router.navigate(`artist/${sArtist.id}`)}
+              role="button"
+              tabindex="0"
+              onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.navigate(`artist/${sArtist.id}`); } }}
+            >
+              <div class="w-24 h-24 rounded-full overflow-hidden ring-1 ring-border group-hover:ring-accent/30 transition-all duration-300">
+                <img
+                  src={sArtist.artistImageUrl ?? ''}
+                  alt={sArtist.name}
+                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              </div>
+              <p class="text-sm font-medium truncate w-24 text-text group-hover:text-accent transition-colors">{sArtist.name}</p>
+            </div>
           {/each}
         </div>
       </div>

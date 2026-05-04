@@ -99,7 +99,7 @@
                 <img
                   src={coverUrl(artist.coverArt ?? '', 128)}
                   alt={artist.name}
-                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
               <p class="text-xs font-medium truncate w-20">{artist.name}</p>
@@ -124,7 +124,7 @@
                 <img
                   src={coverUrl(album.coverArt, 192)}
                   alt={album.name}
-                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
               <p class="text-xs font-medium truncate w-32">{album.name}</p>
@@ -149,7 +149,7 @@
               <img
                 src={coverUrl(song.coverArt ?? '', 40)}
                 alt=""
-                class="w-8 h-8 rounded object-cover shrink-0"
+                loading="lazy" decoding="async" class="w-8 h-8 rounded object-cover shrink-0"
               />
               <div class="flex-1 min-w-0">
                 <div class="text-sm font-medium truncate">{song.title}</div>

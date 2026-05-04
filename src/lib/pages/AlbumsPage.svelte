@@ -9,6 +9,7 @@
   let username = $derived($settings.username);
   let password = $derived($settings.password);
   let configured = $derived($settings.isConfigured);
+  let libInitialized = $derived($library.initialized);
 
   let albums = $derived($library.albums);
   let loading = $derived($library.loading);
@@ -28,9 +29,11 @@
   }
 
   onMount(() => {
-    if (configured) {
-      library.fetchAlbums({ type: 'alphabeticalByName', offset: 0 });
+    if (!configured) return;
+    if (!libInitialized) {
+      library.init({ server: serverUrl, username, password });
     }
+    library.fetchAlbums({ type: 'alphabeticalByName', offset: 0 });
   });
 </script>
 

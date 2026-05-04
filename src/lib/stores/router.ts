@@ -18,7 +18,8 @@ function parseRoute(hash: string): Route {
     params,
     matches(pattern: string): boolean {
       const patternParts = pattern.split("/").filter(Boolean);
-      const pathParts = path.split("/").filter(Boolean);
+      const rawParts = path.split("/").filter(Boolean);
+      const pathParts = rawParts.map(decodeURIComponent);
       if (patternParts.length !== pathParts.length) return false;
       const extracted: Record<string, string> = {};
       for (let i = 0; i < patternParts.length; i++) {
@@ -57,7 +58,8 @@ function createRouter() {
       }
     },
     navigate(path: string) {
-      window.location.hash = "#" + path;
+      const encoded = path.split("/").map(encodeURIComponent).join("/");
+      window.location.hash = "#" + encoded;
     },
   };
 }

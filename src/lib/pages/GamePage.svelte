@@ -145,7 +145,7 @@
         <img
           src={coverUrl(currentSong)}
           alt=""
-          class="w-40 h-40 rounded-2xl object-cover shadow-xl shadow-black/10 ring-1 ring-border/50"
+          loading="lazy" decoding="async" class="w-40 h-40 rounded-2xl object-cover shadow-xl shadow-black/10 ring-1 ring-border/50"
         />
       {/if}
       <p class="text-xs text-text-dim uppercase tracking-widest font-medium">Now Playing</p>

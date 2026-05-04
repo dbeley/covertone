@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { library } from '$lib/stores/library';
   import { settings } from '$lib/stores/settings';
   import { router } from '$lib/stores/router';
@@ -17,8 +17,11 @@
 
   let searchQuery = $state('');
   let debouncedQuery = $state('');
+  let visibleCount = $state(6);
 
   let debounceTimer: ReturnType<typeof setTimeout>;
+  let observer: IntersectionObserver | null = null;
+  let destroyed = false;
 
   function artistImageUrl(artist: Artist): string {
     if (artist.artistImageUrl) return artist.artistImageUrl;
@@ -30,7 +33,6 @@
 
   let filteredIndex = $derived.by(() => {
     if (!debouncedQuery.trim()) return artistIndex;
-
     const q = debouncedQuery.toLowerCase();
     return artistIndex
       .map(group => ({
@@ -39,6 +41,16 @@
       }))
       .filter(group => group.artists.length > 0);
   });
+
+  let isSearching = $derived(debouncedQuery.trim().length > 0);
+  let totalSections = $derived(filteredIndex.length);
+
+  let visibleSections = $derived.by(() => {
+    if (isSearching) return filteredIndex;
+    return filteredIndex.slice(0, visibleCount);
+  });
+
+  let hasMore = $derived(!isSearching && visibleCount < totalSections);
 
   function handleSearchInput(e: Event) {
     const value = (e.target as HTMLInputElement).value;
@@ -50,9 +62,38 @@
   function scrollToLetter(letter: string) {
     searchQuery = '';
     debouncedQuery = '';
-    const el = document.getElementById(`letter-${letter}`);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const idx = artistIndex.findIndex(g => g.letter === letter);
+    if (idx >= 0 && idx >= visibleCount) {
+      visibleCount = idx + 4;
+    }
+    requestAnimationFrame(() => {
+      const el = document.getElementById(`letter-${letter}`);
+      if (el) {
+        el.scrollIntoView({ block: 'start' });
+      }
+    });
   }
+
+  function setupObserver() {
+    if (observer) observer.disconnect();
+    const sentinel = document.getElementById('artist-sentinel');
+    if (!sentinel) return;
+    observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !destroyed) {
+          visibleCount = Math.min(visibleCount + 4, totalSections);
+        }
+      },
+      { rootMargin: '400px' },
+    );
+    observer.observe(sentinel);
+  }
+
+  $effect(() => {
+    if (artistIndex.length > 0 && !isSearching) {
+      requestAnimationFrame(() => setupObserver());
+    }
+  });
 
   onMount(() => {
     if (!configured) return;
@@ -62,6 +103,12 @@
     if ($library.artistIndex.length === 0) {
       library.fetchArtists();
     }
+  });
+
+  onDestroy(() => {
+    destroyed = true;
+    if (observer) observer.disconnect();
+    observer = null;
   });
 </script>
 
@@ -81,8 +128,8 @@
   {:else if filteredIndex.length > 0}
     <div class="flex-1 flex min-h-0">
       <div class="flex-1 overflow-y-auto pr-2" id="artist-scroll-container">
-        {#each filteredIndex as group (group.letter)}
-          <div id="letter-{group.letter}" class="mb-8">
+        {#each visibleSections as group (group.letter)}
+          <div id="letter-{group.letter}" class="mb-8" style="content-visibility: auto; contain-intrinsic-size: auto 320px">
             <h3 class="text-lg font-semibold mb-3 tracking-tight text-accent sticky top-0 bg-bg/90 backdrop-blur-sm py-1 z-10">{group.letter}</h3>
             <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
               {#each group.artists as artist (artist.id)}
@@ -97,6 +144,7 @@
                       src={artistImageUrl(artist)}
                       alt={artist.name}
                       loading="lazy"
+                      decoding="async"
                       class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   </div>
@@ -106,6 +154,12 @@
             </div>
           </div>
         {/each}
+
+        {#if hasMore}
+          <div id="artist-sentinel" class="h-20 flex items-center justify-center">
+            <p class="text-xs text-text-dim">Scroll for more...</p>
+          </div>
+        {/if}
       </div>
 
       {#if availableLetters.length > 1}

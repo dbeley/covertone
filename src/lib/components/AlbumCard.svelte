@@ -15,7 +15,7 @@
     <img
       src={coverArtUrl}
       alt={album.name}
-      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+      loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
     />
   </div>
   <div class="p-2.5">
