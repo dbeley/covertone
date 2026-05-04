@@ -51,12 +51,16 @@ Multi-stage build: Node 22 builds the app, nginx:alpine serves it with SPA fallb
 
 ### Android
 
+**Prerequisites:** Nix flake provides everything (JDK 21 + Android SDK 35).
+
 ```bash
-# Prerequisites: ANDROID_HOME set, JDK 21+
+nix develop      # or: direnv allow
 pnpm android:build     # debug APK
 pnpm android:release   # signed release APK
 pnpm android:bundle    # AAB for Google Play
 ```
+
+Without Nix, export `ANDROID_HOME` pointing to the Android SDK.
 
 Release signing is controlled via environment variables:
 
