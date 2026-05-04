@@ -31,13 +31,15 @@ export class SubsonicAPI {
   private password: string;
   private clientName: string;
   private baseUrl: string;
+  private timeout: number;
 
-  constructor(config: SubsonicAPIConfig) {
+  constructor(config: SubsonicAPIConfig, timeout = 15000) {
     this.server = config.server.replace(/\/$/, '');
     this.username = config.username;
     this.password = config.password;
     this.clientName = config.clientName ?? 'covertone';
     this.baseUrl = `${this.server}/rest`;
+    this.timeout = timeout;
   }
 
   private generateToken(password: string, salt: string): string {
@@ -72,7 +74,9 @@ export class SubsonicAPI {
 
   private async request<T>(endpoint: string, params: RequestParams = {}): Promise<SubsonicResponse<T>> {
     const url = this.buildUrl(endpoint, params);
-    const response = await fetch(url);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), this.timeout);
+    const response = await fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timer));
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);

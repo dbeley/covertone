@@ -18,12 +18,15 @@
             pnpm
             typescript-language-server
             caddy
+            jdk21
           ];
+          JAVA_HOME = "${pkgs.jdk21.home}";
           shellHook = ''
             echo "covertone dev shell"
             echo "  pnpm dev   - start dev server"
             echo "  pnpm test  - run tests"
             echo "  pnpm build - production build"
+            echo "  pnpm apk   - build Android APK"
           '';
         };
       }

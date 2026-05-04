@@ -18,12 +18,36 @@
 
   let nowPlayingOpen = $state(false);
   let queueOpen = $state(false);
+  let menuOpen = $state(false);
+
+  function closeMenu() {
+    menuOpen = false;
+  }
 </script>
 
 <div class="h-dvh w-full flex flex-col">
   <div class="flex-1 flex min-h-0">
-    <NavBar />
+    <div
+      class="fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 md:hidden"
+      class:opacity-0={!menuOpen}
+      class:pointer-events-none={!menuOpen}
+      class:opacity-100={menuOpen}
+      onclick={closeMenu}
+      role="presentation"
+    ></div>
+    <NavBar mobileOpen={menuOpen} onNavigate={closeMenu} />
     <main class="flex-1 overflow-y-auto">
+      <button
+        class="md:hidden fixed top-3 left-3 z-30 p-2 rounded-lg bg-surface border border-white/10 hover:border-accent transition-colors"
+        onclick={() => { menuOpen = !menuOpen; }}
+        aria-label="Toggle menu"
+      >
+        <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+          <rect y="4" width="24" height="2" rx="1" />
+          <rect y="11" width="24" height="2" rx="1" />
+          <rect y="18" width="24" height="2" rx="1" />
+        </svg>
+      </button>
       {#if route.matches('/')}
         <Home />
       {:else if route.matches('/albums')}

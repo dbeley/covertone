@@ -23,6 +23,10 @@
   ];
 
   async function testConnection() {
+    if (!server || !server.startsWith('http')) {
+      connectionStatus = 'error';
+      return;
+    }
     connectionStatus = 'testing';
     try {
       const api = new SubsonicAPI({ server, username, password });
