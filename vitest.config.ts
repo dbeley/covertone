@@ -11,6 +11,7 @@ export default defineConfig({
     include: ['tests/**/*.test.ts'],
   },
   resolve: {
+    conditions: ['browser'],
     alias: {
       '$lib': path.resolve(__dirname, 'src/lib'),
     },

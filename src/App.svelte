@@ -1,6 +1,9 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import { router } from '$lib/stores/router';
+  import AppShell from '$lib/components/AppShell.svelte';
+
+  onMount(() => { router.reset(); });
 </script>
 
-<div class="h-dvh w-full flex items-center justify-center bg-white dark:bg-zinc-950">
-  <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Covertone</h1>
-</div>
+<AppShell />
