@@ -19,6 +19,35 @@
   let nowPlayingOpen = $state(false);
   let menuOpen = $state(false);
 
+  let swipeX = $state(0);
+  let swiping = $state(false);
+  let swipeStartX = $state(0);
+  const SWIPE_EDGE = 30;
+  const SWIPE_THRESHOLD = 80;
+
+  function onSwipeStart(e: TouchEvent) {
+    const x = e.touches[0].clientX;
+    if (x > SWIPE_EDGE) return;
+    swiping = true;
+    swipeStartX = x;
+    swipeX = 0;
+  }
+
+  function onSwipeMove(e: TouchEvent) {
+    if (!swiping) return;
+    const delta = e.touches[0].clientX - swipeStartX;
+    if (delta < 0) { swipeX = 0; return; }
+    swipeX = Math.min(delta, 192);
+  }
+
+  function onSwipeEnd() {
+    swiping = false;
+    if (swipeX > SWIPE_THRESHOLD) {
+      menuOpen = true;
+    }
+    swipeX = 0;
+  }
+
   function closeMenu() {
     menuOpen = false;
   }
@@ -30,20 +59,27 @@
   }
 </script>
 
-<div class="h-dvh w-full flex flex-col">
-  <div class="flex-1 flex min-h-0">
+<div class="h-dvh w-full flex flex-col" style="padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px)">
+  <div class="flex-1 flex min-h-0"
+    ontouchstart={onSwipeStart}
+    ontouchmove={onSwipeMove}
+    ontouchend={onSwipeEnd}
+    role="presentation"
+  >
     <div
       class="fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 md:hidden"
-      class:opacity-0={!menuOpen}
+      class:opacity-0={!menuOpen && !swiping}
       class:pointer-events-none={!menuOpen}
       class:opacity-100={menuOpen}
+      style:opacity={swiping && !menuOpen ? Math.min(swipeX / 192, 1) * 0.5 : undefined}
       onclick={closeMenu}
       role="presentation"
     ></div>
-    <NavBar mobileOpen={menuOpen} onNavigate={closeMenu} />
+    <NavBar mobileOpen={menuOpen} onNavigate={closeMenu} swipeOffset={swipeX} />
     <main class="flex-1 overflow-y-auto pt-12 md:pt-0">
       <button
-        class="md:hidden fixed top-3 left-3 z-30 p-2.5 rounded-xl bg-surface/90 backdrop-blur border border-border shadow-lg hover:border-accent/30 transition-all duration-150 active:scale-95"
+        class="md:hidden fixed left-3 z-30 p-2.5 rounded-xl bg-surface/90 backdrop-blur border border-border shadow-lg hover:border-accent/30 transition-all duration-150 active:scale-95"
+        style="top: calc(0.75rem + env(safe-area-inset-top, 0px))"
         onclick={() => { menuOpen = !menuOpen; }}
         aria-label="Toggle menu"
       >

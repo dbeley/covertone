@@ -38,6 +38,7 @@ export default tseslint.config(
         MouseEvent: 'readonly',
         DOMException: 'readonly',
         KeyboardEvent: 'readonly',
+        TouchEvent: 'readonly',
         NodeJS: 'readonly',
       },
     },

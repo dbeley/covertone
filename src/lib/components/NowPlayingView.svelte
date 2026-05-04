@@ -31,6 +31,31 @@
   let durationMinutes = $derived(Math.floor(duration / 60));
   let durationSeconds = $derived(Math.floor(duration % 60).toString().padStart(2, '0'));
 
+  let dragY = $state(0);
+  let dragging = $state(false);
+  let startY = $state(0);
+
+  function onTouchStart(e: TouchEvent) {
+    dragging = true;
+    startY = e.touches[0].clientY;
+    dragY = 0;
+  }
+
+  function onTouchMove(e: TouchEvent) {
+    if (!dragging) return;
+    const delta = e.touches[0].clientY - startY;
+    if (delta < 0) return;
+    dragY = Math.min(delta, window.innerHeight);
+  }
+
+  function onTouchEnd() {
+    dragging = false;
+    if (dragY > 120) {
+      onClose();
+    }
+    dragY = 0;
+  }
+
   function handleSeek(e: Event) {
     const target = e.target as HTMLInputElement;
     const time = parseFloat(target.value);
@@ -60,14 +85,23 @@
   }
 </script>
 
-<div class="fixed inset-0 z-50 flex flex-col bg-bg/95 backdrop-blur-xl">
+<div
+  class="fixed inset-0 z-50 flex flex-col bg-bg/95 backdrop-blur-xl"
+  style="transform: translateY({dragY}px); transition: {dragging ? 'none' : 'transform 0.3s ease-out'}"
+  ontouchstart={onTouchStart}
+  ontouchmove={onTouchMove}
+  ontouchend={onTouchEnd}
+  role="dialog"
+  aria-label="Now Playing"
+  tabindex="-1"
+>
   {#if currentTrack?.coverArt}
     <div class="absolute inset-0 overflow-hidden">
       <img src={coverArtUrl} alt="" class="w-full h-full object-cover blur-3xl scale-150 opacity-30" />
     </div>
     <div class="absolute inset-0 bg-gradient-to-b from-bg/40 via-bg/80 to-bg"></div>
   {/if}
-  <div class="relative z-10 flex flex-col h-full">
+  <div class="relative z-10 flex flex-col h-full" style="padding-top: env(safe-area-inset-top, 0px)">
     <button class="p-4 self-start rounded-xl hover:bg-white/5 text-text-dim hover:text-text transition-all duration-150 active:scale-90" onclick={onClose} aria-label="Close">
     <svg viewBox="0 0 24 24" class="w-6 h-6 fill-current">
       <polyline points="6,9 12,15 18,9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />

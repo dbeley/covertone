@@ -1,4 +1,4 @@
-import { writable } from "svelte/store";
+import { writable, get } from "svelte/store";
 import { AudioEngine } from "$lib/player/AudioEngine";
 import { scrobbleTrack } from "$lib/api/SubsonicAPI";
 import { settings } from "$lib/stores/settings";
@@ -20,7 +20,8 @@ export interface PlayerState {
 function createPlayer() {
   let engine: AudioEngine | null = null;
   let streamBase = "";
-  let apiConfig: { server: string; username: string; password: string } | null = null;
+  let apiConfig: { server: string; username: string; password: string } | null =
+    null;
   let scrobbled = false;
 
   const { subscribe, set, update } = writable<PlayerState>({
@@ -36,7 +37,7 @@ function createPlayer() {
 
   function fireScrobble(id: string, submission: boolean, time?: number) {
     if (!apiConfig) return;
-    if (!settings.get().scrobbleEnabled) return;
+    if (!get(settings).scrobbleEnabled) return;
     scrobbleTrack({
       server: apiConfig.server,
       username: apiConfig.username,
@@ -52,7 +53,11 @@ function createPlayer() {
     setStreamBase(url: string) {
       streamBase = url;
     },
-    setApiConfig(config: { server: string; username: string; password: string }) {
+    setApiConfig(config: {
+      server: string;
+      username: string;
+      password: string;
+    }) {
       apiConfig = config;
     },
     playTrack(track: Song) {

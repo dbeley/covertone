@@ -6,6 +6,31 @@
   let tracks = $derived($queue.tracks);
   let currentIndex = $derived($queue.currentIndex);
 
+  let dragY = $state(0);
+  let dragging = $state(false);
+  let startY = $state(0);
+
+  function onTouchStart(e: TouchEvent) {
+    dragging = true;
+    startY = e.touches[0].clientY;
+    dragY = 0;
+  }
+
+  function onTouchMove(e: TouchEvent) {
+    if (!dragging) return;
+    const delta = e.touches[0].clientY - startY;
+    if (delta < 0) return;
+    dragY = Math.min(delta, window.innerHeight / 2);
+  }
+
+  function onTouchEnd() {
+    dragging = false;
+    if (dragY > 100) {
+      queueDrawerOpen.set(false);
+    }
+    dragY = 0;
+  }
+
   function formatDuration(seconds: number): string {
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60).toString().padStart(2, '0');
@@ -28,7 +53,15 @@
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick={() => queueDrawerOpen.set(false)}></div>
     <div
       class="relative w-full max-w-lg bg-surface border border-border border-b-0 rounded-t-2xl max-h-[70vh] flex flex-col animate-slide-up shadow-2xl shadow-black/20"
+      style="padding-bottom: env(safe-area-inset-bottom, 0px); transform: translateY({dragY}px); transition: {dragging ? 'none' : 'transform 0.3s ease-out'}"
       onclick={(e) => e.stopPropagation()}
+      ontouchstart={onTouchStart}
+      ontouchmove={onTouchMove}
+      ontouchend={onTouchEnd}
+      onkeydown={(e) => { if (e.key === 'Escape') queueDrawerOpen.set(false); }}
+      role="dialog"
+      aria-label="Queue"
+      tabindex="-1"
     >
       <div class="flex items-center justify-between px-5 py-4 border-b border-border">
         <h2 class="text-lg font-bold">Queue</h2>
