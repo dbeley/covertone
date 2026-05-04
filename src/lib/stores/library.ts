@@ -1,0 +1,67 @@
+import { writable } from 'svelte/store';
+import { SubsonicAPI } from '$lib/api/SubsonicAPI';
+import type { Album, Artist } from '$lib/api/types';
+
+export type AlbumListType = 'newest' | 'random' | 'frequent' | 'recent' | 'starred' | 'alphabeticalByName' | 'alphabeticalByArtist';
+
+export interface LibraryState {
+  initialized: boolean;
+  albums: Album[];
+  artists: Artist[];
+  loading: boolean;
+  currentAlbumListType: AlbumListType | null;
+  currentOffset: number;
+  hasMore: boolean;
+}
+
+interface InitConfig { server: string; username: string; password: string; }
+
+function createLibrary() {
+  let api: SubsonicAPI | null = null;
+
+  const { subscribe, set, update } = writable<LibraryState>({
+    initialized: false, albums: [], artists: [], loading: false,
+    currentAlbumListType: null, currentOffset: 0, hasMore: true,
+  });
+
+  return {
+    subscribe,
+    init(config: InitConfig) {
+      api = new SubsonicAPI({ ...config, clientName: 'covertone' });
+      set({ initialized: true, albums: [], artists: [], loading: false, currentAlbumListType: null, currentOffset: 0, hasMore: true });
+    },
+    async fetchAlbums(params: { type: AlbumListType; size?: number; offset?: number }) {
+      if (!api) return;
+      const size = params.size ?? 20;
+      const offset = params.offset ?? 0;
+      update(s => ({ ...s, loading: true, currentAlbumListType: params.type, currentOffset: offset }));
+      try {
+        const result = await api.getAlbumList({ type: params.type, size, offset });
+        const albums = result.album;
+        update(s => {
+          const isNewType = s.currentAlbumListType !== params.type;
+          const merged = isNewType || offset === 0 ? albums : [...s.albums, ...albums];
+          return { ...s, albums: merged, loading: false, hasMore: albums.length >= size };
+        });
+      } catch { update(s => ({ ...s, loading: false })); }
+    },
+    async fetchArtists() {
+      if (!api) return;
+      update(s => ({ ...s, loading: true }));
+      try {
+        const result = await api.getArtists();
+        const artists: Artist[] = [];
+        if (result.artists.index) {
+          for (const group of result.artists.index) artists.push(...group.artist);
+        }
+        update(s => ({ ...s, artists, loading: false }));
+      } catch { update(s => ({ ...s, loading: false })); }
+    },
+    reset() {
+      api = null;
+      set({ initialized: false, albums: [], artists: [], loading: false, currentAlbumListType: null, currentOffset: 0, hasMore: true });
+    },
+  };
+}
+
+export const library = createLibrary();
