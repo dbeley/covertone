@@ -54,40 +54,40 @@
 
 <div class="p-6">
   {#if !configured}
-    <div class="text-center py-16">
-      <h1 class="text-2xl font-bold mb-4">Welcome to Covertone</h1>
-      <p class="text-text-dim mb-6">Configure server in Settings</p>
+    <div class="text-center py-20">
+      <h1 class="text-3xl font-bold mb-4 tracking-tight">Welcome to Covertone</h1>
+      <p class="text-text-dim mb-8">Connect to your Subsonic server to get started</p>
       <button
-        class="px-6 py-2 bg-accent text-white rounded-full text-sm font-medium hover:opacity-90 transition-opacity"
+        class="px-6 py-3 bg-accent text-white rounded-xl text-sm font-medium hover:brightness-110 active:scale-[0.98] transition-all duration-150 shadow-lg shadow-accent/20"
         onclick={() => router.navigate('/settings')}
       >
-        Go to Settings
+        Configure Server
       </button>
     </div>
   {:else if loading}
     <p class="text-text-dim">Loading...</p>
   {:else}
     {#if recentAlbums.length > 0}
-      <section class="mb-8">
-        <h2 class="text-xl font-bold mb-4">Recently Played</h2>
+      <section class="mb-10">
+        <h2 class="text-xl font-bold mb-4 tracking-tight">Recently Played</h2>
         <AlbumGrid albums={recentAlbums} {serverUrl} {username} {password} />
       </section>
     {/if}
     {#if newestAlbums.length > 0}
-      <section class="mb-8">
-        <h2 class="text-xl font-bold mb-4">Recently Added</h2>
+      <section class="mb-10">
+        <h2 class="text-xl font-bold mb-4 tracking-tight">Recently Added</h2>
         <AlbumGrid albums={newestAlbums} {serverUrl} {username} {password} />
       </section>
     {/if}
     {#if randomAlbums.length > 0}
-      <section class="mb-8">
-        <h2 class="text-xl font-bold mb-4">Random Albums</h2>
+      <section class="mb-10">
+        <h2 class="text-xl font-bold mb-4 tracking-tight">Random Albums</h2>
         <AlbumGrid albums={randomAlbums} {serverUrl} {username} {password} />
       </section>
     {/if}
     {#if frequentAlbums.length > 0}
-      <section class="mb-8">
-        <h2 class="text-xl font-bold mb-4">Most Played</h2>
+      <section class="mb-10">
+        <h2 class="text-xl font-bold mb-4 tracking-tight">Most Played</h2>
         <AlbumGrid albums={frequentAlbums} {serverUrl} {username} {password} />
       </section>
     {/if}

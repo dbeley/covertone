@@ -58,9 +58,9 @@ export interface SimilarArtist {
 }
 
 export interface SearchResult {
-  artists?: Artist[];
-  albums?: Album[];
-  songs?: Song[];
+  artist?: Artist[];
+  album?: Album[];
+  song?: Song[];
 }
 
 export interface AlbumListResult {
@@ -104,11 +104,19 @@ export interface TopSongsResult {
   };
 }
 
-export interface DirectoryResult {
-  directory: {
+export interface AlbumResult {
+  album: {
     id: string;
     name: string;
-    child: Song[];
+    artist: string;
+    artistId: string;
+    coverArt: string;
+    songCount: number;
+    duration: number;
+    created: string;
+    year?: number;
+    genre?: string;
+    song: Song[];
   };
 }
 

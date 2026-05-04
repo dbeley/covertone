@@ -69,7 +69,8 @@ describe('NowPlayingView', () => {
     mockPlayerState.currentTrack = { title: 'Test Song', artist: 'Test Artist', album: 'Test Album', coverArt: '123' };
     render(NowPlayingView);
     expect(screen.getByText('Test Song')).toBeTruthy();
-    expect(screen.getByText('Test Artist · Test Album')).toBeTruthy();
+    expect(screen.getByText('Test Artist')).toBeTruthy();
+    expect(screen.getByText('Test Album')).toBeTruthy();
   });
 
   it('renders control buttons', () => {

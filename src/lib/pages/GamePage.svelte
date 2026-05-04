@@ -108,15 +108,15 @@
 </script>
 
 <div class="p-6">
-  <h2 class="text-2xl font-bold mb-4">Game</h2>
+  <h2 class="text-2xl font-bold mb-6 tracking-tight">Game</h2>
 
   {#if !configured}
     <p class="text-text-dim">Configure server in Settings to play</p>
   {:else if !gameStarted}
-    <div class="text-center py-16">
-      <p class="text-lg mb-6">Guess the artist from a random song</p>
+    <div class="text-center py-20">
+      <p class="text-lg mb-8 text-text-dim">Guess the artist from a random song</p>
       <button
-        class="px-6 py-3 bg-accent text-white rounded-full text-sm font-medium hover:opacity-90 transition-opacity"
+        class="px-6 py-3 bg-accent text-white rounded-xl text-sm font-medium hover:brightness-110 active:scale-[0.98] transition-all duration-150 shadow-lg shadow-accent/20"
         onclick={startGame}
       >
         Start Game
@@ -127,14 +127,14 @@
   {:else if error}
     <p class="text-red-500 mb-4">{error}</p>
     <button
-      class="px-4 py-2 bg-accent text-white rounded-full text-sm font-medium hover:opacity-90 transition-opacity"
+      class="px-4 py-2.5 bg-accent text-white rounded-xl text-sm font-medium hover:brightness-110 active:scale-[0.98] transition-all duration-150 shadow-lg shadow-accent/20"
       onclick={nextRound}
     >
       Try Again
     </button>
   {:else if currentSong}
     <div class="text-center mb-4">
-      <p class="text-xs text-text-dim">Round {round}</p>
+      <p class="text-xs text-text-dim uppercase tracking-widest font-medium">Round {round}</p>
       <p class="text-lg font-bold mt-1">Score: {score}</p>
     </div>
 
@@ -143,23 +143,23 @@
         <img
           src={coverUrl(currentSong)}
           alt=""
-          class="w-40 h-40 rounded-xl object-cover shadow-lg"
+          class="w-40 h-40 rounded-2xl object-cover shadow-xl shadow-black/10 ring-1 ring-border/50"
         />
       {/if}
-      <p class="text-xs text-text-dim uppercase tracking-wide">Now Playing</p>
+      <p class="text-xs text-text-dim uppercase tracking-widest font-medium">Now Playing</p>
     </div>
 
     <div class="grid grid-cols-2 gap-3 mb-6">
       {#each options as artist}
         <button
-          class="px-4 py-3 rounded-lg text-sm font-medium transition-colors border
+          class="px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150 border active:scale-[0.98]
                  {guessed
                    ? artist === correctArtist
-                     ? 'bg-green-500/20 border-green-500 text-green-500'
+                     ? 'bg-green-500/10 border-green-500/30 text-green-500'
                      : artist === guessedArtist
-                       ? 'bg-red-500/20 border-red-500 text-red-500'
-                       : 'bg-surface border-white/10 text-text-dim'
-                   : 'bg-surface border-white/10 hover:border-accent text-text hover:text-accent'}"
+                       ? 'bg-red-500/10 border-red-500/30 text-red-500'
+                       : 'bg-surface border-border text-text-dim'
+                   : 'bg-surface border-border hover:border-accent/30 hover:shadow-sm text-text'}"
           onclick={() => guess(artist)}
           disabled={guessed}
         >
@@ -184,13 +184,13 @@
 
       <div class="flex justify-center gap-4">
         <button
-          class="px-6 py-2 bg-accent text-white rounded-full text-sm font-medium hover:opacity-90 transition-opacity"
+          class="px-6 py-2.5 bg-accent text-white rounded-xl text-sm font-medium hover:brightness-110 active:scale-[0.98] transition-all duration-150 shadow-lg shadow-accent/20"
           onclick={nextRound}
         >
           Next
         </button>
         <button
-          class="px-6 py-2 bg-surface border border-white/10 text-text-dim rounded-full text-sm font-medium hover:text-text transition-colors"
+          class="px-6 py-2.5 bg-surface border border-border rounded-xl text-sm font-medium text-text-dim hover:text-text hover:border-accent/30 active:scale-[0.98] transition-all duration-150"
           onclick={endGame}
         >
           End Game

@@ -1,13 +1,19 @@
-import { writable } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
 import { SubsonicAPI } from '$lib/api/SubsonicAPI';
 import type { Album, Artist } from '$lib/api/types';
 
 export type AlbumListType = 'newest' | 'random' | 'frequent' | 'recent' | 'starred' | 'alphabeticalByName' | 'alphabeticalByArtist';
 
+export interface ArtistIndexGroup {
+  letter: string;
+  artists: Artist[];
+}
+
 export interface LibraryState {
   initialized: boolean;
   albums: Album[];
   artists: Artist[];
+  artistIndex: ArtistIndexGroup[];
   loading: boolean;
   currentAlbumListType: AlbumListType | null;
   currentOffset: number;
@@ -20,7 +26,7 @@ function createLibrary() {
   let api: SubsonicAPI | null = null;
 
   const { subscribe, set, update } = writable<LibraryState>({
-    initialized: false, albums: [], artists: [], loading: false,
+    initialized: false, albums: [], artists: [], artistIndex: [], loading: false,
     currentAlbumListType: null, currentOffset: 0, hasMore: true,
   });
 
@@ -28,7 +34,7 @@ function createLibrary() {
     subscribe,
     init(config: InitConfig) {
       api = new SubsonicAPI({ ...config, clientName: 'covertone' });
-      set({ initialized: true, albums: [], artists: [], loading: false, currentAlbumListType: null, currentOffset: 0, hasMore: true });
+      set({ initialized: true, albums: [], artists: [], artistIndex: [], loading: false, currentAlbumListType: null, currentOffset: 0, hasMore: true });
     },
     async fetchAlbums(params: { type: AlbumListType; size?: number; offset?: number }) {
       if (!api) return;
@@ -51,15 +57,19 @@ function createLibrary() {
       try {
         const result = await api.getArtists();
         const artists: Artist[] = [];
+        const artistIndex: ArtistIndexGroup[] = [];
         if (result.artists.index) {
-          for (const group of result.artists.index) artists.push(...group.artist);
+          for (const group of result.artists.index) {
+            artists.push(...group.artist);
+            artistIndex.push({ letter: group.name, artists: group.artist });
+          }
         }
-        update(s => ({ ...s, artists, loading: false }));
+        update(s => ({ ...s, artists, artistIndex, loading: false }));
       } catch { update(s => ({ ...s, loading: false })); }
     },
     reset() {
       api = null;
-      set({ initialized: false, albums: [], artists: [], loading: false, currentAlbumListType: null, currentOffset: 0, hasMore: true });
+      set({ initialized: false, albums: [], artists: [], artistIndex: [], loading: false, currentAlbumListType: null, currentOffset: 0, hasMore: true });
     },
   };
 }

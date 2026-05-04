@@ -3,7 +3,7 @@ import { ENDPOINTS } from './endpoints';
 import type {
   SubsonicResponse,
   AlbumListResult,
-  DirectoryResult,
+  AlbumResult,
   ArtistsResult,
   ArtistInfoResult,
   TopSongsResult,
@@ -115,8 +115,8 @@ export class SubsonicAPI {
     return data['subsonic-response'];
   }
 
-  async getAlbum(params: { id: string }): Promise<DirectoryResult> {
-    const data = await this.request<DirectoryResult>(ENDPOINTS.getAlbum, { id: params.id });
+  async getAlbum(params: { id: string }): Promise<AlbumResult> {
+    const data = await this.request<AlbumResult>(ENDPOINTS.getAlbum, { id: params.id });
     return data['subsonic-response'];
   }
 

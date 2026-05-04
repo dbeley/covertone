@@ -52,9 +52,9 @@
     try {
       const api = new SubsonicAPI({ server: serverUrl, username, password });
       const result = await api.search3({ query: q, artistCount: 10, albumCount: 10, songCount: 20 });
-      artists = result.searchResult3.artists ?? [];
-      albums = result.searchResult3.albums ?? [];
-      songs = result.searchResult3.songs ?? [];
+      artists = result.searchResult3.artist ?? [];
+      albums = result.searchResult3.album ?? [];
+      songs = result.searchResult3.song ?? [];
     } catch {
       artists = [];
       albums = [];
@@ -70,13 +70,13 @@
 </script>
 
 <div class="p-6">
-  <h2 class="text-2xl font-bold mb-4">Search</h2>
+  <h2 class="text-2xl font-bold mb-6 tracking-tight">Search</h2>
 
   <input
     type="text"
     placeholder="Search albums, artists, songs..."
     oninput={handleInput}
-    class="w-full px-4 py-3 bg-surface border border-white/10 rounded-lg text-sm focus:outline-none focus:border-accent transition-colors mb-6"
+    class="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150 mb-6"
   />
 
   {#if searching}
@@ -86,7 +86,7 @@
   {:else}
     {#if artists.length > 0}
       <section class="mb-8">
-        <h3 class="text-lg font-semibold mb-3">Artists</h3>
+        <h3 class="text-lg font-semibold mb-3 tracking-tight">Artists</h3>
         <div class="flex gap-4 overflow-x-auto pb-2">
           {#each artists as artist}
             <div
@@ -111,7 +111,7 @@
 
     {#if albums.length > 0}
       <section class="mb-8">
-        <h3 class="text-lg font-semibold mb-3">Albums</h3>
+        <h3 class="text-lg font-semibold mb-3 tracking-tight">Albums</h3>
         <div class="flex gap-4 overflow-x-auto pb-2">
           {#each albums as album}
             <div
@@ -137,11 +137,11 @@
 
     {#if songs.length > 0}
       <section>
-        <h3 class="text-lg font-semibold mb-3">Songs</h3>
+        <h3 class="text-lg font-semibold mb-3 tracking-tight">Songs</h3>
         <div class="space-y-1">
           {#each songs as song}
             <div
-              class="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer hover:bg-white/5 transition-colors"
+              class="flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer hover:bg-white/5 transition-colors"
               onclick={() => playSong(song)}
               role="button"
               tabindex="0"

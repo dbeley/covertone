@@ -35,13 +35,13 @@
 </script>
 
 <div class="p-6">
-  <h2 class="text-2xl font-bold mb-4">Albums</h2>
+  <h2 class="text-2xl font-bold mb-6 tracking-tight">Albums</h2>
 
   <div class="flex gap-2 mb-6">
     {#each tabs as tab}
       <button
-        class="px-4 py-2 rounded-full text-sm font-medium transition-colors
-               {activeTab === tab.type ? 'bg-accent text-white' : 'text-text-dim hover:text-text'}"
+        class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150 border border-border
+               {activeTab === tab.type ? 'bg-accent text-white border-accent shadow-sm shadow-accent/20' : 'text-text-dim hover:text-text hover:border-accent/30'}"
         onclick={() => switchTab(tab.type)}
       >
         {tab.label}

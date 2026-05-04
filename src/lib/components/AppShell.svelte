@@ -36,9 +36,9 @@
       role="presentation"
     ></div>
     <NavBar mobileOpen={menuOpen} onNavigate={closeMenu} />
-    <main class="flex-1 overflow-y-auto">
+    <main class="flex-1 overflow-y-auto pt-12 md:pt-0">
       <button
-        class="md:hidden fixed top-3 left-3 z-30 p-2 rounded-lg bg-surface border border-white/10 hover:border-accent transition-colors"
+        class="md:hidden fixed top-3 left-3 z-30 p-2.5 rounded-xl bg-surface/90 backdrop-blur border border-border shadow-lg hover:border-accent/30 transition-all duration-150 active:scale-95"
         onclick={() => { menuOpen = !menuOpen; }}
         aria-label="Toggle menu"
       >

@@ -28,15 +28,15 @@
 </script>
 
 {#if open}
-  <div class="fixed inset-0 z-50 flex items-end justify-center" onclick={onClose}>
-    <div class="absolute inset-0 bg-black/50" onclick={onClose}></div>
+  <div class="fixed inset-0 z-50 flex items-end justify-center animate-fade-in">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick={onClose}></div>
     <div
-      class="relative w-full max-w-lg bg-surface rounded-t-2xl max-h-[70vh] flex flex-col animate-slide-up"
+      class="relative w-full max-w-lg bg-surface border border-border border-b-0 rounded-t-2xl max-h-[70vh] flex flex-col animate-slide-up shadow-2xl shadow-black/20"
       onclick={(e) => e.stopPropagation()}
     >
-      <div class="flex items-center justify-between px-4 py-3 border-b border-white/5">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-border">
         <h2 class="text-lg font-bold">Queue</h2>
-        <button class="p-1 hover:text-accent transition-colors" onclick={onClose} aria-label="Close queue">
+        <button class="p-2 rounded-xl hover:bg-white/5 text-text-dim hover:text-text transition-all duration-150 active:scale-90" onclick={onClose} aria-label="Close queue">
           <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
             <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
             <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
@@ -50,7 +50,7 @@
         {:else}
           {#each tracks as track, index}
             <div
-              class="flex items-center gap-3 px-4 py-2 cursor-pointer hover:bg-white/5 transition-colors {index === currentIndex ? 'bg-accent/10' : ''}"
+              class="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0 {index === currentIndex ? 'bg-accent/5' : ''}"
               onclick={() => handleTrackClick(track)}
               role="button"
               tabindex="0"
@@ -68,7 +68,7 @@
               </div>
               <span class="text-xs text-text-dim w-10 text-right shrink-0">{formatDuration(track.duration)}</span>
               <button
-                class="p-1 hover:text-red-500 transition-colors shrink-0"
+                class="p-1.5 rounded-lg hover:bg-red-500/10 hover:text-red-400 transition-all duration-150 shrink-0"
                 onclick={(e) => handleRemove(index, e)}
                 aria-label="Remove from queue"
               >

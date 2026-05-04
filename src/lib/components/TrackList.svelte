@@ -1,6 +1,7 @@
 <script lang="ts">
   import { player } from '$lib/stores/player';
   import { queue } from '$lib/stores/queue';
+  import { router } from '$lib/stores/router';
   import type { Song } from '$lib/api/types';
 
   let { songs }: { songs: Song[] } = $props();
@@ -45,10 +46,10 @@
   <div class="fixed inset-0 z-40" onclick={handleBackdropClick} onkeydown={() => {}} role="presentation"></div>
 {/if}
 
-<div class="w-full">
+<div class="w-full border border-border rounded-xl overflow-hidden bg-surface/50">
   {#each songs as song, index}
     <div
-      class="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer hover:bg-white/5 transition-colors group relative"
+      class="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors group relative border-b border-border/50 last:border-b-0"
       onclick={() => handleRowClick(song)}
       onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleRowClick(song); }}
       role="button"
@@ -64,7 +65,9 @@
       </span>
       <div class="flex-1 min-w-0">
         <div class="text-sm font-medium truncate">{song.title}</div>
-        <div class="text-xs text-text-dim truncate">{song.artist}</div>
+        <div class="text-xs text-text-dim truncate">
+          <button class="hover:text-accent hover:underline transition-colors" onclick={(e) => { e.stopPropagation(); router.navigate(`artist/${song.artistId}`); }}>{song.artist}</button>
+        </div>
       </div>
       <span class="text-xs text-text-dim w-10 text-right">{formatDuration(song.duration)}</span>
       <button
@@ -82,20 +85,20 @@
 
       {#if contextMenuIndex === index}
         <div
-          class="absolute right-0 top-full mt-1 bg-surface border border-white/10 rounded-lg shadow-xl z-50 py-1 min-w-36"
+          class="absolute right-2 top-full mt-1 bg-surface border border-border rounded-xl shadow-xl shadow-black/10 z-50 py-1 min-w-36 animate-scale-in"
           onclick={(e) => e.stopPropagation()}
           onkeydown={() => {}}
           role="menu"
           tabindex="-1"
         >
           <button
-            class="w-full text-left px-3 py-2 text-sm hover:bg-white/5 transition-colors"
+            class="w-full text-left px-3 py-2 text-sm hover:bg-accent/5 transition-colors rounded-lg"
             onclick={() => handlePlayNext(song)}
           >
             Play Next
           </button>
           <button
-            class="w-full text-left px-3 py-2 text-sm hover:bg-white/5 transition-colors"
+            class="w-full text-left px-3 py-2 text-sm hover:bg-accent/5 transition-colors rounded-lg"
             onclick={() => handleAddToEnd(song)}
           >
             Add to End

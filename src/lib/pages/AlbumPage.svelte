@@ -36,7 +36,8 @@
     try {
       const api = new SubsonicAPI({ server: $settings.serverUrl, username: $settings.username, password: $settings.password });
       const data = await api.getAlbum({ id: albumId });
-      songs = data.directory.child;
+      album = { id: data.album.id, name: data.album.name, artist: data.album.artist, artistId: data.album.artistId, coverArt: data.album.coverArt, songCount: data.album.songCount, duration: data.album.duration, year: data.album.year, genre: data.album.genre };
+      songs = data.album.song;
     } catch (e) {
       error = (e as Error).message;
     }
@@ -49,21 +50,21 @@
     <p class="text-text-dim">Loading...</p>
   {:else if error}
     <p class="text-red-500">{error}</p>
-  {:else if songs.length > 0}
-    <div class="flex items-start gap-6 mb-8">
-      <img src={coverArtUrl} alt="" class="w-48 h-48 rounded-xl object-cover shadow-lg" />
+  {:else if album && songs.length > 0}
+    <div class="flex flex-col sm:flex-row items-start gap-6 mb-8">
+      <img src={coverArtUrl} alt="" class="w-48 h-48 rounded-2xl object-cover shadow-xl shadow-black/10 ring-1 ring-border/50" />
       <div class="flex flex-col justify-center gap-2">
-        <p class="text-xs text-text-dim uppercase tracking-wide">Album</p>
-        <h1 class="text-2xl font-bold">{songs[0].album}</h1>
+        <p class="text-xs text-text-dim uppercase tracking-widest font-medium">Album</p>
+        <h1 class="text-2xl font-bold tracking-tight">{album.name}</h1>
         <p class="text-sm text-text-dim">
-          {songs[0].artist}
-          {#if songs[0].year} · {songs[0].year}{/if}
-          {#if songs[0].genre} · {songs[0].genre}{/if}
+          <button class="hover:text-accent hover:underline transition-colors" onclick={() => router.navigate(`artist/${album.artistId}`)}>{album.artist}</button>
+          {#if album.year} · {album.year}{/if}
+          {#if album.genre} · {album.genre}{/if}
           · {songs.length} tracks
           · {formatDuration(songs.reduce((acc, s) => acc + s.duration, 0))}
         </p>
         <button
-          class="mt-2 px-4 py-2 bg-accent text-white rounded-full text-sm font-medium hover:opacity-90 transition-opacity self-start"
+          class="mt-2 px-5 py-2.5 bg-accent text-white rounded-xl text-sm font-medium hover:brightness-110 active:scale-[0.98] transition-all duration-150 self-start shadow-lg shadow-accent/20"
           onclick={() => { queue.replaceAll(songs); player.playTrack(songs[0]); }}
         >
           Play All

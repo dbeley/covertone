@@ -83,11 +83,11 @@
   {:else if error && !artist}
     <p class="text-red-500">{error}</p>
   {:else if artist}
-    <div class="flex items-start gap-6 mb-8">
-      <img src={coverArtUrl} alt="" class="w-48 h-48 rounded-full object-cover shadow-lg" />
+    <div class="flex flex-col sm:flex-row items-start gap-6 mb-8">
+      <img src={coverArtUrl} alt="" class="w-48 h-48 rounded-full object-cover shadow-xl shadow-black/10 ring-1 ring-border/50" />
       <div class="flex flex-col justify-center gap-1">
-        <p class="text-xs text-text-dim uppercase tracking-wide">Artist</p>
-        <h1 class="text-2xl font-bold">{artist.name}</h1>
+        <p class="text-xs text-text-dim uppercase tracking-widest font-medium">Artist</p>
+        <h1 class="text-2xl font-bold tracking-tight">{artist.name}</h1>
         {#if artist.albumCount}
           <p class="text-sm text-text-dim">{artist.albumCount} albums</p>
         {/if}
@@ -96,8 +96,8 @@
 
     {#if biography}
       <div class="mb-8">
-        <h2 class="text-lg font-semibold mb-2">Biography</h2>
-        <p class="text-sm text-text-dim leading-relaxed whitespace-pre-line">
+        <h2 class="text-lg font-semibold mb-3 tracking-tight">Biography</h2>
+        <p class="text-sm text-text-dim leading-relaxed whitespace-pre-line bg-surface/50 border border-border rounded-xl p-4">
           {biography.slice(0, 1000)}{biography.length > 1000 ? '...' : ''}
         </p>
       </div>
@@ -105,11 +105,11 @@
 
     {#if topSongs.length > 0}
       <div class="mb-8">
-        <h2 class="text-lg font-semibold mb-3">Top Tracks</h2>
-        <div class="space-y-1">
+        <h2 class="text-lg font-semibold mb-3 tracking-tight">Top Tracks</h2>
+        <div class="border border-border rounded-xl overflow-hidden bg-surface/50">
           {#each topSongs as song, index}
             <div
-              class="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer hover:bg-white/5 transition-colors"
+              class="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0"
               onclick={() => player.playTrack(song)}
               role="button"
               tabindex="0"
@@ -128,14 +128,14 @@
 
     {#if albums.length > 0}
       <div class="mb-8">
-        <h2 class="text-lg font-semibold mb-3">Albums</h2>
+        <h2 class="text-lg font-semibold mb-3 tracking-tight">Albums</h2>
         <AlbumGrid {albums} {serverUrl} {username} {password} />
       </div>
     {/if}
 
     {#if similarArtists.length > 0}
       <div class="mb-8">
-        <h2 class="text-lg font-semibold mb-3">Similar Artists</h2>
+        <h2 class="text-lg font-semibold mb-3 tracking-tight">Similar Artists</h2>
         <div class="flex gap-4 overflow-x-auto pb-2">
           {#each similarArtists as sArtist}
             <ArtistCard

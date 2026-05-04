@@ -22,6 +22,7 @@
           ];
           JAVA_HOME = "${pkgs.jdk21.home}";
           shellHook = ''
+            export PATH="$PWD/node_modules/.bin:$PATH"
             echo "covertone dev shell"
             echo "  pnpm dev   - start dev server"
             echo "  pnpm test  - run tests"

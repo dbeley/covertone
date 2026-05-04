@@ -1,6 +1,7 @@
 <script lang="ts">
   import { player } from '$lib/stores/player';
   import { queue } from '$lib/stores/queue';
+  import { router } from '$lib/stores/router';
   import { settings } from '$lib/stores/settings';
   import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
 
@@ -62,8 +63,15 @@
   }
 </script>
 
-<div class="fixed inset-0 bg-bg z-50 flex flex-col">
-  <button class="p-4 self-start hover:text-accent transition-colors" onclick={onClose} aria-label="Close">
+<div class="fixed inset-0 z-50 flex flex-col bg-bg/95 backdrop-blur-xl">
+  {#if currentTrack?.coverArt}
+    <div class="absolute inset-0 overflow-hidden">
+      <img src={coverArtUrl} alt="" class="w-full h-full object-cover blur-3xl scale-150 opacity-30" />
+    </div>
+    <div class="absolute inset-0 bg-gradient-to-b from-bg/40 via-bg/80 to-bg"></div>
+  {/if}
+  <div class="relative z-10 flex flex-col h-full">
+    <button class="p-4 self-start rounded-xl hover:bg-white/5 text-text-dim hover:text-text transition-all duration-150 active:scale-90" onclick={onClose} aria-label="Close">
     <svg viewBox="0 0 24 24" class="w-6 h-6 fill-current">
       <polyline points="6,15 12,9 18,15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
@@ -74,12 +82,18 @@
       <img
         src={coverArtUrl}
         alt={currentTrack.title}
-        class="w-64 h-64 rounded-xl object-cover shadow-2xl"
+        class="w-64 h-64 rounded-2xl object-cover shadow-2xl shadow-black/20 ring-1 ring-border/50"
       />
 
       <div class="text-center">
         <h1 class="text-xl font-bold">{currentTrack.title}</h1>
-        <p class="text-sm text-text-dim mt-1">{currentTrack.artist}{currentTrack.album ? ` · ${currentTrack.album}` : ''}</p>
+        <p class="text-sm text-text-dim mt-1">
+          <button class="hover:text-accent hover:underline transition-colors" onclick={(e) => { e.stopPropagation(); router.navigate(`artist/${currentTrack.artistId}`); }}>{currentTrack.artist}</button>
+          {#if currentTrack.album}
+            {` · `}
+            <button class="hover:text-accent hover:underline transition-colors" onclick={(e) => { e.stopPropagation(); router.navigate(`album/${currentTrack.albumId}`); }}>{currentTrack.album}</button>
+          {/if}
+        </p>
       </div>
 
       <div class="w-full max-w-md flex flex-col gap-2">
@@ -99,7 +113,7 @@
 
       <div class="flex items-center gap-4">
         <button
-          class="p-2 transition-colors {shuffle ? 'text-accent' : 'text-text-dim hover:text-text'}"
+          class="p-2.5 rounded-xl transition-all duration-150 active:scale-90 {shuffle ? 'bg-accent/10 text-accent' : 'text-text-dim hover:text-text hover:bg-white/5'}"
           onclick={toggleShuffle}
           aria-label="Shuffle"
         >
@@ -112,7 +126,7 @@
         </button>
 
         <button
-          class="p-2 transition-colors text-text-dim hover:text-text"
+          class="p-2.5 rounded-xl transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
           onclick={handlePrev}
           aria-label="Previous"
         >
@@ -123,7 +137,7 @@
         </button>
 
         <button
-          class="p-4 bg-text text-bg rounded-full hover:opacity-90 transition-opacity"
+          class="p-4 bg-text text-bg rounded-full hover:scale-105 active:scale-95 transition-all duration-150 shadow-lg shadow-black/10"
           onclick={() => player.togglePlay()}
           aria-label={status === 'playing' ? 'Pause' : 'Play'}
         >
@@ -140,7 +154,7 @@
         </button>
 
         <button
-          class="p-2 transition-colors text-text-dim hover:text-text"
+          class="p-2.5 rounded-xl transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
           onclick={handleNext}
           aria-label="Next"
         >
@@ -151,7 +165,7 @@
         </button>
 
         <button
-          class="p-2 transition-colors {repeating ? 'text-accent' : 'text-text-dim hover:text-text'}"
+          class="p-2.5 rounded-xl transition-all duration-150 active:scale-90 {repeating ? 'bg-accent/10 text-accent' : 'text-text-dim hover:text-text hover:bg-white/5'}"
           onclick={toggleRepeat}
           aria-label="Repeat"
         >
@@ -166,7 +180,7 @@
 
       <div class="flex items-center gap-6">
         <button
-          class="p-2 transition-colors {favorited ? 'text-accent' : 'text-text-dim hover:text-text'}"
+          class="p-2.5 rounded-xl transition-all duration-150 active:scale-90 {favorited ? 'text-accent' : 'text-text-dim hover:text-text hover:bg-white/5'}"
           onclick={toggleFavorite}
           aria-label="Favorite"
         >
@@ -176,7 +190,7 @@
         </button>
 
         <button
-          class="p-2 transition-colors text-text-dim hover:text-text"
+          class="p-2.5 rounded-xl transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
           onclick={onQueueOpen}
           aria-label="Queue"
         >
@@ -190,5 +204,6 @@
     {:else}
       <p class="text-text-dim">Nothing playing</p>
     {/if}
+    </div>
   </div>
 </div>
