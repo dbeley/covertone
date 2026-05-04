@@ -57,9 +57,9 @@
         <p class="text-xs text-text-dim uppercase tracking-widest font-medium">Album</p>
         <h1 class="text-2xl font-bold tracking-tight">{album.name}</h1>
         <p class="text-sm text-text-dim">
-          <button class="hover:text-accent hover:underline transition-colors" onclick={() => router.navigate(`artist/${album.artistId}`)}>{album.artist}</button>
-          {#if album.year} · {album.year}{/if}
-          {#if album.genre} · {album.genre}{/if}
+          <button class="hover:text-accent hover:underline transition-colors" onclick={() => router.navigate(`artist/${album!.artistId}`)}>{album!.artist}</button>
+          {#if album!.year} · {album!.year}{/if}
+          {#if album!.genre} · {album!.genre}{/if}
           · {songs.length} tracks
           · {formatDuration(songs.reduce((acc, s) => acc + s.duration, 0))}
         </p>

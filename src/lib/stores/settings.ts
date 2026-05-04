@@ -1,7 +1,7 @@
-import { writable } from 'svelte/store';
+import { writable } from "svelte/store";
 
-export type Theme = 'system' | 'light' | 'dark' | 'amoled';
-export type AppliedTheme = 'light' | 'dark' | 'amoled';
+export type Theme = "system" | "light" | "dark" | "amoled";
+export type AppliedTheme = "light" | "dark" | "amoled";
 
 export interface SettingsState {
   theme: Theme;
@@ -12,14 +12,17 @@ export interface SettingsState {
   isConfigured: boolean;
 }
 
-const STORAGE_KEY = 'covertone-settings';
+const STORAGE_KEY = "covertone-settings";
 
 function resolveAppliedTheme(theme: Theme): AppliedTheme {
-  if (theme === 'system') {
-    if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
-      return 'dark';
+  if (theme === "system") {
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-color-scheme: dark)").matches
+    ) {
+      return "dark";
     }
-    return 'light';
+    return "light";
   }
   return theme as AppliedTheme;
 }
@@ -28,66 +31,95 @@ function loadPersisted(): Partial<SettingsState> {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) return JSON.parse(stored);
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return {};
 }
 
 function persist(state: Partial<SettingsState>): void {
   try {
-    const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}');
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...existing, ...state }));
-  } catch { /* ignore */ }
+    const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ ...existing, ...state }),
+    );
+  } catch {
+    /* ignore */
+  }
 }
 
 function createSettings() {
   const persisted = loadPersisted();
-  const theme = (persisted.theme as Theme) ?? 'system';
+  const theme = (persisted.theme as Theme) ?? "system";
 
   const { subscribe, set, update } = writable<SettingsState>({
     theme,
     appliedTheme: resolveAppliedTheme(theme),
-    serverUrl: persisted.serverUrl ?? '',
-    username: persisted.username ?? '',
-    password: persisted.password ?? '',
+    serverUrl: persisted.serverUrl ?? "",
+    username: persisted.username ?? "",
+    password: persisted.password ?? "",
     isConfigured: !!(persisted.serverUrl && persisted.username),
   });
 
   return {
     subscribe,
     setTheme(theme: Theme) {
-      update(state => {
-        const next = { ...state, theme, appliedTheme: resolveAppliedTheme(theme) };
+      update((state) => {
+        const next = {
+          ...state,
+          theme,
+          appliedTheme: resolveAppliedTheme(theme),
+        };
         persist({ theme });
         return next;
       });
     },
-    setServerConfig(config: { server: string; username: string; password: string }) {
-      update(state => {
-        const next = { ...state, serverUrl: config.server, username: config.username, password: config.password, isConfigured: !!(config.server && config.username) };
-        persist({ serverUrl: config.server, username: config.username, password: config.password });
+    setServerConfig(config: {
+      server: string;
+      username: string;
+      password: string;
+    }) {
+      update((state) => {
+        const next = {
+          ...state,
+          serverUrl: config.server,
+          username: config.username,
+          password: config.password,
+          isConfigured: !!(config.server && config.username),
+        };
+        persist({
+          serverUrl: config.server,
+          username: config.username,
+          password: config.password,
+        });
         return next;
       });
     },
     reset() {
-      try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch {
+        /* ignore */
+      }
       set({
-        theme: 'system',
-        appliedTheme: resolveAppliedTheme('system'),
-        serverUrl: '',
-        username: '',
-        password: '',
+        theme: "system",
+        appliedTheme: resolveAppliedTheme("system"),
+        serverUrl: "",
+        username: "",
+        password: "",
         isConfigured: false,
       });
     },
     reload() {
       const persisted = loadPersisted();
-      const theme = (persisted.theme as Theme) ?? 'system';
+      const theme = (persisted.theme as Theme) ?? "system";
       set({
         theme,
         appliedTheme: resolveAppliedTheme(theme),
-        serverUrl: persisted.serverUrl ?? '',
-        username: persisted.username ?? '',
-        password: persisted.password ?? '',
+        serverUrl: persisted.serverUrl ?? "",
+        username: persisted.username ?? "",
+        password: persisted.password ?? "",
         isConfigured: !!(persisted.serverUrl && persisted.username),
       });
     },

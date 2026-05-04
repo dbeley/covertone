@@ -32,8 +32,6 @@
   let durationMinutes = $derived(Math.floor(duration / 60));
   let durationSeconds = $derived(Math.floor(duration % 60).toString().padStart(2, '0'));
 
-  let seekPercent = $derived(duration > 0 ? (currentTime / duration) * 100 : 0);
-
   function handleSeek(e: Event) {
     const target = e.target as HTMLInputElement;
     const time = parseFloat(target.value);
@@ -90,7 +88,7 @@
         <p class="text-sm text-text-dim mt-1">
           <button class="hover:text-accent hover:underline transition-colors" onclick={(e) => { e.stopPropagation(); router.navigate(`artist/${currentTrack.artistId}`); }}>{currentTrack.artist}</button>
           {#if currentTrack.album}
-            {` · `}
+             · 
             <button class="hover:text-accent hover:underline transition-colors" onclick={(e) => { e.stopPropagation(); router.navigate(`album/${currentTrack.albumId}`); }}>{currentTrack.album}</button>
           {/if}
         </p>

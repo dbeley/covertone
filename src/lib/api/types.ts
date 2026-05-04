@@ -70,8 +70,8 @@ export interface AlbumListResult {
 }
 
 export interface SubsonicResponse<T> {
-  'subsonic-response': {
-    status: 'ok' | 'failed';
+  "subsonic-response": {
+    status: "ok" | "failed";
     version: string;
     error?: {
       code: number;

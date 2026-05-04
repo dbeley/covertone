@@ -24,9 +24,9 @@ export class AudioEngine {
 
   constructor() {
     this.audio = new Audio();
-    this.audio.addEventListener('timeupdate', this.handleTimeUpdate);
-    this.audio.addEventListener('ended', this.handleEnded);
-    this.audio.addEventListener('loadedmetadata', this.handleLoaded);
+    this.audio.addEventListener("timeupdate", this.handleTimeUpdate);
+    this.audio.addEventListener("ended", this.handleEnded);
+    this.audio.addEventListener("loadedmetadata", this.handleLoaded);
   }
 
   load(url: string): void {
@@ -84,10 +84,10 @@ export class AudioEngine {
 
   destroy(): void {
     this.audio.pause();
-    this.audio.src = '';
-    this.audio.removeEventListener('timeupdate', this.handleTimeUpdate);
-    this.audio.removeEventListener('ended', this.handleEnded);
-    this.audio.removeEventListener('loadedmetadata', this.handleLoaded);
+    this.audio.src = "";
+    this.audio.removeEventListener("timeupdate", this.handleTimeUpdate);
+    this.audio.removeEventListener("ended", this.handleEnded);
+    this.audio.removeEventListener("loadedmetadata", this.handleLoaded);
     this.onTimeUpdateCb = null;
     this.onEndedCb = null;
     this.onLoadedCb = null;

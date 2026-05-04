@@ -107,7 +107,7 @@
       <div class="mb-8">
         <h2 class="text-lg font-semibold mb-3 tracking-tight">Top Tracks</h2>
         <div class="border border-border rounded-xl overflow-hidden bg-surface/50">
-          {#each topSongs as song, index}
+          {#each topSongs as song, index (song.id)}
             <div
               class="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0"
               onclick={() => player.playTrack(song)}
@@ -137,7 +137,7 @@
       <div class="mb-8">
         <h2 class="text-lg font-semibold mb-3 tracking-tight">Similar Artists</h2>
         <div class="flex gap-4 overflow-x-auto pb-2">
-          {#each similarArtists as sArtist}
+          {#each similarArtists as sArtist (sArtist.id)}
             <ArtistCard
               artist={{
                 id: sArtist.id,

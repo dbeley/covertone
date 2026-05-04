@@ -113,7 +113,7 @@
   <section class="mb-8">
     <h3 class="text-lg font-semibold mb-4 tracking-tight">Theme</h3>
     <div class="flex gap-2">
-      {#each themes as t}
+      {#each themes as t (t.value)}
         <button
           class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150 border border-border
                  {theme === t.value ? 'bg-accent text-white border-accent shadow-sm shadow-accent/20' : 'text-text-dim hover:text-text hover:border-accent/30'}"

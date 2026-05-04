@@ -27,7 +27,7 @@
          {mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}"
 >
   <h1 class="text-lg font-bold px-3 py-2.5 mb-4 text-accent tracking-tight">Covertone</h1>
-  {#each navItems as item}
+  {#each navItems as item (item.path)}
     <button
       class="w-full text-left px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150
              {currentPath === item.path ? 'bg-accent/10 text-accent ring-1 ring-accent/20' : 'text-text-dim hover:text-text hover:bg-white/5'}"

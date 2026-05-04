@@ -56,21 +56,23 @@
       currentSong = allSongData[0];
       correctArtist = currentSong.artist;
 
-      const artistOptions = new Set<string>();
-      artistOptions.add(correctArtist);
+      const artistOptions: string[] = [];
+      artistOptions.push(correctArtist);
 
-      for (let i = 1; i < allSongData.length && artistOptions.size < 4; i++) {
-        artistOptions.add(allSongData[i].artist);
+      for (let i = 1; i < allSongData.length && artistOptions.length < 4; i++) {
+        if (!artistOptions.includes(allSongData[i].artist)) {
+          artistOptions.push(allSongData[i].artist);
+        }
       }
 
       const fallbacks = ['Radiohead', 'The Beatles', 'Miles Davis', 'John Coltrane', 'Aphex Twin', 'Kraftwerk', 'Bjork', 'Pink Floyd'];
-      while (artistOptions.size < 4) {
-        const fb = fallbacks.find(f => !artistOptions.has(f));
-        if (fb) artistOptions.add(fb);
+      while (artistOptions.length < 4) {
+        const fb = fallbacks.find(f => !artistOptions.includes(f));
+        if (fb) artistOptions.push(fb);
         else break;
       }
 
-      options = [...artistOptions].sort(() => Math.random() - 0.5);
+      options = artistOptions.sort(() => Math.random() - 0.5);
       round++;
 
       if (currentSong) {
@@ -150,7 +152,7 @@
     </div>
 
     <div class="grid grid-cols-2 gap-3 mb-6">
-      {#each options as artist}
+      {#each options as artist (artist)}
         <button
           class="px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150 border active:scale-[0.98]
                  {guessed

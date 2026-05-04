@@ -1,5 +1,5 @@
-import type { SubsonicAPI } from '$lib/api/SubsonicAPI';
-import type { Song } from '$lib/api/types';
+import type { SubsonicAPI } from "$lib/api/SubsonicAPI";
+import type { Song } from "$lib/api/types";
 
 export class AutoDJ {
   private api: SubsonicAPI;

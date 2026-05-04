@@ -1,8 +1,8 @@
-import { writable } from 'svelte/store';
-import { AudioEngine } from '$lib/player/AudioEngine';
-import type { Song } from '$lib/api/types';
+import { writable } from "svelte/store";
+import { AudioEngine } from "$lib/player/AudioEngine";
+import type { Song } from "$lib/api/types";
 
-export type PlayerStatus = 'idle' | 'loading' | 'playing' | 'paused';
+export type PlayerStatus = "idle" | "loading" | "playing" | "paused";
 
 export interface PlayerState {
   status: PlayerStatus;
@@ -17,10 +17,10 @@ export interface PlayerState {
 
 function createPlayer() {
   let engine: AudioEngine | null = null;
-  let streamBase = '';
+  let streamBase = "";
 
   const { subscribe, set, update } = writable<PlayerState>({
-    status: 'idle',
+    status: "idle",
     currentTrack: null,
     currentTime: 0,
     duration: 0,
@@ -40,29 +40,29 @@ function createPlayer() {
       engine = new AudioEngine();
 
       engine.onTimeUpdate(() => {
-        update(s => ({ ...s, currentTime: engine!.getCurrentTime() }));
+        update((s) => ({ ...s, currentTime: engine!.getCurrentTime() }));
       });
       engine.onEnded(() => {
-        update(s => ({ ...s, status: 'idle' }));
+        update((s) => ({ ...s, status: "idle" }));
       });
       engine.onLoaded((duration) => {
-        update(s => ({ ...s, duration, status: 'playing' }));
+        update((s) => ({ ...s, duration, status: "playing" }));
       });
 
-      update(s => ({ ...s, currentTrack: track, status: 'loading' }));
+      update((s) => ({ ...s, currentTrack: track, status: "loading" }));
       engine.load(`${streamBase}${track.id}`);
       engine.play();
     },
     pause() {
       if (engine) {
         engine.pause();
-        update(s => ({ ...s, status: 'paused' }));
+        update((s) => ({ ...s, status: "paused" }));
       }
     },
     resume() {
       if (engine) {
         engine.play();
-        update(s => ({ ...s, status: 'playing' }));
+        update((s) => ({ ...s, status: "playing" }));
       }
     },
     togglePlay() {
@@ -78,9 +78,9 @@ function createPlayer() {
         engine.destroy();
         engine = null;
       }
-      update(s => ({
+      update((s) => ({
         ...s,
-        status: 'idle',
+        status: "idle",
         currentTrack: null,
         currentTime: 0,
         duration: 0,
@@ -91,16 +91,16 @@ function createPlayer() {
     },
     setVolume(volume: number) {
       if (engine) engine.setVolume(volume);
-      update(s => ({ ...s, volume }));
+      update((s) => ({ ...s, volume }));
     },
     setRepeating(repeating: boolean) {
-      update(s => ({ ...s, repeating }));
+      update((s) => ({ ...s, repeating }));
     },
     setShuffle(shuffle: boolean) {
-      update(s => ({ ...s, shuffle }));
+      update((s) => ({ ...s, shuffle }));
     },
     setFavorited(favorited: boolean) {
-      update(s => ({ ...s, favorited }));
+      update((s) => ({ ...s, favorited }));
     },
     reset() {
       if (engine) {
@@ -108,7 +108,7 @@ function createPlayer() {
         engine = null;
       }
       set({
-        status: 'idle',
+        status: "idle",
         currentTrack: null,
         currentTime: 0,
         duration: 0,

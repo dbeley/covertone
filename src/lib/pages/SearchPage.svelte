@@ -88,7 +88,7 @@
       <section class="mb-8">
         <h3 class="text-lg font-semibold mb-3 tracking-tight">Artists</h3>
         <div class="flex gap-4 overflow-x-auto pb-2">
-          {#each artists as artist}
+          {#each artists as artist (artist.id)}
             <div
               class="cursor-pointer group flex flex-col items-center gap-2 text-center shrink-0"
               onclick={() => router.navigate(`artist/${artist.id}`)}
@@ -113,7 +113,7 @@
       <section class="mb-8">
         <h3 class="text-lg font-semibold mb-3 tracking-tight">Albums</h3>
         <div class="flex gap-4 overflow-x-auto pb-2">
-          {#each albums as album}
+          {#each albums as album (album.id)}
             <div
               class="cursor-pointer group shrink-0"
               onclick={() => router.navigate(`album/${album.id}`)}
@@ -139,7 +139,7 @@
       <section>
         <h3 class="text-lg font-semibold mb-3 tracking-tight">Songs</h3>
         <div class="space-y-1">
-          {#each songs as song}
+          {#each songs as song (song.id)}
             <div
               class="flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer hover:bg-white/5 transition-colors"
               onclick={() => playSong(song)}

@@ -48,7 +48,7 @@
         {#if tracks.length === 0}
           <p class="text-sm text-text-dim text-center py-8">Queue is empty</p>
         {:else}
-          {#each tracks as track, index}
+          {#each tracks as track, index (track.id)}
             <div
               class="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0 {index === currentIndex ? 'bg-accent/5' : ''}"
               onclick={() => handleTrackClick(track)}

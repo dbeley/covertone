@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { library, type ArtistIndexGroup } from '$lib/stores/library';
+  import { library } from '$lib/stores/library';
   import { settings } from '$lib/stores/settings';
   import { router } from '$lib/stores/router';
   import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
@@ -81,11 +81,11 @@
   {:else if filteredIndex.length > 0}
     <div class="flex-1 flex min-h-0">
       <div class="flex-1 overflow-y-auto pr-2" id="artist-scroll-container">
-        {#each filteredIndex as group}
+        {#each filteredIndex as group (group.letter)}
           <div id="letter-{group.letter}" class="mb-8">
             <h3 class="text-lg font-semibold mb-3 tracking-tight text-accent sticky top-0 bg-bg/90 backdrop-blur-sm py-1 z-10">{group.letter}</h3>
             <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
-              {#each group.artists as artist}
+              {#each group.artists as artist (artist.id)}
                 <div
                   class="cursor-pointer group flex flex-col items-center gap-1.5 text-center transition-all duration-200 active:scale-95"
                   onclick={() => router.navigate(`artist/${artist.id}`)}
@@ -110,7 +110,7 @@
 
       {#if availableLetters.length > 1}
         <nav class="hidden md:flex flex-col gap-0.5 items-center px-1.5 py-1 overflow-y-auto shrink-0 text-[11px] font-medium text-text-dim">
-          {#each availableLetters as letter}
+          {#each availableLetters as letter (letter)}
             <button
               class="w-6 h-5 flex items-center justify-center rounded hover:bg-accent/10 hover:text-accent transition-colors"
               onclick={() => scrollToLetter(letter)}

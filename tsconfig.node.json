@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
+    "composite": true,
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
-    "noEmit": true,
     "esModuleInterop": true,
     "skipLibCheck": true
   },
-  "include": ["vite.config.ts", "vitest.config.ts", "svelte.config.js"]
+  "include": ["vite.config.ts", "vitest.config.ts", "svelte.config.js", "eslint.config.js"]
 }

@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { writable } from "svelte/store";
 
 export interface Route {
   path: string;
@@ -7,9 +7,9 @@ export interface Route {
 }
 
 function parseRoute(hash: string): Route {
-  let path = hash.startsWith('#') ? hash.slice(1) : hash;
-  if (!path) path = '/';
-  if (!path.startsWith('/')) path = '/' + path;
+  let path = hash.startsWith("#") ? hash.slice(1) : hash;
+  if (!path) path = "/";
+  if (!path.startsWith("/")) path = "/" + path;
 
   const params: Record<string, string> = {};
 
@@ -17,12 +17,12 @@ function parseRoute(hash: string): Route {
     path,
     params,
     matches(pattern: string): boolean {
-      const patternParts = pattern.split('/').filter(Boolean);
-      const pathParts = path.split('/').filter(Boolean);
+      const patternParts = pattern.split("/").filter(Boolean);
+      const pathParts = path.split("/").filter(Boolean);
       if (patternParts.length !== pathParts.length) return false;
       const extracted: Record<string, string> = {};
       for (let i = 0; i < patternParts.length; i++) {
-        if (patternParts[i].startsWith(':')) {
+        if (patternParts[i].startsWith(":")) {
           extracted[patternParts[i].slice(1)] = pathParts[i];
           continue;
         }
@@ -36,24 +36,28 @@ function parseRoute(hash: string): Route {
 }
 
 function createRouter() {
-  const getHash = () => typeof window !== 'undefined' ? window.location.hash : '';
+  const getHash = () =>
+    typeof window !== "undefined" ? window.location.hash : "";
   const { subscribe, set } = writable<Route>(parseRoute(getHash()));
   let cleanup: (() => void) | undefined;
 
   return {
     subscribe,
     reset() {
-      if (cleanup) { cleanup(); cleanup = undefined; }
+      if (cleanup) {
+        cleanup();
+        cleanup = undefined;
+      }
       const route = parseRoute(getHash());
       set(route);
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         const handler = () => set(parseRoute(getHash()));
-        window.addEventListener('hashchange', handler);
-        cleanup = () => window.removeEventListener('hashchange', handler);
+        window.addEventListener("hashchange", handler);
+        cleanup = () => window.removeEventListener("hashchange", handler);
       }
     },
     navigate(path: string) {
-      window.location.hash = '#' + path;
+      window.location.hash = "#" + path;
     },
   };
 }
