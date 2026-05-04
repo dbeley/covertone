@@ -4,3 +4,5 @@ dist/
 android-sdk/
 *.log
 .DS_Store
+.direnv/
+docs/

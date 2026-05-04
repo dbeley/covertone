@@ -2,7 +2,7 @@
   import { router } from '$lib/stores/router';
   import { player } from '$lib/stores/player';
   import { settings } from '$lib/stores/settings';
-  import { SubsonicAPI } from '$lib/api/SubsonicAPI';
+  import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import type { Artist, Album, Song } from '$lib/api/types';
 
   let serverUrl = $derived($settings.serverUrl);
@@ -20,7 +20,7 @@
 
   function coverUrl(id: string, size: number): string {
     if (!id) return '';
-    return `${serverUrl.replace(/\/$/, '')}/rest/getCoverArt?id=${id}&size=${size}&u=${username}`;
+    return getCoverArtUrl({ server: serverUrl, username, password, id, size });
   }
 
   function formatDuration(seconds: number): string {

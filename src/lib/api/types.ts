@@ -64,7 +64,7 @@ export interface SearchResult {
 }
 
 export interface AlbumListResult {
-  albumList: {
+  albumList2: {
     album: Album[];
   };
 }

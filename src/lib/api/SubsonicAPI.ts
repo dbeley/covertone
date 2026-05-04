@@ -184,3 +184,25 @@ export class SubsonicAPI {
     await this.request(ENDPOINTS.unstar, params);
   }
 }
+
+export function getCoverArtUrl(config: { server: string; username: string; password: string; id: string; size?: number }): string {
+  const server = config.server.replace(/\/$/, '');
+  const salt = Math.random().toString(36).substring(2, 12);
+  const token = md5(config.password + salt);
+  const params = new URLSearchParams({
+    u: config.username, t: token, s: salt, v: '1.16.1', c: 'covertone', f: 'json',
+    id: config.id,
+  });
+  if (config.size) params.set('size', String(config.size));
+  return `${server}/rest/getCoverArt?${params.toString()}`;
+}
+
+export function getStreamBaseUrl(config: { server: string; username: string; password: string }): string {
+  const server = config.server.replace(/\/$/, '');
+  const salt = Math.random().toString(36).substring(2, 12);
+  const token = md5(config.password + salt);
+  const params = new URLSearchParams({
+    u: config.username, t: token, s: salt, v: '1.16.1', c: 'covertone', f: 'json',
+  });
+  return `${server}/rest/stream?${params.toString()}&id=`;
+}

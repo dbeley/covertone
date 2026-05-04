@@ -3,25 +3,28 @@
   import { library } from '$lib/stores/library';
   import { settings } from '$lib/stores/settings';
   import { router } from '$lib/stores/router';
+  import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import type { Artist } from '$lib/api/types';
 
   let serverUrl = $derived($settings.serverUrl);
   let username = $derived($settings.username);
+  let password = $derived($settings.password);
   let configured = $derived($settings.isConfigured);
   let libInitialized = $derived($library.initialized);
 
   let artists = $derived($library.artists);
   let loading = $derived($library.loading);
 
-  function artistCoverUrl(artist: Artist): string {
-    if (!artist.coverArt) return '';
-    return `${serverUrl.replace(/\/$/, '')}/rest/getCoverArt?id=${artist.coverArt}&size=200&u=${username}`;
+  function artistImageUrl(artist: Artist): string {
+    if (artist.artistImageUrl) return artist.artistImageUrl;
+    if (artist.coverArt) return getCoverArtUrl({ server: serverUrl, username, password, id: artist.coverArt, size: 200 });
+    return '';
   }
 
   onMount(() => {
     if (!configured) return;
     if (!libInitialized) {
-      library.init({ server: serverUrl, username, password: $settings.password });
+      library.init({ server: serverUrl, username, password });
     }
     library.fetchArtists();
   });
@@ -43,7 +46,7 @@
         >
           <div class="w-24 h-24 rounded-full overflow-hidden">
             <img
-              src={artistCoverUrl(artist)}
+              src={artistImageUrl(artist)}
               alt={artist.name}
               class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             />

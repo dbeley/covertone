@@ -1,5 +1,6 @@
 <script lang="ts">
   import AlbumCard from './AlbumCard.svelte';
+  import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import type { Album } from '$lib/api/types';
 
   let { albums, serverUrl, username, password }: {
@@ -11,7 +12,7 @@
 
   function coverUrl(album: Album): string {
     if (!album.coverArt) return '';
-    return `${serverUrl.replace(/\/$/, '')}/rest/getCoverArt?id=${album.coverArt}&size=256&u=${username}`;
+    return getCoverArtUrl({ server: serverUrl, username, password, id: album.coverArt, size: 256 });
   }
 </script>
 

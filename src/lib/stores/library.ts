@@ -37,7 +37,7 @@ function createLibrary() {
       update(s => ({ ...s, loading: true, currentAlbumListType: params.type, currentOffset: offset }));
       try {
         const result = await api.getAlbumList({ type: params.type, size, offset });
-        const albums = result.album;
+        const albums = result.albumList2.album;
         update(s => {
           const isNewType = s.currentAlbumListType !== params.type;
           const merged = isNewType || offset === 0 ? albums : [...s.albums, ...albums];

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { player } from '$lib/stores/player';
   import { settings } from '$lib/stores/settings';
+  import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
 
   let { onExpand = () => {}, onQueueOpen = () => {} } = $props<{
     onExpand?: () => void;
@@ -10,9 +11,11 @@
   let status = $derived($player.status);
   let currentTrack = $derived($player.currentTrack);
   let serverUrl = $derived($settings.serverUrl);
+  let username = $derived($settings.username);
+  let password = $derived($settings.password);
   let coverArtUrl = $derived(
     currentTrack?.coverArt
-      ? `${serverUrl.replace(/\/$/, '')}/rest/getCoverArt?id=${currentTrack.coverArt}&size=80`
+      ? getCoverArtUrl({ server: serverUrl, username, password, id: currentTrack.coverArt, size: 80 })
       : ''
   );
 </script>

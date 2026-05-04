@@ -22,7 +22,7 @@
   async function fetchSection(api: SubsonicAPI, type: string): Promise<Album[]> {
     try {
       const result = await api.getAlbumList({ type, size: 12 });
-      return result.album;
+      return result.albumList2.album;
     } catch {
       return [];
     }

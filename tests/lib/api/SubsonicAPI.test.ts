@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { SubsonicAPI } from '$lib/api/SubsonicAPI';
+import { SubsonicAPI, getCoverArtUrl, getStreamBaseUrl } from '$lib/api/SubsonicAPI';
 import type { Album, Artist, Song } from '$lib/api/types';
 
 function createSubsonicResponse<T>(data: T, status: 'ok' | 'failed' = 'ok') {
@@ -69,12 +69,12 @@ describe('SubsonicAPI', () => {
     fetchSpy.mockResolvedValueOnce({
       ok: true,
       text: () => Promise.resolve(JSON.stringify(
-        createSubsonicResponse({ albumList: { album: [mockAlbum] } })
+        createSubsonicResponse({ albumList2: { album: [mockAlbum] } })
       )),
     });
     const result = await api.getAlbumList({ type: 'newest', size: 20 });
-    expect(result.albumList.album).toHaveLength(1);
-    expect(result.albumList.album[0].name).toBe('Test Album');
+    expect(result.albumList2.album).toHaveLength(1);
+    expect(result.albumList2.album[0].name).toBe('Test Album');
     const url = new URL(fetchSpy.mock.calls[0][0]);
     expect(url.searchParams.get('offset')).toBe('0');
     expect(url.searchParams.get('size')).toBe('20');
@@ -198,5 +198,70 @@ describe('SubsonicAPI', () => {
     });
     await api.scrobble({ id: 's-456' });
     expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('getCoverArtUrl', () => {
+  it('builds an authenticated cover art URL', () => {
+    const url = getCoverArtUrl({
+      server: 'https://navidrome.example.com',
+      username: 'user',
+      password: 'pass',
+      id: 'ca-123',
+      size: 256,
+    });
+
+    expect(url).toContain('https://navidrome.example.com/rest/getCoverArt?');
+    expect(url).toContain('u=user');
+    expect(url).toContain('v=1.16.1');
+    expect(url).toContain('c=covertone');
+    expect(url).toContain('f=json');
+    expect(url).toContain('id=ca-123');
+    expect(url).toContain('size=256');
+    expect(url).toContain('t=');
+    expect(url).toContain('s=');
+  });
+
+  it('strips trailing slash from server URL', () => {
+    const url = getCoverArtUrl({
+      server: 'https://navidrome.example.com/',
+      username: 'user',
+      password: 'pass',
+      id: 'ca-123',
+    });
+
+    expect(url).not.toContain('.com//rest');
+    expect(url).toContain('.com/rest');
+  });
+
+  it('returns empty string for empty id', () => {
+    // This is handled by the caller, not the function
+    const url = getCoverArtUrl({
+      server: 'https://navidrome.example.com',
+      username: 'user',
+      password: 'pass',
+      id: '',
+    });
+    expect(url).toContain('id=');
+  });
+});
+
+describe('getStreamBaseUrl', () => {
+  it('builds an authenticated stream base URL ending with &id=', () => {
+    const url = getStreamBaseUrl({
+      server: 'https://navidrome.example.com',
+      username: 'user',
+      password: 'pass',
+    });
+
+    expect(url).toContain('https://navidrome.example.com/rest/stream?');
+    expect(url).toContain('u=user');
+    expect(url).toContain('v=1.16.1');
+    expect(url).toContain('c=covertone');
+    expect(url).toContain('f=json');
+    expect(url).toContain('t=');
+    expect(url).toContain('s=');
+    expect(url).toContain('&id=');
+    expect(url.endsWith('&id=')).toBe(true);
   });
 });

@@ -9,10 +9,12 @@
   let username = $state('');
   let password = $state('');
   let connectionStatus = $state<'idle' | 'testing' | 'success' | 'error'>('idle');
+  let saveStatus = $state<'idle' | 'saved'>('idle');
 
   $effect(() => {
     server = $settings.serverUrl;
     username = $settings.username;
+    password = $settings.password;
   });
 
   const themes: { label: string; value: Theme }[] = [
@@ -39,6 +41,8 @@
 
   function saveConfig() {
     settings.setServerConfig({ server, username, password });
+    saveStatus = 'saved';
+    setTimeout(() => { saveStatus = 'idle'; }, 2000);
   }
 </script>
 
@@ -92,12 +96,17 @@
         {/if}
       </div>
 
-      <button
-        class="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
-        onclick={saveConfig}
-      >
-        Save
-      </button>
+      <div class="flex items-center gap-3">
+        <button
+          class="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+          onclick={saveConfig}
+        >
+          Save
+        </button>
+        {#if saveStatus === 'saved'}
+          <span class="text-green-500 text-sm">Saved</span>
+        {/if}
+      </div>
     </div>
   </section>
 

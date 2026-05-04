@@ -4,7 +4,7 @@
   import { player } from '$lib/stores/player';
   import { queue } from '$lib/stores/queue';
   import { settings } from '$lib/stores/settings';
-  import { SubsonicAPI } from '$lib/api/SubsonicAPI';
+  import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import TrackList from '$lib/components/TrackList.svelte';
   import type { Song, Album } from '$lib/api/types';
 
@@ -21,7 +21,7 @@
 
   let coverArtUrl = $derived(
     album?.coverArt
-      ? `${serverUrl.replace(/\/$/, '')}/rest/getCoverArt?id=${album.coverArt}&size=192&u=${username}`
+      ? getCoverArtUrl({ server: serverUrl, username, password, id: album.coverArt, size: 192 })
       : ''
   );
 

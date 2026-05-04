@@ -1,7 +1,7 @@
 <script lang="ts">
   import { player } from '$lib/stores/player';
   import { settings } from '$lib/stores/settings';
-  import { SubsonicAPI } from '$lib/api/SubsonicAPI';
+  import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import type { Song } from '$lib/api/types';
 
   let serverUrl = $derived($settings.serverUrl);
@@ -25,7 +25,7 @@
 
   function coverUrl(song: Song): string {
     if (!song.coverArt) return '';
-    return `${serverUrl.replace(/\/$/, '')}/rest/getCoverArt?id=${song.coverArt}&size=192&u=${username}`;
+    return getCoverArtUrl({ server: serverUrl, username, password, id: song.coverArt, size: 192 });
   }
 
   async function startGame() {
@@ -43,7 +43,7 @@
     error = '';
 
     try {
-      const api = new SubsonicAPI({ server: serverUrl, username, password });
+      const api = new SubsonicAPI({ server: serverUrl, username, password }, 10000);
       const result = await api.getRandomSongs({ size: 4 });
 
       if (!result.randomSongs?.song || result.randomSongs.song.length < 2) {
@@ -77,7 +77,10 @@
         player.playTrack(currentSong);
       }
     } catch (e) {
-      error = (e as Error).message;
+      const msg = e instanceof Error ? e.message : String(e);
+      error = e instanceof DOMException && e.name === 'AbortError'
+        ? `Request timed out. Check if "${serverUrl}" is reachable.`
+        : msg;
     }
 
     loading = false;

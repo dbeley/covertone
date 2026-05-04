@@ -17,7 +17,7 @@ describe('library store', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockApi = {
-      getAlbumList: vi.fn().mockResolvedValue({ album: [mockAlbum] }),
+      getAlbumList: vi.fn().mockResolvedValue({ albumList2: { album: [mockAlbum] } }),
       getAlbum: vi.fn().mockResolvedValue({ directory: { id: '1', name: 'Album', child: [] } }),
       getArtists: vi.fn().mockResolvedValue({ artists: { index: [{ name: 'A', artist: [{ id: 'a1', name: 'Artist', albumCount: 3 }] }] } }),
     };
@@ -42,10 +42,10 @@ describe('library store', () => {
 
   it('fetchAlbums appends on subsequent calls', async () => {
     library.init({ server: 'https://example.com', username: 'u', password: 'p' });
-    mockApi.getAlbumList.mockResolvedValueOnce({ album: [mockAlbum] });
+    mockApi.getAlbumList.mockResolvedValueOnce({ albumList2: { album: [mockAlbum] } });
     await library.fetchAlbums({ type: 'newest' });
     const album2 = { ...mockAlbum, id: '2', name: 'Album 2' };
-    mockApi.getAlbumList.mockResolvedValueOnce({ album: [album2] });
+    mockApi.getAlbumList.mockResolvedValueOnce({ albumList2: { album: [album2] } });
     await library.fetchAlbums({ type: 'newest', offset: 1 });
     const state = get(library);
     expect(state.albums).toHaveLength(2);
@@ -55,7 +55,7 @@ describe('library store', () => {
     library.init({ server: 'https://example.com', username: 'u', password: 'p' });
     await library.fetchAlbums({ type: 'newest' });
     const album2 = { ...mockAlbum, id: '2', name: 'Album 2' };
-    mockApi.getAlbumList.mockResolvedValueOnce({ album: [album2] });
+    mockApi.getAlbumList.mockResolvedValueOnce({ albumList2: { album: [album2] } });
     await library.fetchAlbums({ type: 'random' });
     const state = get(library);
     expect(state.albums).toHaveLength(1);

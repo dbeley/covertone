@@ -3,7 +3,7 @@
   import { router } from '$lib/stores/router';
   import { player } from '$lib/stores/player';
   import { settings } from '$lib/stores/settings';
-  import { SubsonicAPI } from '$lib/api/SubsonicAPI';
+  import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import AlbumGrid from '$lib/components/AlbumGrid.svelte';
   import ArtistCard from '$lib/components/ArtistCard.svelte';
   import type { Song, Artist, Album } from '$lib/api/types';
@@ -24,7 +24,7 @@
 
   let coverArtUrl = $derived(
     artist?.coverArt
-      ? `${serverUrl.replace(/\/$/, '')}/rest/getCoverArt?id=${artist.coverArt}&size=192&u=${username}`
+      ? getCoverArtUrl({ server: serverUrl, username, password, id: artist.coverArt, size: 192 })
       : ''
   );
 
@@ -144,9 +144,7 @@
                 name: sArtist.name,
                 coverArt: sArtist.artistImageUrl,
               }}
-              coverArtUrl={sArtist.artistImageUrl
-                ? `${serverUrl.replace(/\/$/, '')}/rest/getCoverArt?id=${sArtist.artistImageUrl}&size=128&u=${username}`
-                : ''}
+              coverArtUrl={sArtist.artistImageUrl ?? ''}
             />
           {/each}
         </div>
