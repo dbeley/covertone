@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { router } from '$lib/stores/router';
   import { player } from '$lib/stores/player';
   import { queue } from '$lib/stores/queue';
@@ -31,17 +30,35 @@
     return `${m}:${s}`;
   }
 
-  onMount(async () => {
+  $effect(() => {
     if (!$settings.isConfigured) { loading = false; return; }
-    try {
-      const api = new SubsonicAPI({ server: $settings.serverUrl, username: $settings.username, password: $settings.password });
-      const data = await api.getAlbum({ id: albumId });
-      album = { id: data.album.id, name: data.album.name, artist: data.album.artist, artistId: data.album.artistId, coverArt: data.album.coverArt, songCount: data.album.songCount, duration: data.album.duration, year: data.album.year, genre: data.album.genre };
-      songs = data.album.song;
-    } catch (e) {
-      error = (e as Error).message;
-    }
-    loading = false;
+
+    const id = albumId;
+    const srv = serverUrl;
+    const usr = username;
+    const pwd = password;
+
+    loading = true;
+    error = '';
+    album = null;
+    songs = [];
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const api = new SubsonicAPI({ server: srv, username: usr, password: pwd });
+        const data = await api.getAlbum({ id });
+        if (cancelled) return;
+        album = { id: data.album.id, name: data.album.name, artist: data.album.artist, artistId: data.album.artistId, coverArt: data.album.coverArt, songCount: data.album.songCount, duration: data.album.duration, year: data.album.year, genre: data.album.genre };
+        songs = data.album.song;
+      } catch (e) {
+        if (!cancelled) error = (e as Error).message;
+      }
+      if (!cancelled) loading = false;
+    })();
+
+    return () => { cancelled = true; };
   });
 </script>
 

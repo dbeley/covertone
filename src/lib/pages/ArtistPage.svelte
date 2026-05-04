@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { router } from '$lib/stores/router';
   import { player } from '$lib/stores/player';
   import { settings } from '$lib/stores/settings';
@@ -33,46 +32,68 @@
     return `${m}:${s}`;
   }
 
-  onMount(async () => {
+  $effect(() => {
     if (!$settings.isConfigured) { loading = false; return; }
 
-    const api = new SubsonicAPI({ server: $settings.serverUrl, username: $settings.username, password: $settings.password });
+    const id = artistId;
+    const srv = serverUrl;
+    const usr = username;
+    const pwd = password;
 
-    try {
-      const artistData = await api.getArtist({ id: artistId });
-      artist = {
-        id: artistData.artist.id,
-        name: artistData.artist.name,
-        coverArt: artistData.artist.album?.[0]?.coverArt,
-        albumCount: artistData.artist.album?.length ?? 0,
-      };
-      albums = artistData.artist.album.map(a => ({
-        ...a,
-        artistId: artistId,
-        artist: artistData.artist.name,
-        songCount: 0,
-        duration: 0,
-      }));
-    } catch (e) {
-      error = (e as Error).message;
-    }
+    loading = true;
+    error = '';
+    artist = null;
+    topSongs = [];
+    biography = '';
+    albums = [];
+    similarArtists = [];
 
-    try {
-      const topData = await api.getTopSongs({ artist: artist?.name ?? '' });
-      topSongs = topData.topSongs.song.slice(0, 10);
-    } catch { /* ignore */ }
+    let cancelled = false;
 
-    try {
-      const infoData = await api.getArtistInfo({ id: artistId });
-      biography = infoData.artistInfo2.biography ?? '';
-      similarArtists = (infoData.artistInfo2.similarArtist ?? []).map(s => ({
-        id: s.id,
-        name: s.name,
-        artistImageUrl: s.artistImageUrl,
-      }));
-    } catch { /* ignore */ }
+    (async () => {
+      const api = new SubsonicAPI({ server: srv, username: usr, password: pwd });
 
-    loading = false;
+      try {
+        const artistData = await api.getArtist({ id });
+        if (cancelled) return;
+        artist = {
+          id: artistData.artist.id,
+          name: artistData.artist.name,
+          coverArt: artistData.artist.album?.[0]?.coverArt,
+          albumCount: artistData.artist.album?.length ?? 0,
+        };
+        albums = artistData.artist.album.map(a => ({
+          ...a,
+          artistId: id,
+          artist: artistData.artist.name,
+          songCount: 0,
+          duration: 0,
+        }));
+      } catch (e) {
+        if (!cancelled) error = (e as Error).message;
+      }
+
+      try {
+        const topData = await api.getTopSongs({ artist: artist?.name ?? '' });
+        if (!cancelled) topSongs = topData.topSongs.song.slice(0, 10);
+      } catch { /* ignore */ }
+
+      try {
+        const infoData = await api.getArtistInfo({ id });
+        if (!cancelled) {
+          biography = infoData.artistInfo2.biography ?? '';
+          similarArtists = (infoData.artistInfo2.similarArtist ?? []).map(s => ({
+            id: s.id,
+            name: s.name,
+            artistImageUrl: s.artistImageUrl,
+          }));
+        }
+      } catch { /* ignore */ }
+
+      if (!cancelled) loading = false;
+    })();
+
+    return () => { cancelled = true; };
   });
 </script>
 
@@ -137,22 +158,20 @@
         <h2 class="text-lg font-semibold mb-3 tracking-tight">Similar Artists</h2>
         <div class="flex gap-4 overflow-x-auto pb-2">
           {#each similarArtists as sArtist (sArtist.id)}
-            <div
-              class="cursor-pointer group flex flex-col items-center gap-2 text-center shrink-0 transition-all duration-200 active:scale-95"
-              onclick={() => router.navigate(`artist/${sArtist.id}`)}
-              role="button"
-              tabindex="0"
-              onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.navigate(`artist/${sArtist.id}`); } }}
+            <a
+              href="#artist/{encodeURIComponent(sArtist.id)}"
+              class="cursor-pointer group flex flex-col items-center gap-1.5 text-center shrink-0 no-underline transition-all duration-200 active:scale-95"
             >
-              <div class="w-24 h-24 rounded-full overflow-hidden ring-1 ring-border group-hover:ring-accent/30 transition-all duration-300">
+              <div class="w-24 h-24 rounded-full overflow-hidden ring-1 ring-border group-hover:ring-accent/30 transition-all duration-300 bg-surface">
                 <img
                   src={sArtist.artistImageUrl ?? ''}
                   alt={sArtist.name}
+                  loading="lazy"
                   class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
-              <p class="text-sm font-medium truncate w-24 text-text group-hover:text-accent transition-colors">{sArtist.name}</p>
-            </div>
+              <span class="text-sm font-medium truncate w-24 text-text group-hover:text-accent transition-colors">{sArtist.name}</span>
+            </a>
           {/each}
         </div>
       </div>
