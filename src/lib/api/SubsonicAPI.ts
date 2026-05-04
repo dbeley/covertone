@@ -1,3 +1,4 @@
+import md5 from 'md5';
 import { ENDPOINTS } from './endpoints';
 import type {
   SubsonicResponse,
@@ -40,14 +41,7 @@ export class SubsonicAPI {
   }
 
   private generateToken(password: string, salt: string): string {
-    let str = password + salt;
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash |= 0;
-    }
-    return Math.abs(hash).toString(16);
+    return md5(password + salt);
   }
 
   private buildUrlParams(endpoint: string, params: RequestParams = {}): URLSearchParams {
