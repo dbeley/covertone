@@ -23,6 +23,8 @@
             patchelf
             shellcheck
             statix
+            git
+            gh
           ];
 
           JAVA_HOME = "${pkgs.jdk21.home}";

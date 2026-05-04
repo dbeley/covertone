@@ -5,11 +5,13 @@ import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  base: process.env.BASE_URL || './',
   plugins: [
     tailwindcss(),
     svelte(),
     VitePWA({
       registerType: 'autoUpdate',
+      base: process.env.BASE_URL || '/',
       manifest: {
         name: 'Covertone',
         short_name: 'Covertone',
