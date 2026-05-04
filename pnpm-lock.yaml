@@ -17,6 +17,9 @@ importers:
       '@capacitor/core':
         specifier: ^8.3.1
         version: 8.3.1
+      '@capacitor/ios':
+        specifier: ^8.3.1
+        version: 8.3.1(@capacitor/core@8.3.1)
       md5:
         specifier: ^2.3.0
         version: 2.3.0
@@ -603,6 +606,11 @@ packages:
 
   '@capacitor/core@8.3.1':
     resolution: {integrity: sha512-UF8ItlHguU1Z6GXfPTeT2gakf+ctNI8pAS1kwSBQlsJMlfD4OPoto/SmKnOxKCQvnF4WRcdWeg6C0zREUNaAQg==}
+
+  '@capacitor/ios@8.3.1':
+    resolution: {integrity: sha512-BEhLyYYHWJLib4mpaPMaaylbC8meqgxbNYwQJH2svsSLW7yo/hFie+Zoo66a44XnqcMd2tvmAuzimWunXZi/xA==}
+    peerDependencies:
+      '@capacitor/core': ^8.3.0
 
   '@csstools/color-helpers@5.1.0':
     resolution: {integrity: sha512-S11EXWJyy0Mz5SYvRmY8nJYTFFd1LCNV+7cXyAgQtOOuzb4EsgfqDufL+9esx72/eLhsRdGZwaldu/h+E4t4BA==}
@@ -3966,6 +3974,10 @@ snapshots:
   '@capacitor/core@8.3.1':
     dependencies:
       tslib: 2.8.1
+
+  '@capacitor/ios@8.3.1(@capacitor/core@8.3.1)':
+    dependencies:
+      '@capacitor/core': 8.3.1
 
   '@csstools/color-helpers@5.1.0': {}
 

@@ -1,0 +1,11 @@
+node_modules
+dist
+android
+.git
+.env
+.envrc
+*.md
+docs
+.superpowers
+tests
+.github

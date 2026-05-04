@@ -27,13 +27,16 @@
           shellHook = ''
             export PATH="$PWD/node_modules/.bin:$PATH"
             echo "covertone dev shell"
-            echo "  pnpm dev         - start dev server"
-            echo "  pnpm test        - run tests"
-            echo "  pnpm build       - production build"
-            echo "  pnpm lint        - ESLint + Prettier + svelte-check"
-            echo "  pnpm format      - auto-format code"
-            echo "  pnpm typecheck   - Svelte type checking"
-            echo "  pnpm apk         - build Android APK"
+            echo "  pnpm dev            - start dev server"
+            echo "  pnpm test           - run tests"
+            echo "  pnpm build          - production build"
+            echo "  pnpm lint           - lint all"
+            echo "  pnpm format         - auto-format"
+            echo "  pnpm typecheck      - Svelte type check"
+            echo "  pnpm android:build  - Android debug APK"
+            echo "  pnpm android:release- Android release APK"
+            echo "  pnpm docker:build   - Docker image"
+            echo "  sh build-apk.sh     - APK (NixOS patched)"
           '';
         };
       }

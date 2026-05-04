@@ -10,7 +10,16 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "android:build": "pnpm build && pnpm exec cap sync && cd android && ./gradlew assembleDebug -Pandroid.aapt2FromMavenOverride=$ANDROID_HOME/build-tools/36.0.0/aapt2",
-    "android:open": "pnpm build && pnpm exec cap sync && pnpm exec cap open android",
+    "android:release": "pnpm build && pnpm exec cap sync && cd android && ./gradlew assembleRelease -Pandroid.aapt2FromMavenOverride=$ANDROID_HOME/build-tools/36.0.0/aapt2",
+    "android:bundle": "pnpm build && pnpm exec cap sync && cd android && ./gradlew bundleRelease -Pandroid.aapt2FromMavenOverride=$ANDROID_HOME/build-tools/36.0.0/aapt2",
+    "android:open": "pnpm exec cap open android",
+    "ios:add": "pnpm exec cap add ios",
+    "ios:sync": "pnpm exec cap sync ios",
+    "ios:open": "pnpm exec cap open ios",
+    "ios:build": "pnpm build && pnpm exec cap sync ios && cd ios && xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' build 2>&1 || echo 'iOS builds require macOS with Xcode'",
+    "icons:generate": "pnpm exec cap add android 2>/dev/null; pnpm exec cap sync 2>/dev/null; echo 'Run cap sync to regenerate platform resources'",
+    "docker:build": "docker build -t covertone:latest .",
+    "docker:run": "docker run -p 8080:80 covertone:latest",
     "lint": "prettier --check src/ && eslint src/ && pnpm exec svelte-check",
     "format": "prettier --write src/",
     "typecheck": "pnpm exec svelte-check",
@@ -43,6 +52,7 @@
     "@capacitor/android": "^8.3.1",
     "@capacitor/cli": "^8.3.1",
     "@capacitor/core": "^8.3.1",
+    "@capacitor/ios": "^8.3.1",
     "md5": "^2.3.0"
   }
 }
