@@ -2,6 +2,8 @@ import { writable } from "svelte/store";
 import type { Song } from "$lib/api/types";
 import type { AutoDJ } from "$lib/player/AutoDJ";
 
+export const queueDrawerOpen = writable(false);
+
 export interface QueueState {
   tracks: Song[];
   currentIndex: number;
@@ -61,6 +63,12 @@ function createQueue() {
         hasPrevious: false,
       };
       set(recomputeDerived(next));
+    },
+    playIndex(index: number) {
+      update((s) => {
+        if (index < 0 || index >= s.tracks.length) return s;
+        return recomputeDerived({ ...s, currentIndex: index });
+      });
     },
     removeTrack(index: number) {
       update((s) => {

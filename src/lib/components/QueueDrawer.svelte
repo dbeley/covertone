@@ -1,12 +1,7 @@
 <script lang="ts">
   import { player } from '$lib/stores/player';
-  import { queue } from '$lib/stores/queue';
+  import { queue, queueDrawerOpen } from '$lib/stores/queue';
   import type { Song } from '$lib/api/types';
-
-  let { open = false, onClose = () => {} } = $props<{
-    open?: boolean;
-    onClose?: () => void;
-  }>();
 
   let tracks = $derived($queue.tracks);
   let currentIndex = $derived($queue.currentIndex);
@@ -17,7 +12,8 @@
     return `${m}:${s}`;
   }
 
-  function handleTrackClick(track: Song) {
+  function handleTrackClick(track: Song, index: number) {
+    queue.playIndex(index);
     player.playTrack(track);
   }
 
@@ -27,16 +23,16 @@
   }
 </script>
 
-{#if open}
+{#if $queueDrawerOpen}
   <div class="fixed inset-0 z-50 flex items-end justify-center animate-fade-in">
-    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick={onClose}></div>
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick={() => queueDrawerOpen.set(false)}></div>
     <div
       class="relative w-full max-w-lg bg-surface border border-border border-b-0 rounded-t-2xl max-h-[70vh] flex flex-col animate-slide-up shadow-2xl shadow-black/20"
       onclick={(e) => e.stopPropagation()}
     >
       <div class="flex items-center justify-between px-5 py-4 border-b border-border">
         <h2 class="text-lg font-bold">Queue</h2>
-        <button class="p-2 rounded-xl hover:bg-white/5 text-text-dim hover:text-text transition-all duration-150 active:scale-90" onclick={onClose} aria-label="Close queue">
+        <button class="p-2 rounded-xl hover:bg-white/5 text-text-dim hover:text-text transition-all duration-150 active:scale-90" onclick={() => queueDrawerOpen.set(false)} aria-label="Close queue">
           <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
             <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
             <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
@@ -51,7 +47,7 @@
           {#each tracks as track, index (track.id)}
             <div
               class="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0 {index === currentIndex ? 'bg-accent/5' : ''}"
-              onclick={() => handleTrackClick(track)}
+              onclick={() => handleTrackClick(track, index)}
               role="button"
               tabindex="0"
             >

@@ -1,13 +1,11 @@
 <script lang="ts">
   import { player } from '$lib/stores/player';
+  import { queueDrawerOpen } from '$lib/stores/queue';
   import { router } from '$lib/stores/router';
   import { settings } from '$lib/stores/settings';
   import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
 
-  let { onExpand = () => {}, onQueueOpen = () => {} } = $props<{
-    onExpand?: () => void;
-    onQueueOpen?: () => void;
-  }>();
+  let { onExpand = () => {} }: { onExpand?: () => void } = $props();
 
   let status = $derived($player.status);
   let currentTrack = $derived($player.currentTrack);
@@ -54,7 +52,7 @@
     </button>
     <button
       class="p-2.5 rounded-xl hover:bg-white/5 text-text-dim hover:text-text active:scale-90 transition-all duration-150 shrink-0"
-      onclick={(e) => { e.stopPropagation(); onQueueOpen(); }}
+      onclick={(e) => { e.stopPropagation(); queueDrawerOpen.set(true); }}
       aria-label="Queue"
     >
       <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">

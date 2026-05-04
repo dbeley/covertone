@@ -1,13 +1,12 @@
 <script lang="ts">
   import { player } from '$lib/stores/player';
-  import { queue } from '$lib/stores/queue';
+  import { queue, queueDrawerOpen } from '$lib/stores/queue';
   import { router } from '$lib/stores/router';
   import { settings } from '$lib/stores/settings';
   import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
 
-  let { onClose = () => {}, onQueueOpen = () => {} } = $props<{
+  let { onClose = () => {} } = $props<{
     onClose?: () => void;
-    onQueueOpen?: () => void;
   }>();
 
   let status = $derived($player.status);
@@ -71,7 +70,7 @@
   <div class="relative z-10 flex flex-col h-full">
     <button class="p-4 self-start rounded-xl hover:bg-white/5 text-text-dim hover:text-text transition-all duration-150 active:scale-90" onclick={onClose} aria-label="Close">
     <svg viewBox="0 0 24 24" class="w-6 h-6 fill-current">
-      <polyline points="6,15 12,9 18,15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      <polyline points="6,9 12,15 18,9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
   </button>
 
@@ -189,7 +188,7 @@
 
         <button
           class="p-2.5 rounded-xl transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
-          onclick={onQueueOpen}
+          onclick={() => queueDrawerOpen.set(true)}
           aria-label="Queue"
         >
           <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">

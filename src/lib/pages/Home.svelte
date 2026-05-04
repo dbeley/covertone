@@ -67,10 +67,10 @@
   {:else if loading}
     <p class="text-text-dim">Loading...</p>
   {:else}
-    {#if recentAlbums.length > 0}
+    {#if randomAlbums.length > 0}
       <section class="mb-10">
-        <h2 class="text-xl font-bold mb-4 tracking-tight">Recently Played</h2>
-        <AlbumGrid albums={recentAlbums} {serverUrl} {username} {password} />
+        <h2 class="text-xl font-bold mb-4 tracking-tight">Random Albums</h2>
+        <AlbumGrid albums={randomAlbums} {serverUrl} {username} {password} />
       </section>
     {/if}
     {#if newestAlbums.length > 0}
@@ -79,10 +79,10 @@
         <AlbumGrid albums={newestAlbums} {serverUrl} {username} {password} />
       </section>
     {/if}
-    {#if randomAlbums.length > 0}
+    {#if recentAlbums.length > 0}
       <section class="mb-10">
-        <h2 class="text-xl font-bold mb-4 tracking-tight">Random Albums</h2>
-        <AlbumGrid albums={randomAlbums} {serverUrl} {username} {password} />
+        <h2 class="text-xl font-bold mb-4 tracking-tight">Recently Played</h2>
+        <AlbumGrid albums={recentAlbums} {serverUrl} {username} {password} />
       </section>
     {/if}
     {#if frequentAlbums.length > 0}

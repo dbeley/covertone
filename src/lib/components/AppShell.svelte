@@ -17,11 +17,16 @@
   let route = $derived($router);
 
   let nowPlayingOpen = $state(false);
-  let queueOpen = $state(false);
   let menuOpen = $state(false);
 
   function closeMenu() {
     menuOpen = false;
+  }
+  function openNowPlaying() {
+    nowPlayingOpen = true;
+  }
+  function closeNowPlaying() {
+    nowPlayingOpen = false;
   }
 </script>
 
@@ -71,16 +76,14 @@
   </div>
 
   <NowPlayingBar
-    onExpand={() => { nowPlayingOpen = true; }}
-    onQueueOpen={() => { queueOpen = true; }}
+    onExpand={openNowPlaying}
   />
 
   {#if nowPlayingOpen}
     <NowPlayingView
-      onClose={() => { nowPlayingOpen = false; }}
-      onQueueOpen={() => { queueOpen = true; }}
+      onClose={closeNowPlaying}
     />
   {/if}
 
-  <QueueDrawer open={queueOpen} onClose={() => { queueOpen = false; }} />
+  <QueueDrawer />
 </div>
