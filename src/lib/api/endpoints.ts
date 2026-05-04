@@ -1,0 +1,18 @@
+export const ENDPOINTS = {
+  ping: 'ping',
+  getAlbumList: 'getAlbumList2',
+  getAlbum: 'getAlbum',
+  getArtists: 'getArtists',
+  getArtist: 'getArtist',
+  getArtistInfo: 'getArtistInfo2',
+  getTopSongs: 'getTopSongs',
+  getRandomSongs: 'getRandomSongs',
+  getSimilarSongs: 'getSimilarSongs',
+  search3: 'search3',
+  getCoverArt: 'getCoverArt',
+  stream: 'stream',
+  scrobble: 'scrobble',
+  getStarred: 'getStarred',
+  star: 'star',
+  unstar: 'unstar',
+} as const;

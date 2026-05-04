@@ -64,7 +64,9 @@ export interface SearchResult {
 }
 
 export interface AlbumListResult {
-  album: Album[];
+  albumList: {
+    album: Album[];
+  };
 }
 
 export interface SubsonicResponse<T> {
