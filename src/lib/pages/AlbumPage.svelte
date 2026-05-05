@@ -96,7 +96,7 @@
         </div>
       </div>
     </div>
-    <TrackList {songs} onPlay={(song, index) => { queue.replaceAll(songs); queue.playIndex(index); player.playTrack(song); }} />
+    <TrackList {songs} showArtistLink={false} onPlay={(song, index) => { queue.replaceAll(songs); queue.playIndex(index); player.playTrack(song); }} />
   {:else}
     <p class="text-text-dim">No tracks found</p>
   {/if}

@@ -4,7 +4,7 @@
   import { router } from '$lib/stores/router';
   import type { Song } from '$lib/api/types';
 
-  let { songs, onPlay }: { songs: Song[]; onPlay?: (song: Song, index: number) => void } = $props();
+  let { songs, onPlay, showArtistLink = true }: { songs: Song[]; onPlay?: (song: Song, index: number) => void; showArtistLink?: boolean } = $props();
 
   let contextMenuIndex = $state<number | null>(null);
   let longPressTimer = $state<ReturnType<typeof setTimeout> | null>(null);
@@ -87,9 +87,13 @@
       </span>
       <div class="flex-1 min-w-0">
         <div class="text-sm font-medium truncate">{song.title}</div>
-        <div class="text-xs text-text-dim truncate">
-          <button class="hover:text-accent hover:underline transition-colors" onclick={(e) => { e.stopPropagation(); router.navigate(`artist/${song.artistId}`); }}>{song.artist}</button>
-        </div>
+        {#if showArtistLink}
+          <div class="text-xs text-text-dim truncate">
+            <button class="hover:text-accent hover:underline transition-colors" onclick={(e) => { e.stopPropagation(); router.navigate(`artist/${song.artistId}`); }}>{song.artist}</button>
+          </div>
+        {:else}
+          <div class="text-xs text-text-dim truncate">{song.artist}</div>
+        {/if}
       </div>
       <span class="text-xs text-text-dim w-10 text-right">{formatDuration(song.duration)}</span>
       <button
