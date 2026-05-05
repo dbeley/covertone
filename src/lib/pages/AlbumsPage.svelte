@@ -13,14 +13,16 @@
 
   let albums = $derived($library.albums);
   let loading = $derived($library.loading);
+  let hasMore = $derived($library.hasMore);
 
-  let activeTab = $state<string>('alphabeticalByName');
+  let activeTab = $state<AlbumListType>('random');
+  let sentinelEl = $state<HTMLDivElement | null>(null);
 
   const tabs: { label: string; type: AlbumListType }[] = [
-    { label: 'All', type: 'alphabeticalByName' },
+    { label: 'Random', type: 'random' },
+    { label: 'A-Z', type: 'alphabeticalByName' },
     { label: 'Newest', type: 'newest' },
     { label: 'Most Played', type: 'frequent' },
-    { label: 'Random', type: 'random' },
   ];
 
   function switchTab(type: AlbumListType) {
@@ -28,12 +30,30 @@
     library.fetchAlbums({ type, offset: 0 });
   }
 
+  function loadMore() {
+    if (loading || !hasMore) return;
+    library.fetchAlbums({ type: activeTab, offset: albums.length });
+  }
+
   onMount(() => {
     if (!configured) return;
     if (!libInitialized) {
       library.init({ server: serverUrl, username, password });
     }
-    library.fetchAlbums({ type: 'alphabeticalByName', offset: 0 });
+    library.fetchAlbums({ type: 'random', offset: 0 });
+
+    if (!sentinelEl) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMore();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+    observer.observe(sentinelEl);
+
+    return () => observer.disconnect();
   });
 </script>
 
@@ -52,11 +72,19 @@
     {/each}
   </div>
 
-  {#if loading}
-    <p class="text-text-dim">Loading...</p>
-  {:else if albums.length > 0}
+  {#if albums.length > 0}
     <AlbumGrid {albums} {serverUrl} {username} {password} />
-  {:else}
+  {:else if !loading}
     <p class="text-text-dim">No albums found</p>
   {/if}
+
+  {#if loading && albums.length === 0}
+    <p class="text-text-dim">Loading...</p>
+  {/if}
+
+  <div bind:this={sentinelEl} class="h-8 mt-4 flex items-center justify-center">
+    {#if loading && albums.length > 0}
+      <div class="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
+    {/if}
+  </div>
 </div>
