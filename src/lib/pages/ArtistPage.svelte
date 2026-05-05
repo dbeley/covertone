@@ -16,6 +16,8 @@
   let similarArtists = $state<Artist[]>([]);
   let loading = $state(true);
   let error = $state('');
+  let contextMenuIndex = $state<number | null>(null);
+  let longPressTimer = $state<ReturnType<typeof setTimeout> | null>(null);
 
   let serverUrl = $derived($settings.serverUrl);
   let username = $derived($settings.username);
@@ -31,6 +33,39 @@
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60).toString().padStart(2, '0');
     return `${m}:${s}`;
+  }
+
+  function handleContextMenu(e: MouseEvent, index: number) {
+    e.stopPropagation();
+    contextMenuIndex = contextMenuIndex === index ? null : index;
+  }
+
+  function handlePlayAfter(song: Song) {
+    queue.addNext(song);
+    contextMenuIndex = null;
+  }
+
+  function handleAddToQueue(song: Song) {
+    queue.addToEnd(song);
+    contextMenuIndex = null;
+  }
+
+  function handleBackdropClick() {
+    contextMenuIndex = null;
+  }
+
+  function startLongPress(index: number) {
+    longPressTimer = setTimeout(() => {
+      contextMenuIndex = index;
+      longPressTimer = null;
+    }, 500);
+  }
+
+  function cancelLongPress() {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
   }
 
   $effect(() => {
@@ -124,14 +159,21 @@
       </div>
     {/if}
 
+    {#if contextMenuIndex !== null}
+      <div class="fixed inset-0 z-40" onclick={handleBackdropClick} onkeydown={() => {}} role="presentation"></div>
+    {/if}
+
     {#if topSongs.length > 0}
       <div class="mb-8">
         <h2 class="text-lg font-semibold mb-3 tracking-tight">Top Tracks</h2>
         <div class="border border-border rounded-xl overflow-hidden bg-surface/50">
           {#each topSongs as song, index (song.id)}
             <div
-              class="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0"
+              class="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors group relative border-b border-border/50 last:border-b-0"
               onclick={() => { queue.replaceAll(topSongs); queue.playIndex(index); player.playTrack(song); }}
+              ontouchstart={() => startLongPress(index)}
+              ontouchend={cancelLongPress}
+              ontouchmove={cancelLongPress}
               role="button"
               tabindex="0"
             >
@@ -141,6 +183,41 @@
                 <div class="text-xs text-text-dim truncate">{song.artist}</div>
               </div>
               <span class="text-xs text-text-dim">{formatDuration(song.duration)}</span>
+              <button
+                type="button"
+                class="p-1 transition-opacity hover:text-accent relative text-text-dim"
+                onclick={(e) => handleContextMenu(e, index)}
+                aria-label="Track options"
+              >
+                <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current">
+                  <circle cx="12" cy="5" r="2" />
+                  <circle cx="12" cy="12" r="2" />
+                  <circle cx="12" cy="19" r="2" />
+                </svg>
+              </button>
+
+              {#if contextMenuIndex === index}
+                <div
+                  class="absolute right-2 top-full mt-1 bg-surface border border-border rounded-xl shadow-xl shadow-black/10 z-50 py-1 min-w-36 animate-scale-in"
+                  onclick={(e) => e.stopPropagation()}
+                  onkeydown={() => {}}
+                  role="menu"
+                  tabindex="-1"
+                >
+                  <button
+                    class="w-full text-left px-3 py-2 text-sm hover:bg-accent/5 transition-colors rounded-lg"
+                    onclick={() => handlePlayAfter(song)}
+                  >
+                    Play After
+                  </button>
+                  <button
+                    class="w-full text-left px-3 py-2 text-sm hover:bg-accent/5 transition-colors rounded-lg"
+                    onclick={() => handleAddToQueue(song)}
+                  >
+                    Add to Queue
+                  </button>
+                </div>
+              {/if}
             </div>
           {/each}
         </div>

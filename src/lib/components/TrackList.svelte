@@ -7,6 +7,7 @@
   let { songs, onPlay }: { songs: Song[]; onPlay?: (song: Song, index: number) => void } = $props();
 
   let contextMenuIndex = $state<number | null>(null);
+  let longPressTimer = $state<ReturnType<typeof setTimeout> | null>(null);
 
   function formatDuration(seconds: number): string {
     const m = Math.floor(seconds / 60);
@@ -27,12 +28,12 @@
     contextMenuIndex = contextMenuIndex === index ? null : index;
   }
 
-  function handlePlayNext(song: Song) {
+  function handlePlayAfter(song: Song) {
     queue.addNext(song);
     contextMenuIndex = null;
   }
 
-  function handleAddToEnd(song: Song) {
+  function handleAddToQueue(song: Song) {
     queue.addToEnd(song);
     contextMenuIndex = null;
   }
@@ -43,6 +44,20 @@
 
   function handleBackdropClick() {
     closeContextMenu();
+  }
+
+  function startLongPress(index: number) {
+    longPressTimer = setTimeout(() => {
+      contextMenuIndex = index;
+      longPressTimer = null;
+    }, 500);
+  }
+
+  function cancelLongPress() {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
   }
 </script>
 
@@ -56,6 +71,9 @@
       class="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors group relative border-b border-border/50 last:border-b-0"
       onclick={() => handleRowClick(song, index)}
       onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleRowClick(song, index); }}
+      ontouchstart={() => startLongPress(index)}
+      ontouchend={cancelLongPress}
+      ontouchmove={cancelLongPress}
       role="button"
       tabindex="0"
     >
@@ -76,7 +94,7 @@
       <span class="text-xs text-text-dim w-10 text-right">{formatDuration(song.duration)}</span>
       <button
         type="button"
-        class="p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:text-accent relative"
+        class="p-1 transition-opacity hover:text-accent relative text-text-dim"
         onclick={(e) => handleContextMenu(e, index)}
         aria-label="Track options"
       >
@@ -97,15 +115,15 @@
         >
           <button
             class="w-full text-left px-3 py-2 text-sm hover:bg-accent/5 transition-colors rounded-lg"
-            onclick={() => handlePlayNext(song)}
+            onclick={() => handlePlayAfter(song)}
           >
-            Play Next
+            Play After
           </button>
           <button
             class="w-full text-left px-3 py-2 text-sm hover:bg-accent/5 transition-colors rounded-lg"
-            onclick={() => handleAddToEnd(song)}
+            onclick={() => handleAddToQueue(song)}
           >
-            Add to End
+            Add to Queue
           </button>
         </div>
       {/if}
