@@ -6,7 +6,7 @@
   import AlbumGrid from '$lib/components/AlbumGrid.svelte';
   import type { Song, Artist, Album } from '$lib/api/types';
 
-  let artistId = $derived($router.params.id);
+  let artistId = $derived($router.extractParams('/artist/:id').id);
 
   let artist = $state<Artist | null>(null);
   let topSongs = $state<Song[]>([]);

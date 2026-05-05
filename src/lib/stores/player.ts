@@ -1,4 +1,5 @@
 import { writable, get } from "svelte/store";
+import type { Writable } from "svelte/store";
 import { AudioEngine } from "$lib/player/AudioEngine";
 import { scrobbleTrack } from "$lib/api/SubsonicAPI";
 import { settings } from "$lib/stores/settings";
@@ -24,7 +25,7 @@ function createPlayer() {
   let apiConfig: { server: string; username: string; password: string } | null = null;
   let scrobbled = false;
 
-  const { subscribe, set, update } = writable<PlayerState>({
+  const store: Writable<PlayerState> = writable({
     status: "idle",
     currentTrack: null,
     currentTime: 0,
@@ -34,6 +35,8 @@ function createPlayer() {
     shuffle: false,
     favorited: false,
   });
+
+  const { subscribe, set, update } = store;
 
   function fireScrobble(id: string, submission: boolean, time?: number) {
     if (!apiConfig) return;
@@ -56,7 +59,7 @@ function createPlayer() {
         if (engine) {
           engine.play();
           update((s) => ({ ...s, status: "playing" }));
-          const s = get({ subscribe } as any);
+          const s = get(store);
           if (s.currentTrack) NativeMedia.showPlaying(s.currentTrack.title, s.currentTrack.artist);
         } else {
           player.playTrack(lastTrack);
@@ -66,7 +69,7 @@ function createPlayer() {
     onPause: () => {
       update((s) => ({ ...s, status: "paused" }));
       if (engine) engine.pause();
-      const s = get({ subscribe } as any);
+      const s = get(store);
       if (s.currentTrack) NativeMedia.showPaused(s.currentTrack.title, s.currentTrack.artist);
     },
     onStop: () => {
@@ -97,13 +100,9 @@ function createPlayer() {
     },
     playTrack(track: Song) {
       lastTrack = track;
-      let currentState: PlayerState | undefined;
-      update((s) => {
-        currentState = s;
-        return s;
-      });
+      const currentState = get(store);
 
-      if (currentState?.currentTrack && !scrobbled) {
+      if (currentState.currentTrack && !scrobbled) {
         fireScrobble(currentState.currentTrack.id, true, Math.floor(currentState.currentTime));
       }
 
@@ -169,7 +168,7 @@ function createPlayer() {
       if (engine) {
         engine.pause();
         update((s) => ({ ...s, status: "paused" }));
-        const s = get({ subscribe } as any);
+        const s = get(store);
         if (s.currentTrack) NativeMedia.showPaused(s.currentTrack.title, s.currentTrack.artist);
       }
     },
@@ -177,7 +176,7 @@ function createPlayer() {
       if (engine) {
         engine.play();
         update((s) => ({ ...s, status: "playing" }));
-        const s = get({ subscribe } as any);
+        const s = get(store);
         if (s.currentTrack) NativeMedia.showPlaying(s.currentTrack.title, s.currentTrack.artist);
       }
     },
@@ -190,6 +189,7 @@ function createPlayer() {
       }
     },
     stop() {
+      lastTrack = null;
       if (engine) {
         engine.destroy();
         engine = null;
@@ -214,6 +214,7 @@ function createPlayer() {
       update((s) => ({ ...s, favorited }));
     },
     reset() {
+      lastTrack = null;
       if (engine) {
         engine.destroy();
         engine = null;

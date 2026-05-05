@@ -16,19 +16,23 @@ export function isNativeAvailable(): boolean {
 }
 
 export function showPlaying(title: string, artist: string, artworkUrl?: string) {
+  if (typeof window === "undefined") return;
   window.NativeMedia?.setPlaying(title, artist);
   if (artworkUrl) window.NativeMedia?.setArtwork(artworkUrl);
 }
 
 export function showPaused(title: string, artist: string) {
+  if (typeof window === "undefined") return;
   window.NativeMedia?.setPaused(title, artist);
 }
 
 export function hide() {
+  if (typeof window === "undefined") return;
   window.NativeMedia?.hide();
 }
 
 export function setArtwork(imageUrl: string) {
+  if (typeof window === "undefined") return;
   window.NativeMedia?.setArtwork(imageUrl);
 }
 

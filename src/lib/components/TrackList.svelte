@@ -4,7 +4,7 @@
   import { router } from '$lib/stores/router';
   import type { Song } from '$lib/api/types';
 
-  let { songs }: { songs: Song[] } = $props();
+  let { songs, onPlay }: { songs: Song[]; onPlay?: (song: Song, index: number) => void } = $props();
 
   let contextMenuIndex = $state<number | null>(null);
 
@@ -14,8 +14,12 @@
     return `${m}:${s}`;
   }
 
-  function handleRowClick(song: Song) {
-    player.playTrack(song);
+  function handleRowClick(song: Song, index: number) {
+    if (onPlay) {
+      onPlay(song, index);
+    } else {
+      player.playTrack(song);
+    }
   }
 
   function handleContextMenu(e: MouseEvent, index: number) {
@@ -50,8 +54,8 @@
   {#each songs as song, index (song.id)}
     <div
       class="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors group relative border-b border-border/50 last:border-b-0"
-      onclick={() => handleRowClick(song)}
-      onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleRowClick(song); }}
+      onclick={() => handleRowClick(song, index)}
+      onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleRowClick(song, index); }}
       role="button"
       tabindex="0"
     >

@@ -4,6 +4,7 @@ export interface Route {
   path: string;
   params: Record<string, string>;
   matches: (pattern: string) => boolean;
+  extractParams: (pattern: string) => Record<string, string>;
 }
 
 function parseRoute(hash: string): Route {
@@ -11,27 +12,36 @@ function parseRoute(hash: string): Route {
   if (!path) path = "/";
   if (!path.startsWith("/")) path = "/" + path;
 
-  const params: Record<string, string> = {};
+  function doMatch(pattern: string): { matched: boolean; params: Record<string, string> } {
+    const patternParts = pattern.split("/").filter(Boolean);
+    const rawParts = path.split("/").filter(Boolean);
+    const pathParts = rawParts.map(decodeURIComponent);
+    if (patternParts.length !== pathParts.length) {
+      return { matched: false, params: {} };
+    }
+    const extracted: Record<string, string> = {};
+    for (let i = 0; i < patternParts.length; i++) {
+      if (patternParts[i].startsWith(":")) {
+        extracted[patternParts[i].slice(1)] = pathParts[i];
+        continue;
+      }
+      if (patternParts[i] !== pathParts[i]) {
+        return { matched: false, params: {} };
+      }
+    }
+    return { matched: true, params: extracted };
+  }
 
   return {
     path,
-    params,
+    get params(): Record<string, string> {
+      return {};
+    },
     matches(pattern: string): boolean {
-      const patternParts = pattern.split("/").filter(Boolean);
-      const rawParts = path.split("/").filter(Boolean);
-      const pathParts = rawParts.map(decodeURIComponent);
-      if (patternParts.length !== pathParts.length) return false;
-      const extracted: Record<string, string> = {};
-      for (let i = 0; i < patternParts.length; i++) {
-        if (patternParts[i].startsWith(":")) {
-          extracted[patternParts[i].slice(1)] = pathParts[i];
-          continue;
-        }
-        if (patternParts[i] !== pathParts[i]) return false;
-      }
-      Object.assign(params, extracted);
-      this.params = params;
-      return true;
+      return doMatch(pattern).matched;
+    },
+    extractParams(pattern: string): Record<string, string> {
+      return doMatch(pattern).params;
     },
   };
 }

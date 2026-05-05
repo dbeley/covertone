@@ -1,4 +1,5 @@
-import { writable } from "svelte/store";
+import { writable, get } from "svelte/store";
+import type { Writable } from "svelte/store";
 import type { Song } from "$lib/api/types";
 import type { AutoDJ } from "$lib/player/AutoDJ";
 
@@ -15,13 +16,15 @@ export interface QueueState {
 function createQueue() {
   let autoDJInstance: AutoDJ | null = null;
 
-  const { subscribe, set, update } = writable<QueueState>({
+  const store: Writable<QueueState> = writable({
     tracks: [],
     currentIndex: -1,
     autoDJ: false,
     hasNext: false,
     hasPrevious: false,
   });
+
+  const { subscribe, set, update } = store;
 
   function recomputeDerived(state: QueueState): QueueState {
     return {
@@ -127,14 +130,11 @@ function createQueue() {
       autoDJInstance = instance;
     },
     getCurrent(): Song | null {
-      let result: Song | null = null;
-      update((s) => {
-        if (s.currentIndex >= 0 && s.currentIndex < s.tracks.length) {
-          result = s.tracks[s.currentIndex];
-        }
-        return s;
-      });
-      return result;
+      const s = get(store);
+      if (s.currentIndex >= 0 && s.currentIndex < s.tracks.length) {
+        return s.tracks[s.currentIndex];
+      }
+      return null;
     },
     getNext(): Song | null {
       let result: Song | null = null;
@@ -164,15 +164,7 @@ function createQueue() {
       const next = this.getNext();
       if (next) return next;
 
-      let state = { tracks: [] as Song[], currentIndex: -1, autoDJ: false };
-      update((s) => {
-        state = {
-          tracks: s.tracks,
-          currentIndex: s.currentIndex,
-          autoDJ: s.autoDJ,
-        };
-        return s;
-      });
+      const state = get(store);
 
       if (!state.autoDJ || !autoDJInstance || state.currentIndex < 0)
         return null;

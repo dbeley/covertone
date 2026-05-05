@@ -24,6 +24,11 @@ public class MainActivity extends BridgeActivity {
         }
     }
 
+    private static void dispatchMediaAction(String action) {
+        String json = org.json.JSONObject.quote(action);
+        evalJS("document.dispatchEvent(new CustomEvent('native-mediasession',{detail:" + json + "}))");
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,7 +42,7 @@ public class MainActivity extends BridgeActivity {
         if (intent != null) {
             String act = intent.getStringExtra("media_action");
             if (act != null) {
-                evalJS("document.dispatchEvent(new CustomEvent('native-mediasession',{detail:'" + act + "'}))");
+                dispatchMediaAction(act);
             }
         }
 
@@ -55,7 +60,7 @@ public class MainActivity extends BridgeActivity {
         super.onNewIntent(intent);
         String act = intent.getStringExtra("media_action");
         if (act == null) return;
-        evalJS("document.dispatchEvent(new CustomEvent('native-mediasession',{detail:'" + act + "'}))");
+        dispatchMediaAction(act);
     }
 
     @Override

@@ -55,12 +55,28 @@ describe('router store', () => {
     expect(route.matches('/album/:id')).toBe(true);
   });
 
-  it('extractParam extracts dynamic param value', () => {
+  it('extractParams returns dynamic param values', () => {
+    setHash('#/album/my-album-id');
+    router.reset();
+    const route = get(router);
+    expect(route.extractParams('/album/:id')).toEqual({ id: 'my-album-id' });
+  });
+
+  it('extractParams returns empty object for non-matching pattern', () => {
+    setHash('#/album/my-album-id');
+    router.reset();
+    const route = get(router);
+    expect(route.extractParams('/artist/:id')).toEqual({});
+  });
+
+  it('matches is pure and has no side effects', () => {
     setHash('#/album/my-album-id');
     router.reset();
     const route = get(router);
     route.matches('/album/:id');
-    expect(route.params.id).toBe('my-album-id');
+    route.matches('/artist/:id');
+    expect(route.extractParams('/album/:id')).toEqual({ id: 'my-album-id' });
+    expect(route.extractParams('/artist/:id')).toEqual({});
   });
 
   it('handles empty hash', () => {

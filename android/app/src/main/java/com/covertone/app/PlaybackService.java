@@ -19,13 +19,17 @@ import androidx.media.app.NotificationCompat.MediaStyle;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class PlaybackService extends Service {
 
     private static final String CHANNEL_ID = "covertone_playback";
     private static final int NOTIFY_ID = 1;
+    private static final int ARTWORK_MAX_SIZE_PX = 256;
 
     private static PlaybackService instance;
+    private final ExecutorService artworkExecutor = Executors.newSingleThreadExecutor();
     private MediaSessionCompat mediaSession;
     private String currentTitle = "";
     private String currentArtist = "";
@@ -63,8 +67,9 @@ public class PlaybackService extends Service {
             @Override public void onStop()           { fire("stop"); }
 
             private void fire(String action) {
+                String json = org.json.JSONObject.quote(action);
                 MainActivity.evalJS(
-                    "document.dispatchEvent(new CustomEvent('native-mediasession',{detail:'" + action + "'}))");
+                    "document.dispatchEvent(new CustomEvent('native-mediasession',{detail:" + json + "}))");
             }
         });
 
@@ -83,16 +88,38 @@ public class PlaybackService extends Service {
         instance.doUpdate();
 
         if (artworkUrl != null && !artworkUrl.isEmpty()) {
-            new Thread(() -> {
+            instance.artworkExecutor.execute(() -> {
                 try {
                     URL url = new URL(artworkUrl);
                     HttpURLConnection c = (HttpURLConnection) url.openConnection();
                     c.setDoInput(true);
+                    c.setConnectTimeout(10000);
+                    c.setReadTimeout(10000);
                     c.connect();
                     InputStream is = c.getInputStream();
-                    Bitmap bmp = BitmapFactory.decodeStream(is);
+
+                    BitmapFactory.Options opts = new BitmapFactory.Options();
+                    opts.inJustDecodeBounds = true;
+                    BitmapFactory.decodeStream(is, null, opts);
+                    is.close();
+
+                    int scale = 1;
+                    while (opts.outWidth / scale > ARTWORK_MAX_SIZE_PX || opts.outHeight / scale > ARTWORK_MAX_SIZE_PX) {
+                        scale *= 2;
+                    }
+
+                    c = (HttpURLConnection) url.openConnection();
+                    c.setDoInput(true);
+                    c.setConnectTimeout(10000);
+                    c.setReadTimeout(10000);
+                    c.connect();
+                    is = c.getInputStream();
+                    opts.inJustDecodeBounds = false;
+                    opts.inSampleSize = scale;
+                    Bitmap bmp = BitmapFactory.decodeStream(is, null, opts);
                     is.close();
                     c.disconnect();
+
                     if (instance != null) {
                         instance.coverBitmap = bmp;
                         android.os.Handler mainHandler = new android.os.Handler(android.os.Looper.getMainLooper());
@@ -101,7 +128,7 @@ public class PlaybackService extends Service {
                         });
                     }
                 } catch (Exception ignored) {}
-            }).start();
+            });
         }
     }
 
@@ -203,6 +230,7 @@ public class PlaybackService extends Service {
             mediaSession.release();
             mediaSession = null;
         }
+        artworkExecutor.shutdownNow();
         super.onDestroy();
     }
 }

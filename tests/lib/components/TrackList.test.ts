@@ -1,6 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/svelte';
 import TrackList from '$lib/components/TrackList.svelte';
+import { player } from '$lib/stores/player';
 import type { Song } from '$lib/api/types';
 
 vi.mock('$lib/stores/player', () => ({
@@ -25,6 +26,10 @@ describe('TrackList', () => {
     { id: '2', title: 'Song Two', artist: 'Artist B', album: 'Album B', albumId: 'b1', duration: 240, track: 2 },
     { id: '3', title: 'Song Three', artist: 'Artist C', album: 'Album C', albumId: 'c1', duration: 200, track: 3 },
   ];
+
+  beforeEach(() => {
+    vi.mocked(player.playTrack).mockClear();
+  });
 
   it('renders song titles', () => {
     render(TrackList, { songs });
@@ -58,5 +63,22 @@ describe('TrackList', () => {
     render(TrackList, { songs });
     const buttons = screen.getAllByLabelText('Track options');
     expect(buttons.length).toBe(3);
+  });
+
+  it('calls player.playTrack by default when a row is clicked', async () => {
+    render(TrackList, { songs });
+    const row = screen.getByText('Song Two').closest('[role="button"]') as HTMLElement;
+    await fireEvent.click(row);
+    expect(player.playTrack).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls onPlay callback with song and index when provided', async () => {
+    const onPlay = vi.fn();
+    render(TrackList, { songs, onPlay });
+    const row = screen.getByText('Song Two').closest('[role="button"]') as HTMLElement;
+    await fireEvent.click(row);
+    expect(onPlay).toHaveBeenCalledTimes(1);
+    expect(onPlay).toHaveBeenCalledWith(songs[1], 1);
+    expect(player.playTrack).not.toHaveBeenCalled();
   });
 });

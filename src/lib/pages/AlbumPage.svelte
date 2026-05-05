@@ -7,7 +7,7 @@
   import TrackList from '$lib/components/TrackList.svelte';
   import type { Song, Album } from '$lib/api/types';
 
-  let albumId = $derived($router.params.id);
+  let albumId = $derived($router.extractParams('/album/:id').id);
 
   let album = $state<Album | null>(null);
   let songs = $state<Song[]>([]);
@@ -96,7 +96,7 @@
         </div>
       </div>
     </div>
-    <TrackList {songs} />
+    <TrackList {songs} onPlay={(song, index) => { queue.replaceAll(songs); queue.playIndex(index); player.playTrack(song); }} />
   {:else}
     <p class="text-text-dim">No tracks found</p>
   {/if}
