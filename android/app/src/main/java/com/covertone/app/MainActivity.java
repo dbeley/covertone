@@ -13,14 +13,17 @@ import androidx.core.content.ContextCompat;
 
 import com.getcapacitor.BridgeActivity;
 
+import java.lang.ref.WeakReference;
+
 public class MainActivity extends BridgeActivity {
 
     private static final int PERM_REQ = 1001;
-    private static WebView staticWebView;
+    private static WeakReference<WebView> webViewRef = new WeakReference<>(null);
 
     public static void evalJS(String script) {
-        if (staticWebView != null) {
-            staticWebView.post(() -> staticWebView.evaluateJavascript(script, null));
+        WebView wv = webViewRef.get();
+        if (wv != null) {
+            wv.post(() -> wv.evaluateJavascript(script, null));
         }
     }
 
@@ -34,7 +37,7 @@ public class MainActivity extends BridgeActivity {
         super.onCreate(savedInstanceState);
 
         WebView wv = this.bridge.getWebView();
-        staticWebView = wv;
+        webViewRef = new WeakReference<>(wv);
         wv.getSettings().setMediaPlaybackRequiresUserGesture(false);
         wv.addJavascriptInterface(new MediaBridge(), "NativeMedia");
 
@@ -66,18 +69,16 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        staticWebView = null;
+        webViewRef.clear();
     }
 
     public class MediaBridge {
         private void ensureService() {
-            if (!PlaybackService.isRunning()) {
-                Intent si = new Intent(MainActivity.this, PlaybackService.class);
-                if (Build.VERSION.SDK_INT >= 26) {
-                    startForegroundService(si);
-                } else {
-                    startService(si);
-                }
+            Intent si = new Intent(MainActivity.this, PlaybackService.class);
+            if (Build.VERSION.SDK_INT >= 26) {
+                startForegroundService(si);
+            } else {
+                startService(si);
             }
         }
 
