@@ -34,8 +34,8 @@ export class AudioEngine {
     this.audio.load();
   }
 
-  play(): void {
-    this.audio.play();
+  play(): Promise<void> {
+    return this.audio.play();
   }
 
   pause(): void {
@@ -44,7 +44,7 @@ export class AudioEngine {
 
   toggle(): void {
     if (this.audio.paused) {
-      this.audio.play();
+      this.audio.play().catch(() => {});
     } else {
       this.audio.pause();
     }

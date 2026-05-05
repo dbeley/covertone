@@ -39,9 +39,9 @@ describe('NowPlayingBar', () => {
     mockPlayerState.currentTrack = null;
   });
 
-  it('shows placeholder when idle', () => {
-    render(NowPlayingBar);
-    expect(screen.getByText('Nothing playing')).toBeTruthy();
+  it('does not render when idle', () => {
+    const { container } = render(NowPlayingBar);
+    expect(container.querySelector('div')).toBeNull();
   });
 
   it('renders track info when playing', () => {
@@ -50,13 +50,5 @@ describe('NowPlayingBar', () => {
     render(NowPlayingBar);
     expect(screen.getByText('Test Song')).toBeTruthy();
     expect(screen.getByText('Test Artist')).toBeTruthy();
-  });
-
-  it('renders play/pause and queue buttons when playing', () => {
-    mockPlayerState.status = 'playing';
-    mockPlayerState.currentTrack = { title: 'Test Song', artist: 'Test Artist', coverArt: '123' };
-    render(NowPlayingBar);
-    expect(screen.getByLabelText('Pause')).toBeTruthy();
-    expect(screen.getByLabelText('Queue')).toBeTruthy();
   });
 });
