@@ -96,10 +96,12 @@
   tabindex="-1"
 >
   {#if currentTrack?.coverArt}
-    <div class="absolute inset-0 overflow-hidden">
-      <img src={coverArtUrl} alt="" class="w-full h-full object-cover blur-3xl scale-150 opacity-30" />
-    </div>
-    <div class="absolute inset-0 bg-gradient-to-b from-bg/40 via-bg/80 to-bg"></div>
+    {#key currentTrack.coverArt}
+      <div class="absolute inset-0 overflow-hidden animate-fade-slow">
+        <img src={coverArtUrl} alt="" class="w-full h-full object-cover blur-[80px] scale-150 opacity-50" />
+      </div>
+    {/key}
+    <div class="absolute inset-0 bg-gradient-to-b from-bg/20 via-bg/60 to-bg/90"></div>
   {/if}
   <div class="relative z-10 flex flex-col h-full" style="padding-top: env(safe-area-inset-top, 0px)">
     <button class="p-4 self-start rounded-xl hover:bg-white/5 text-text-dim hover:text-text transition-all duration-150 active:scale-90" onclick={onClose} aria-label="Close">
