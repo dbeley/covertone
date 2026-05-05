@@ -41,13 +41,13 @@
   }
 
   function handlePlayAfter(song: Song) {
-    queue.addNext(song);
     contextMenuIndex = null;
+    queue.addNext(song);
   }
 
   function handleAddToQueue(song: Song) {
-    queue.addToEnd(song);
     contextMenuIndex = null;
+    queue.addToEnd(song);
   }
 
   function handleBackdropClick() {
@@ -158,7 +158,13 @@
     {/if}
 
     {#if contextMenuIndex !== null}
-      <div class="fixed inset-0 z-40" onclick={handleBackdropClick} onkeydown={() => {}} role="presentation"></div>
+      <div
+        class="fixed inset-0 z-40 touch-none"
+        onclick={handleBackdropClick}
+        ontouchstart={handleBackdropClick}
+        onkeydown={() => {}}
+        role="presentation"
+      ></div>
     {/if}
 
     {#if topSongs.length > 0}
@@ -198,6 +204,8 @@
                 <div
                   class="absolute right-2 top-full mt-1 bg-surface border border-border rounded-xl shadow-xl shadow-black/10 z-50 py-1 min-w-36 animate-scale-in"
                   onclick={(e) => e.stopPropagation()}
+                  ontouchstart={(e) => e.stopPropagation()}
+                  ontouchend={(e) => e.stopPropagation()}
                   onkeydown={() => {}}
                   role="menu"
                   tabindex="-1"

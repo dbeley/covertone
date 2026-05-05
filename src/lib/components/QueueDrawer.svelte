@@ -9,9 +9,13 @@
   let dragY = $state(0);
   let dragging = $state(false);
   let startY = $state(0);
+  let dragThresholdMet = $state(false);
+  const DRAG_THRESHOLD = 10;
+  const CLOSE_THRESHOLD = 100;
 
   function onTouchStart(e: TouchEvent) {
     dragging = true;
+    dragThresholdMet = false;
     startY = e.touches[0].clientY;
     dragY = 0;
   }
@@ -20,15 +24,18 @@
     if (!dragging) return;
     const delta = e.touches[0].clientY - startY;
     if (delta < 0) return;
+    if (!dragThresholdMet && delta < DRAG_THRESHOLD) return;
+    dragThresholdMet = true;
     dragY = Math.min(delta, window.innerHeight / 2);
   }
 
   function onTouchEnd() {
     dragging = false;
-    if (dragY > 100) {
+    if (dragThresholdMet && dragY > CLOSE_THRESHOLD) {
       queueDrawerOpen.set(false);
     }
     dragY = 0;
+    dragThresholdMet = false;
   }
 
   function formatDuration(seconds: number): string {
