@@ -1,6 +1,7 @@
 <script lang="ts">
   import { router } from '$lib/stores/router';
   import { player } from '$lib/stores/player';
+  import { queue } from '$lib/stores/queue';
   import { settings } from '$lib/stores/settings';
   import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import AlbumGrid from '$lib/components/AlbumGrid.svelte';
@@ -130,7 +131,7 @@
           {#each topSongs as song, index (song.id)}
             <div
               class="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0"
-              onclick={() => player.playTrack(song)}
+              onclick={() => { queue.replaceAll(topSongs); queue.playIndex(index); player.playTrack(song); }}
               role="button"
               tabindex="0"
             >
