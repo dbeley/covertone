@@ -65,12 +65,26 @@
     >
       <div class="flex items-center justify-between px-5 py-4 border-b border-border">
         <h2 class="text-lg font-bold">Queue</h2>
-        <button class="p-2 rounded-xl hover:bg-white/5 text-text-dim hover:text-text transition-all duration-150 active:scale-90" onclick={() => queueDrawerOpen.set(false)} aria-label="Close queue">
-          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
-            <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-            <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-          </svg>
-        </button>
+        <div class="flex items-center gap-1">
+          {#if tracks.length > 0}
+            <button
+              class="p-2 rounded-xl hover:bg-white/5 text-text-dim hover:text-red-400 transition-all duration-150 active:scale-90"
+              onclick={() => queue.clear()}
+              aria-label="Clear queue"
+            >
+              <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+                <polyline points="3 6 5 6 21 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          {/if}
+          <button class="p-2 rounded-xl hover:bg-white/5 text-text-dim hover:text-text transition-all duration-150 active:scale-90" onclick={() => queueDrawerOpen.set(false)} aria-label="Close queue">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+              <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div class="overflow-y-auto flex-1">
