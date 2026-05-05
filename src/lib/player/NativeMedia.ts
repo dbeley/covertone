@@ -15,7 +15,11 @@ export function isNativeAvailable(): boolean {
   return typeof window !== "undefined" && !!window.NativeMedia;
 }
 
-export function showPlaying(title: string, artist: string, artworkUrl?: string) {
+export function showPlaying(
+  title: string,
+  artist: string,
+  artworkUrl?: string,
+) {
   if (typeof window === "undefined") return;
   window.NativeMedia?.setPlaying(title, artist);
   if (artworkUrl) window.NativeMedia?.setArtwork(artworkUrl);

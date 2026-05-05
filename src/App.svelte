@@ -3,7 +3,10 @@
   import { router } from '$lib/stores/router';
   import { settings } from '$lib/stores/settings';
   import { player } from '$lib/stores/player';
+  import { queue } from '$lib/stores/queue';
   import { getStreamBaseUrl } from '$lib/api/SubsonicAPI';
+  import { SubsonicAPI } from '$lib/api/SubsonicAPI';
+  import { AutoDJ } from '$lib/player/AutoDJ';
   import { isNativeAvailable } from '$lib/player/NativeMedia';
   import AppShell from '$lib/components/AppShell.svelte';
 
@@ -55,6 +58,13 @@
         username: $settings.username,
         password: $settings.password,
       });
+
+      const api = new SubsonicAPI({
+        server: $settings.serverUrl,
+        username: $settings.username,
+        password: $settings.password,
+      });
+      queue.setAutoDJInstance(new AutoDJ(api));
     }
   });
 </script>

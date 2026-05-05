@@ -22,7 +22,8 @@ export interface PlayerState {
 function createPlayer() {
   let engine: AudioEngine | null = null;
   let streamBase = "";
-  let apiConfig: { server: string; username: string; password: string } | null = null;
+  let apiConfig: { server: string; username: string; password: string } | null =
+    null;
   let scrobbled = false;
 
   const store: Writable<PlayerState> = writable({
@@ -60,7 +61,11 @@ function createPlayer() {
           engine.play();
           update((s) => ({ ...s, status: "playing" }));
           const s = get(store);
-          if (s.currentTrack) NativeMedia.showPlaying(s.currentTrack.title, s.currentTrack.artist);
+          if (s.currentTrack)
+            NativeMedia.showPlaying(
+              s.currentTrack.title,
+              s.currentTrack.artist,
+            );
         } else {
           player.playTrack(lastTrack);
         }
@@ -70,7 +75,8 @@ function createPlayer() {
       update((s) => ({ ...s, status: "paused" }));
       if (engine) engine.pause();
       const s = get(store);
-      if (s.currentTrack) NativeMedia.showPaused(s.currentTrack.title, s.currentTrack.artist);
+      if (s.currentTrack)
+        NativeMedia.showPaused(s.currentTrack.title, s.currentTrack.artist);
     },
     onStop: () => {
       update((s) => ({ ...s, status: "idle" }));
@@ -95,7 +101,11 @@ function createPlayer() {
     setStreamBase(url: string) {
       streamBase = url;
     },
-    setApiConfig(config: { server: string; username: string; password: string }) {
+    setApiConfig(config: {
+      server: string;
+      username: string;
+      password: string;
+    }) {
       apiConfig = config;
     },
     playTrack(track: Song) {
@@ -103,7 +113,11 @@ function createPlayer() {
       const currentState = get(store);
 
       if (currentState.currentTrack && !scrobbled) {
-        fireScrobble(currentState.currentTrack.id, true, Math.floor(currentState.currentTime));
+        fireScrobble(
+          currentState.currentTrack.id,
+          true,
+          Math.floor(currentState.currentTime),
+        );
       }
 
       if (engine) engine.destroy();
@@ -169,7 +183,8 @@ function createPlayer() {
         engine.pause();
         update((s) => ({ ...s, status: "paused" }));
         const s = get(store);
-        if (s.currentTrack) NativeMedia.showPaused(s.currentTrack.title, s.currentTrack.artist);
+        if (s.currentTrack)
+          NativeMedia.showPaused(s.currentTrack.title, s.currentTrack.artist);
       }
     },
     resume() {
@@ -177,7 +192,8 @@ function createPlayer() {
         engine.play();
         update((s) => ({ ...s, status: "playing" }));
         const s = get(store);
-        if (s.currentTrack) NativeMedia.showPlaying(s.currentTrack.title, s.currentTrack.artist);
+        if (s.currentTrack)
+          NativeMedia.showPlaying(s.currentTrack.title, s.currentTrack.artist);
       }
     },
     togglePlay() {
@@ -195,7 +211,13 @@ function createPlayer() {
         engine = null;
       }
       NativeMedia.hide();
-      update((s) => ({ ...s, status: "idle", currentTrack: null, currentTime: 0, duration: 0 }));
+      update((s) => ({
+        ...s,
+        status: "idle",
+        currentTrack: null,
+        currentTime: 0,
+        duration: 0,
+      }));
     },
     seek(time: number) {
       if (engine) engine.seek(time);
@@ -220,8 +242,14 @@ function createPlayer() {
         engine = null;
       }
       set({
-        status: "idle", currentTrack: null, currentTime: 0, duration: 0,
-        volume: 1, repeating: false, shuffle: false, favorited: false,
+        status: "idle",
+        currentTrack: null,
+        currentTime: 0,
+        duration: 0,
+        volume: 1,
+        repeating: false,
+        shuffle: false,
+        favorited: false,
       });
     },
   };

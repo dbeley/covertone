@@ -12,7 +12,10 @@ function parseRoute(hash: string): Route {
   if (!path) path = "/";
   if (!path.startsWith("/")) path = "/" + path;
 
-  function doMatch(pattern: string): { matched: boolean; params: Record<string, string> } {
+  function doMatch(pattern: string): {
+    matched: boolean;
+    params: Record<string, string>;
+  } {
     const patternParts = pattern.split("/").filter(Boolean);
     const rawParts = path.split("/").filter(Boolean);
     const pathParts = rawParts.map(decodeURIComponent);
