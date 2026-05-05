@@ -8,10 +8,13 @@
   import { SubsonicAPI } from '$lib/api/SubsonicAPI';
   import { AutoDJ } from '$lib/player/AutoDJ';
   import { isNativeAvailable } from '$lib/player/NativeMedia';
+  import { initKeyboardShortcuts } from '$lib/keyboard/shortcuts';
   import AppShell from '$lib/components/AppShell.svelte';
 
   onMount(() => {
     router.reset();
+
+    const removeKeyboardShortcuts = initKeyboardShortcuts();
 
     let removeBackListener: (() => void) | undefined;
 
@@ -30,6 +33,7 @@
     }
 
     return () => {
+      removeKeyboardShortcuts();
       if (removeBackListener) removeBackListener();
     };
   });
