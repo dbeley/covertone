@@ -150,12 +150,10 @@
       </div>
     </div>
 
-    {#if biography}
+    {#if albums.length > 0}
       <div class="mb-8">
-        <h2 class="text-lg font-semibold mb-3 tracking-tight">Biography</h2>
-        <p class="text-sm text-text-dim leading-relaxed whitespace-pre-line bg-surface/50 border border-border rounded-xl p-4">
-          {biography.slice(0, 1000)}{biography.length > 1000 ? '...' : ''}
-        </p>
+        <h2 class="text-lg font-semibold mb-3 tracking-tight">Albums</h2>
+        <AlbumGrid {albums} {serverUrl} {username} {password} />
       </div>
     {/if}
 
@@ -224,10 +222,12 @@
       </div>
     {/if}
 
-    {#if albums.length > 0}
+    {#if biography}
       <div class="mb-8">
-        <h2 class="text-lg font-semibold mb-3 tracking-tight">Albums</h2>
-        <AlbumGrid {albums} {serverUrl} {username} {password} />
+        <h2 class="text-lg font-semibold mb-3 tracking-tight">Biography</h2>
+        <p class="text-sm text-text-dim leading-relaxed whitespace-pre-line bg-surface/50 border border-border rounded-xl p-4">
+          {biography.slice(0, 1000)}{biography.length > 1000 ? '...' : ''}
+        </p>
       </div>
     {/if}
 
