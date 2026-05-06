@@ -3,6 +3,7 @@
   import { queue, queueDrawerOpen } from '$lib/stores/queue';
   import { settings } from '$lib/stores/settings';
   import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
+  import LazyImage from '$lib/components/LazyImage.svelte';
 
   let { onExpand = () => {} }: { onExpand?: () => void } = $props();
 
@@ -61,7 +62,7 @@
       tabindex="0"
       aria-label="Now playing bar"
     >
-      <img src={coverArtUrl} alt="" class="w-10 h-10 rounded-lg object-cover shrink-0 ring-1 ring-border/50" />
+      <LazyImage src={coverArtUrl} alt="" class="w-10 h-10 rounded-lg object-cover shrink-0 ring-1 ring-border/50" />
       <div class="flex-1 min-w-0">
         <div class="text-sm font-medium truncate">{currentTrack.title}</div>
         <div class="text-xs text-text-dim truncate">{currentTrack.artist}</div>

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { router } from '$lib/stores/router';
+  import LazyImage from '$lib/components/LazyImage.svelte';
   import type { Album } from '$lib/api/types';
 
   let { album, coverArtUrl }: { album: Album; coverArtUrl: string } = $props();
@@ -12,7 +13,7 @@
   tabindex="0"
 >
   <div class="aspect-square overflow-hidden">
-    <img
+    <LazyImage
       src={coverArtUrl}
       alt={album.name}
       loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

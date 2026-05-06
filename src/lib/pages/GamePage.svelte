@@ -2,6 +2,7 @@
   import { player } from '$lib/stores/player';
   import { settings } from '$lib/stores/settings';
   import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
+  import LazyImage from '$lib/components/LazyImage.svelte';
   import type { Song } from '$lib/api/types';
 
   let serverUrl = $derived($settings.serverUrl);
@@ -142,7 +143,7 @@
 
     <div class="flex flex-col items-center gap-4 mb-6">
       {#if currentSong.coverArt}
-        <img
+        <LazyImage
           src={coverUrl(currentSong)}
           alt=""
           loading="lazy" decoding="async" class="w-40 h-40 rounded-2xl object-cover shadow-xl shadow-black/10 ring-1 ring-border/50"

@@ -4,6 +4,7 @@
   import { settings } from '$lib/stores/settings';
   import { router } from '$lib/stores/router';
   import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
+  import LazyImage from '$lib/components/LazyImage.svelte';
   import type { Artist } from '$lib/api/types';
 
   let serverUrl = $derived($settings.serverUrl);
@@ -140,7 +141,7 @@
                   tabindex="0"
                 >
                   <div class="w-20 h-20 rounded-full overflow-hidden ring-1 ring-border group-hover:ring-accent/30 transition-all duration-300 bg-surface">
-                    <img
+                    <LazyImage
                       src={artistImageUrl(artist)}
                       alt={artist.name}
                       loading="lazy"

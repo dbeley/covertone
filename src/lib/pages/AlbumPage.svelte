@@ -4,6 +4,7 @@
   import { queue } from '$lib/stores/queue';
   import { settings } from '$lib/stores/settings';
   import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
+  import LazyImage from '$lib/components/LazyImage.svelte';
   import TrackList from '$lib/components/TrackList.svelte';
   import type { Song, Album } from '$lib/api/types';
 
@@ -69,7 +70,7 @@
     <p class="text-red-500">{error}</p>
   {:else if album && songs.length > 0}
     <div class="flex flex-col sm:flex-row items-start gap-6 mb-8">
-      <img src={coverArtUrl} alt="" loading="lazy" decoding="async" class="w-48 h-48 rounded-2xl object-cover shadow-xl shadow-black/10 ring-1 ring-border/50" />
+      <LazyImage src={coverArtUrl} alt="" loading="lazy" decoding="async" class="w-48 h-48 rounded-2xl object-cover shadow-xl shadow-black/10 ring-1 ring-border/50" />
       <div class="flex flex-col justify-center gap-2">
         <p class="text-xs text-text-dim uppercase tracking-widest font-medium">Album</p>
         <h1 class="text-2xl font-bold tracking-tight">{album.name}</h1>

@@ -4,6 +4,7 @@
   import { router } from '$lib/stores/router';
   import { settings } from '$lib/stores/settings';
   import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
+  import LazyImage from '$lib/components/LazyImage.svelte';
 
   let { onClose = () => {} } = $props<{
     onClose?: () => void;
@@ -98,7 +99,7 @@
   {#if currentTrack?.coverArt}
     {#key currentTrack.coverArt}
       <div class="absolute inset-0 overflow-hidden animate-fade-slow">
-        <img src={coverArtUrl} alt="" class="w-full h-full object-cover blur-[80px] scale-150 opacity-50" />
+        <LazyImage src={coverArtUrl} alt="" class="w-full h-full object-cover blur-[80px] scale-150 opacity-50" />
       </div>
     {/key}
     <div class="absolute inset-0 bg-gradient-to-b from-bg/20 via-bg/60 to-bg/90"></div>
@@ -112,7 +113,7 @@
 
   <div class="flex-1 flex flex-col items-center justify-center px-6 gap-6 overflow-y-auto">
     {#if currentTrack}
-      <img
+      <LazyImage
         src={coverArtUrl}
         alt={currentTrack.title}
         class="w-64 h-64 rounded-2xl object-cover shadow-2xl shadow-black/20 ring-1 ring-border/50"

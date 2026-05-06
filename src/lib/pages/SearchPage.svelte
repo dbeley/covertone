@@ -4,6 +4,7 @@
   import { queue } from '$lib/stores/queue';
   import { settings } from '$lib/stores/settings';
   import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
+  import LazyImage from '$lib/components/LazyImage.svelte';
   import type { Artist, Album, Song } from '$lib/api/types';
   import { onMount } from 'svelte';
 
@@ -105,7 +106,7 @@
               tabindex="0"
             >
               <div class="w-20 h-20 rounded-full overflow-hidden">
-                <img
+                <LazyImage
                   src={coverUrl(artist.coverArt ?? '', 128)}
                   alt={artist.name}
                   loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
@@ -130,7 +131,7 @@
               tabindex="0"
             >
               <div class="w-32 h-32 rounded-lg overflow-hidden mb-1">
-                <img
+                <LazyImage
                   src={coverUrl(album.coverArt, 192)}
                   alt={album.name}
                   loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
@@ -155,7 +156,7 @@
               role="button"
               tabindex="0"
             >
-              <img
+              <LazyImage
                 src={coverUrl(song.coverArt ?? '', 40)}
                 alt=""
                 loading="lazy" decoding="async" class="w-8 h-8 rounded object-cover shrink-0"

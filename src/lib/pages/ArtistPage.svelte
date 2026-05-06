@@ -4,6 +4,7 @@
   import { queue } from '$lib/stores/queue';
   import { settings } from '$lib/stores/settings';
   import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
+  import LazyImage from '$lib/components/LazyImage.svelte';
   import AlbumGrid from '$lib/components/AlbumGrid.svelte';
   import type { Song, Artist, Album } from '$lib/api/types';
 
@@ -140,7 +141,7 @@
     <p class="text-red-500">{error}</p>
   {:else if artist}
     <div class="flex flex-col sm:flex-row items-start gap-6 mb-8">
-      <img src={coverArtUrl} alt="" loading="lazy" decoding="async" class="w-48 h-48 rounded-full object-cover shadow-xl shadow-black/10 ring-1 ring-border/50" />
+      <LazyImage src={coverArtUrl} alt="" loading="lazy" decoding="async" class="w-48 h-48 rounded-full object-cover shadow-xl shadow-black/10 ring-1 ring-border/50" />
       <div class="flex flex-col justify-center gap-1">
         <p class="text-xs text-text-dim uppercase tracking-widest font-medium">Artist</p>
         <h1 class="text-2xl font-bold tracking-tight">{artist.name}</h1>
@@ -249,7 +250,7 @@
               class="cursor-pointer group flex flex-col items-center gap-1.5 text-center shrink-0 no-underline transition-all duration-200 active:scale-95"
             >
               <div class="w-24 h-24 rounded-full overflow-hidden ring-1 ring-border group-hover:ring-accent/30 transition-all duration-300 bg-surface">
-                <img
+                <LazyImage
                   src={sArtist.artistImageUrl ?? ''}
                   alt={sArtist.name}
                   loading="lazy"
