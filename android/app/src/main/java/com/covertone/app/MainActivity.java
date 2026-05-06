@@ -10,12 +10,30 @@ import android.webkit.WebView;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.getcapacitor.BridgeActivity;
 
 import java.lang.ref.WeakReference;
 
 public class MainActivity extends BridgeActivity {
+
+    private void updateInsets() {
+        WebView wv = webViewRef.get();
+        if (wv == null) return;
+        ViewCompat.setOnApplyWindowInsetsListener(wv, (v, insets) -> {
+            int top = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
+            int bottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
+            String js = "document.documentElement.style.setProperty('--safe-area-inset-top', '"
+                    + top + "px');"
+                    + "document.documentElement.style.setProperty('--safe-area-inset-bottom', '"
+                    + bottom + "px');";
+            wv.evaluateJavascript(js, null);
+            return insets;
+        });
+    }
 
     private static final int PERM_REQ = 1001;
     private static WeakReference<WebView> webViewRef = new WeakReference<>(null);
@@ -36,8 +54,11 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+
         WebView wv = this.bridge.getWebView();
         webViewRef = new WeakReference<>(wv);
+        updateInsets();
         wv.getSettings().setMediaPlaybackRequiresUserGesture(false);
         wv.addJavascriptInterface(new MediaBridge(), "NativeMedia");
 

@@ -34,6 +34,7 @@ export default tseslint.config(
         MutationObserver: 'readonly',
         IntersectionObserver: 'readonly',
         HTMLDivElement: 'readonly',
+        HTMLImageElement: 'readonly',
         Event: 'readonly',
         MouseEvent: 'readonly',
         DOMException: 'readonly',

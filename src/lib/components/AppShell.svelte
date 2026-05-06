@@ -59,7 +59,7 @@
   }
 </script>
 
-<div class="h-dvh w-full flex flex-col" style="padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px)">
+  <div class="h-dvh w-full flex flex-col" style="padding-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px)); padding-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))">
   <div class="flex-1 flex min-h-0"
     ontouchstart={onSwipeStart}
     ontouchmove={onSwipeMove}

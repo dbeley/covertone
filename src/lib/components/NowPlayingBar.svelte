@@ -49,7 +49,8 @@
 
 {#if currentTrack}
   <div
-    class="fixed bottom-0 left-0 right-0 h-16 bg-surface/90 backdrop-blur-xl border-t border-border flex items-center px-4 gap-3 z-50 transition-shadow hover:shadow-lg hover:shadow-black/5"
+    class="fixed left-0 right-0 h-16 bg-surface/90 backdrop-blur-xl border-t border-border flex items-center px-4 gap-3 z-50 transition-shadow hover:shadow-lg hover:shadow-black/5"
+    style="bottom: var(--safe-area-inset-bottom, 0px)"
     ontouchstart={handleTouchStart}
     ontouchend={handleTouchEnd}
     role="presentation"
