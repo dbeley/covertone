@@ -43,14 +43,14 @@ function createQueue() {
     subscribe,
     addToEnd(track: Song) {
       update((s) => {
-        const newTracks = [...s.tracks, track];
+        const newTracks = [...s.tracks, { ...track }];
         const newIndex = s.tracks.length === 0 ? 0 : s.currentIndex;
         return recomputeDerived({ ...s, tracks: newTracks, currentIndex: newIndex });
       });
     },
     addTracksToEnd(tracks: Song[]) {
       update((s) => {
-        const newTracks = [...s.tracks, ...tracks];
+        const newTracks = [...s.tracks, ...tracks.map((t) => ({ ...t }))];
         const newIndex = s.tracks.length === 0 && tracks.length > 0 ? 0 : s.currentIndex;
         return recomputeDerived({ ...s, tracks: newTracks, currentIndex: newIndex });
       });
@@ -59,7 +59,7 @@ function createQueue() {
       update((s) => {
         const idx = s.currentIndex < 0 ? s.tracks.length : s.currentIndex + 1;
         const newTracks = [...s.tracks];
-        newTracks.splice(idx, 0, track);
+        newTracks.splice(idx, 0, { ...track });
         const newIndex = s.tracks.length === 0 ? 0 : s.currentIndex;
         return recomputeDerived({ ...s, tracks: newTracks, currentIndex: newIndex });
       });
@@ -67,7 +67,7 @@ function createQueue() {
     replaceAll(tracks: Song[]) {
       update((s) => {
         const next = {
-          tracks,
+          tracks: tracks.map((t) => ({ ...t })),
           currentIndex: tracks.length > 0 ? 0 : -1,
           autoDJ: s.autoDJ,
           shuffle: s.shuffle,

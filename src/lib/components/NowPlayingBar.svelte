@@ -1,6 +1,6 @@
 <script lang="ts">
   import { player } from '$lib/stores/player';
-  import { queue } from '$lib/stores/queue';
+  import { queue, queueDrawerOpen } from '$lib/stores/queue';
   import { settings } from '$lib/stores/settings';
   import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
 
@@ -105,6 +105,18 @@
         <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
           <polygon points="5,4 17,12 5,20" />
           <rect x="17" y="4" width="3" height="16" rx="1" />
+        </svg>
+      </button>
+
+      <button
+        class="p-2 rounded-xl transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
+        onclick={(e) => { e.stopPropagation(); queueDrawerOpen.set(true); }}
+        aria-label="Queue"
+      >
+        <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+          <line x1="4" y1="6" x2="20" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          <line x1="4" y1="18" x2="20" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
         </svg>
       </button>
     </div>

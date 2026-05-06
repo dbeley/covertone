@@ -1,4 +1,5 @@
 import { player } from "$lib/stores/player";
+import { router } from "$lib/stores/router";
 
 function isTypingTarget(el: EventTarget | null): boolean {
   if (!(el instanceof HTMLElement)) return false;
@@ -29,6 +30,12 @@ function handleKeyDown(e: KeyboardEvent) {
       break;
     case "ArrowLeft":
       // Future: previous track
+      break;
+    case "KeyK":
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        router.navigate("/search");
+      }
       break;
   }
 }

@@ -1,9 +1,11 @@
 <script lang="ts">
   import { router } from '$lib/stores/router';
   import { player } from '$lib/stores/player';
+  import { queue } from '$lib/stores/queue';
   import { settings } from '$lib/stores/settings';
   import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import type { Artist, Album, Song } from '$lib/api/types';
+  import { onMount } from 'svelte';
 
   let serverUrl = $derived($settings.serverUrl);
   let username = $derived($settings.username);
@@ -16,7 +18,13 @@
   let searching = $state(false);
   let hasSearched = $state(false);
 
+  let inputRef = $state<HTMLInputElement | null>(null);
+
   let debounceTimer: ReturnType<typeof setTimeout>;
+
+  onMount(() => {
+    inputRef?.focus();
+  });
 
   function coverUrl(id: string, size: number): string {
     if (!id) return '';
@@ -76,6 +84,7 @@
     type="text"
     placeholder="Search albums, artists, songs..."
     oninput={handleInput}
+    bind:this={inputRef}
     class="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150 mb-6"
   />
 
@@ -155,7 +164,29 @@
                 <div class="text-sm font-medium truncate">{song.title}</div>
                 <div class="text-xs text-text-dim truncate">{song.artist} · {song.album}</div>
               </div>
-              <span class="text-xs text-text-dim shrink-0">{formatDuration(song.duration)}</span>
+              <div class="flex items-center gap-1 shrink-0">
+                <button
+                  class="p-1.5 rounded-lg hover:bg-white/10 text-text-dim hover:text-text transition-colors"
+                  onclick={(e) => { e.stopPropagation(); queue.addNext(song); }}
+                  aria-label="Play next"
+                >
+                  <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current">
+                    <polygon points="7,4 19,12 7,20" />
+                    <rect x="19" y="4" width="2" height="16" rx="1" />
+                  </svg>
+                </button>
+                <button
+                  class="p-1.5 rounded-lg hover:bg-white/10 text-text-dim hover:text-text transition-colors"
+                  onclick={(e) => { e.stopPropagation(); queue.addToEnd(song); }}
+                  aria-label="Add to queue"
+                >
+                  <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current">
+                    <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  </svg>
+                </button>
+              </div>
+              <span class="text-xs text-text-dim shrink-0 w-10 text-right">{formatDuration(song.duration)}</span>
             </div>
           {/each}
         </div>

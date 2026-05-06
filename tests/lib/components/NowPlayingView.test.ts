@@ -4,7 +4,7 @@ import NowPlayingView from '$lib/components/NowPlayingView.svelte';
 
 const mockPlayerState = {
   status: 'idle' as const,
-  currentTrack: null as { title: string; artist: string; album?: string; coverArt?: string } | null,
+  currentTrack: null as { title: string; artist: string; album?: string; coverArt?: string; artistId?: string; albumId?: string } | null,
   currentTime: 0,
   duration: 0,
   volume: 1,
@@ -100,5 +100,25 @@ describe('NowPlayingView', () => {
     mockPlayerState.currentTrack = { title: 'Test Song', artist: 'Test Artist', album: 'Test Album', coverArt: '123' };
     render(NowPlayingView);
     expect(screen.getByLabelText('Close')).toBeTruthy();
+  });
+
+  it('calls onClose when artist link is clicked', () => {
+    const onClose = vi.fn();
+    mockPlayerState.status = 'playing';
+    mockPlayerState.currentTrack = { title: 'Test Song', artist: 'Test Artist', album: 'Test Album', coverArt: '123', artistId: 'art1', albumId: 'alb1' };
+    render(NowPlayingView, { onClose });
+    const artistButton = screen.getByText('Test Artist');
+    artistButton.click();
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls onClose when album link is clicked', () => {
+    const onClose = vi.fn();
+    mockPlayerState.status = 'playing';
+    mockPlayerState.currentTrack = { title: 'Test Song', artist: 'Test Artist', album: 'Test Album', coverArt: '123', artistId: 'art1', albumId: 'alb1' };
+    render(NowPlayingView, { onClose });
+    const albumButton = screen.getByText('Test Album');
+    albumButton.click();
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

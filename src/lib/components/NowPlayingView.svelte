@@ -121,10 +121,10 @@
       <div class="text-center">
         <h1 class="text-xl font-bold">{currentTrack.title}</h1>
         <p class="text-sm text-text-dim mt-1">
-          <button class="hover:text-accent hover:underline transition-colors" onclick={(e) => { e.stopPropagation(); router.navigate(`artist/${currentTrack.artistId}`); }}>{currentTrack.artist}</button>
+          <button class="hover:text-accent hover:underline transition-colors" onclick={(e) => { e.stopPropagation(); router.navigate(`artist/${currentTrack.artistId}`); onClose(); }}>{currentTrack.artist}</button>
           {#if currentTrack.album}
              · 
-            <button class="hover:text-accent hover:underline transition-colors" onclick={(e) => { e.stopPropagation(); router.navigate(`album/${currentTrack.albumId}`); }}>{currentTrack.album}</button>
+            <button class="hover:text-accent hover:underline transition-colors" onclick={(e) => { e.stopPropagation(); router.navigate(`album/${currentTrack.albumId}`); onClose(); }}>{currentTrack.album}</button>
           {/if}
         </p>
       </div>
@@ -224,7 +224,7 @@
 
         <button
           class="p-2.5 rounded-xl transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
-          onclick={() => queueDrawerOpen.set(true)}
+          onclick={() => { queueDrawerOpen.set(true); onClose(); }}
           aria-label="Queue"
         >
           <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
