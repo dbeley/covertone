@@ -59,7 +59,7 @@ jobs:
              android/app/build/outputs/apk/release/covertone-${VERSION}.apk
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: android/app/build/outputs/apk/release/covertone-*.apk
           generate_release_notes: true
