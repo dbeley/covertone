@@ -1,6 +1,11 @@
 # Covertone
 
+[![Get it on Obtainium](https://img.shields.io/badge/Get%20it%20on-Obtainium-1E90FF?style=for-the-badge&logo=android&logoColor=white)](http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/dbeley/covertone)
+
 A Subsonic/Navidrome music streaming client — Progressive Web App with Android/iOS support via Capacitor.
+
+<img src="imgs/album-view.png" width="600" />
+<img src="imgs/now-playing-view.png" width="600" />
 
 ## Quick Start
 
@@ -85,18 +90,6 @@ pnpm ios:open     # open in Xcode
 pnpm ios:build    # command-line build
 ```
 
-## Development
-
-```bash
-pnpm dev          # hot-reload dev server
-pnpm test --watch # watch mode for tests
-pnpm lint         # run all linters
-```
-
-The Nix flake provides: `nodejs_22`, `pnpm`, `jdk21`, `caddy`, `shellcheck`, `svelte-language-server`, `typescript-language-server`.
-
-[![Get it on Obtainium](https://img.shields.io/badge/Get%20it%20on-Obtainium-1E90FF?style=for-the-badge&logo=android&logoColor=white)](http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/dbeley/covertone)
-
 ## Tech Stack
 
 | Layer | Technology |
@@ -109,11 +102,3 @@ The Nix flake provides: `nodejs_22`, `pnpm`, `jdk21`, `caddy`, `shellcheck`, `sv
 | Testing | Vitest + Testing Library |
 | Linting | ESLint 9 + Prettier + svelte-check |
 | Dev env | Nix flake |
-
-## Continuous Integration
-
-GitHub Actions on every push/PR to `main`:
-1. ESLint → Prettier → svelte-check
-2. Vitest (121 tests)
-3. Vite production build
-4. Docker build + smoke test
