@@ -110,6 +110,9 @@ function createPlayer() {
     },
     playTrack(track: Song) {
       lastTrack = track;
+      import("$lib/stores/queue").then(({ queue }) => {
+        queue.syncCurrentTrack(track);
+      });
       const currentState = get(store);
 
       if (currentState.currentTrack && !scrobbled) {
@@ -206,6 +209,9 @@ function createPlayer() {
     },
     stop() {
       lastTrack = null;
+      import("$lib/stores/queue").then(({ queue }) => {
+        queue.syncCurrentTrack(null);
+      });
       if (engine) {
         engine.destroy();
         engine = null;
@@ -231,12 +237,18 @@ function createPlayer() {
     },
     setShuffle(shuffle: boolean) {
       update((s) => ({ ...s, shuffle }));
+      import("$lib/stores/queue").then(({ queue }) => {
+        queue.setShuffle(shuffle);
+      });
     },
     setFavorited(favorited: boolean) {
       update((s) => ({ ...s, favorited }));
     },
     reset() {
       lastTrack = null;
+      import("$lib/stores/queue").then(({ queue }) => {
+        queue.syncCurrentTrack(null);
+      });
       if (engine) {
         engine.destroy();
         engine = null;

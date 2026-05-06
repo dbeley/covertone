@@ -9,6 +9,7 @@ export interface QueueState {
   tracks: Song[];
   currentIndex: number;
   autoDJ: boolean;
+  shuffle: boolean;
   hasNext: boolean;
   hasPrevious: boolean;
 }
@@ -20,6 +21,7 @@ function createQueue() {
     tracks: [],
     currentIndex: -1,
     autoDJ: false,
+    shuffle: false,
     hasNext: false,
     hasPrevious: false,
   });
@@ -27,10 +29,12 @@ function createQueue() {
   const { subscribe, set, update } = store;
 
   function recomputeDerived(state: QueueState): QueueState {
+    const hasNext = state.shuffle
+      ? state.tracks.length > 1
+      : state.currentIndex >= 0 && state.currentIndex < state.tracks.length - 1;
     return {
       ...state,
-      hasNext:
-        state.currentIndex >= 0 && state.currentIndex < state.tracks.length - 1,
+      hasNext,
       hasPrevious: state.currentIndex > 0,
     };
   }
@@ -39,14 +43,16 @@ function createQueue() {
     subscribe,
     addToEnd(track: Song) {
       update((s) => {
-        const next = { ...s, tracks: [...s.tracks, track] };
-        return recomputeDerived(next);
+        const newTracks = [...s.tracks, track];
+        const newIndex = s.tracks.length === 0 ? 0 : s.currentIndex;
+        return recomputeDerived({ ...s, tracks: newTracks, currentIndex: newIndex });
       });
     },
     addTracksToEnd(tracks: Song[]) {
       update((s) => {
-        const next = { ...s, tracks: [...s.tracks, ...tracks] };
-        return recomputeDerived(next);
+        const newTracks = [...s.tracks, ...tracks];
+        const newIndex = s.tracks.length === 0 && tracks.length > 0 ? 0 : s.currentIndex;
+        return recomputeDerived({ ...s, tracks: newTracks, currentIndex: newIndex });
       });
     },
     addNext(track: Song) {
@@ -54,18 +60,22 @@ function createQueue() {
         const idx = s.currentIndex < 0 ? s.tracks.length : s.currentIndex + 1;
         const newTracks = [...s.tracks];
         newTracks.splice(idx, 0, track);
-        return recomputeDerived({ ...s, tracks: newTracks });
+        const newIndex = s.tracks.length === 0 ? 0 : s.currentIndex;
+        return recomputeDerived({ ...s, tracks: newTracks, currentIndex: newIndex });
       });
     },
     replaceAll(tracks: Song[]) {
-      const next = {
-        tracks,
-        currentIndex: tracks.length > 0 ? 0 : -1,
-        autoDJ: false,
-        hasNext: false,
-        hasPrevious: false,
-      };
-      set(recomputeDerived(next));
+      update((s) => {
+        const next = {
+          tracks,
+          currentIndex: tracks.length > 0 ? 0 : -1,
+          autoDJ: s.autoDJ,
+          shuffle: s.shuffle,
+          hasNext: false,
+          hasPrevious: false,
+        };
+        return recomputeDerived(next);
+      });
     },
     playIndex(index: number) {
       update((s) => {
@@ -75,6 +85,7 @@ function createQueue() {
     },
     removeTrack(index: number) {
       update((s) => {
+        if (index < 0 || index >= s.tracks.length) return s;
         const newTracks = s.tracks.filter((_, i) => i !== index);
         let newIndex = s.currentIndex;
         if (index < s.currentIndex) {
@@ -92,6 +103,15 @@ function createQueue() {
     },
     moveTrack(fromIndex: number, toIndex: number) {
       update((s) => {
+        if (
+          fromIndex < 0 ||
+          fromIndex >= s.tracks.length ||
+          toIndex < 0 ||
+          toIndex >= s.tracks.length ||
+          fromIndex === toIndex
+        ) {
+          return s;
+        }
         const newTracks = [...s.tracks];
         const [item] = newTracks.splice(fromIndex, 1);
         newTracks.splice(toIndex, 0, item);
@@ -118,6 +138,7 @@ function createQueue() {
           tracks: [],
           currentIndex: -1,
           autoDJ: false,
+          shuffle: false,
           hasNext: false,
           hasPrevious: false,
         }),
@@ -125,6 +146,9 @@ function createQueue() {
     },
     setAutoDJ(enabled: boolean) {
       update((s) => recomputeDerived({ ...s, autoDJ: enabled }));
+    },
+    setShuffle(enabled: boolean) {
+      update((s) => recomputeDerived({ ...s, shuffle: enabled }));
     },
     setAutoDJInstance(instance: AutoDJ) {
       autoDJInstance = instance;
@@ -139,6 +163,14 @@ function createQueue() {
     getNext(): Song | null {
       let result: Song | null = null;
       update((s) => {
+        if (s.shuffle && s.tracks.length > 1) {
+          let nextIndex = Math.floor(Math.random() * s.tracks.length);
+          while (nextIndex === s.currentIndex) {
+            nextIndex = Math.floor(Math.random() * s.tracks.length);
+          }
+          result = s.tracks[nextIndex];
+          return recomputeDerived({ ...s, currentIndex: nextIndex });
+        }
         const nextIndex = s.currentIndex + 1;
         if (nextIndex < s.tracks.length) {
           result = s.tracks[nextIndex];
@@ -177,6 +209,13 @@ function createQueue() {
 
       this.addTracksToEnd(similar);
       return this.getNext();
+    },
+    syncCurrentTrack(track: Song | null) {
+      update((s) => {
+        if (!track) return recomputeDerived({ ...s, currentIndex: -1 });
+        const index = s.tracks.findIndex((t) => t.id === track.id);
+        return recomputeDerived({ ...s, currentIndex: index });
+      });
     },
   };
 }

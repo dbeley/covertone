@@ -28,36 +28,63 @@ describe('queue store', () => {
     expect(state.tracks).toEqual([]);
     expect(state.currentIndex).toBe(-1);
     expect(state.autoDJ).toBe(false);
+    expect(state.shuffle).toBe(false);
     expect(state.hasNext).toBe(false);
     expect(state.hasPrevious).toBe(false);
   });
 
-  it('addToEnd appends a track', () => {
+  it('addToEnd appends a track and sets currentIndex on empty queue', () => {
     queue.addToEnd(song1);
     const state = get(queue);
     expect(state.tracks).toEqual([song1]);
-    expect(state.currentIndex).toBe(-1);
+    expect(state.currentIndex).toBe(0);
   });
 
-  it('addTracksToEnd appends multiple tracks', () => {
+  it('addToEnd preserves currentIndex on non-empty queue', () => {
+    queue.replaceAll([song1, song2]);
+    queue.playIndex(1);
+    queue.addToEnd(song3);
+    const state = get(queue);
+    expect(state.tracks).toEqual([song1, song2, song3]);
+    expect(state.currentIndex).toBe(1);
+  });
+
+  it('addTracksToEnd appends multiple tracks and sets currentIndex on empty queue', () => {
     queue.addTracksToEnd([song1, song2]);
     const state = get(queue);
     expect(state.tracks).toHaveLength(2);
     expect(state.tracks).toEqual([song1, song2]);
+    expect(state.currentIndex).toBe(0);
+  });
+
+  it('addTracksToEnd preserves currentIndex on non-empty queue', () => {
+    queue.replaceAll([song1]);
+    queue.addTracksToEnd([song2, song3]);
+    const state = get(queue);
+    expect(state.tracks).toEqual([song1, song2, song3]);
+    expect(state.currentIndex).toBe(0);
   });
 
   it('addNext inserts track after currentIndex', () => {
-    queue.addTracksToEnd([song1, song2]);
     queue.replaceAll([song1, song2]);
     queue.addNext(song3);
     const state = get(queue);
     expect(state.tracks).toEqual([song1, song3, song2]);
   });
 
-  it('addNext appends if currentIndex is negative', () => {
+  it('addNext appends and sets currentIndex on empty queue', () => {
     queue.addNext(song1);
     const state = get(queue);
     expect(state.tracks).toEqual([song1]);
+    expect(state.currentIndex).toBe(0);
+  });
+
+  it('addNext appends at end when currentIndex is negative and queue is non-empty', () => {
+    queue.addToEnd(song1);
+    queue.addNext(song2);
+    const state = get(queue);
+    expect(state.tracks).toEqual([song1, song2]);
+    expect(state.currentIndex).toBe(0);
   });
 
   it('replaceAll sets tracks and resets index', () => {
@@ -66,6 +93,15 @@ describe('queue store', () => {
     const state = get(queue);
     expect(state.tracks).toEqual([song3, song4]);
     expect(state.currentIndex).toBe(0);
+  });
+
+  it('replaceAll preserves autoDJ and shuffle state', () => {
+    queue.setAutoDJ(true);
+    queue.setShuffle(true);
+    queue.replaceAll([song1, song2]);
+    const state = get(queue);
+    expect(state.autoDJ).toBe(true);
+    expect(state.shuffle).toBe(true);
   });
 
   it('removeTrack removes by index and adjusts currentIndex', () => {
@@ -97,6 +133,14 @@ describe('queue store', () => {
     expect(state.currentIndex).toBe(-1);
   });
 
+  it('removeTrack ignores out-of-bounds index', () => {
+    queue.replaceAll([song1, song2]);
+    queue.removeTrack(-1);
+    expect(get(queue).tracks).toEqual([song1, song2]);
+    queue.removeTrack(5);
+    expect(get(queue).tracks).toEqual([song1, song2]);
+  });
+
   it('moveTrack moves track within the queue', () => {
     queue.replaceAll([song1, song2, song3]);
     queue.moveTrack(2, 0);
@@ -120,12 +164,24 @@ describe('queue store', () => {
     expect(state.currentIndex).toBe(1);
   });
 
+  it('moveTrack ignores out-of-bounds or same indices', () => {
+    queue.replaceAll([song1, song2, song3]);
+    queue.moveTrack(-1, 1);
+    expect(get(queue).tracks).toEqual([song1, song2, song3]);
+    queue.moveTrack(1, 5);
+    expect(get(queue).tracks).toEqual([song1, song2, song3]);
+    queue.moveTrack(1, 1);
+    expect(get(queue).tracks).toEqual([song1, song2, song3]);
+  });
+
   it('clear empties queue', () => {
     queue.replaceAll([song1, song2]);
     queue.clear();
     const state = get(queue);
     expect(state.tracks).toEqual([]);
     expect(state.currentIndex).toBe(-1);
+    expect(state.autoDJ).toBe(false);
+    expect(state.shuffle).toBe(false);
   });
 
   it('setAutoDJ enables/disables autoDJ', () => {
@@ -133,6 +189,13 @@ describe('queue store', () => {
     expect(get(queue).autoDJ).toBe(true);
     queue.setAutoDJ(false);
     expect(get(queue).autoDJ).toBe(false);
+  });
+
+  it('setShuffle enables/disables shuffle', () => {
+    queue.setShuffle(true);
+    expect(get(queue).shuffle).toBe(true);
+    queue.setShuffle(false);
+    expect(get(queue).shuffle).toBe(false);
   });
 
   it('getCurrent returns track at currentIndex', () => {
@@ -186,6 +249,47 @@ describe('queue store', () => {
     state = get(queue);
     expect(state.hasNext).toBe(false);
     expect(state.hasPrevious).toBe(true);
+  });
+
+  it('getNext shuffles when shuffle is enabled', () => {
+    queue.replaceAll([song1, song2, song3]);
+    queue.setShuffle(true);
+    const next = queue.getNext();
+    expect([song1, song2, song3]).toContainEqual(next);
+    expect(get(queue).currentIndex).toBeGreaterThanOrEqual(0);
+    expect(get(queue).currentIndex).toBeLessThan(3);
+  });
+
+  it('hasNext is true with shuffle when more than one track exists', () => {
+    queue.replaceAll([song1, song2]);
+    queue.setShuffle(true);
+    queue.playIndex(0);
+    expect(get(queue).hasNext).toBe(true);
+  });
+
+  it('hasNext is false with shuffle when only one track exists', () => {
+    queue.replaceAll([song1]);
+    queue.setShuffle(true);
+    queue.playIndex(0);
+    expect(get(queue).hasNext).toBe(false);
+  });
+
+  it('syncCurrentTrack updates currentIndex when track is in queue', () => {
+    queue.replaceAll([song1, song2, song3]);
+    queue.syncCurrentTrack(song2);
+    expect(get(queue).currentIndex).toBe(1);
+  });
+
+  it('syncCurrentTrack resets currentIndex when track is not in queue', () => {
+    queue.replaceAll([song1, song2]);
+    queue.syncCurrentTrack(song3);
+    expect(get(queue).currentIndex).toBe(-1);
+  });
+
+  it('syncCurrentTrack with null resets currentIndex', () => {
+    queue.replaceAll([song1, song2]);
+    queue.syncCurrentTrack(null);
+    expect(get(queue).currentIndex).toBe(-1);
   });
 
   it('getNextAutoDJ returns next when available', async () => {
