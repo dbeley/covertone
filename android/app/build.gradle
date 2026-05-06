@@ -11,12 +11,21 @@ android {
         applicationId "com.covertone.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
+        def versionParts = appVersion.tokenize('.')
+        def versionCode = versionParts[0].toInteger() * 10000 +
+                          versionParts[1].toInteger() * 100 +
+                          (versionParts.size() > 2 ? versionParts[2].toInteger() : 0)
+        versionCode versionCode
         versionName appVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
+    }
+
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
 
     signingConfigs {

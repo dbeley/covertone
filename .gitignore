@@ -11,3 +11,4 @@ android/build/
 android/app/build/
 android/captures/
 android-sdk/
+*.keystore
