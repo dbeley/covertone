@@ -95,15 +95,7 @@ pnpm lint         # run all linters
 
 The Nix flake provides: `nodejs_22`, `pnpm`, `jdk21`, `caddy`, `shellcheck`, `svelte-language-server`, `typescript-language-server`.
 
-## Install with Obtainium
-
-Add this repository to [Obtainium](https://github.com/ImranR98/Obtainium) to get automatic updates straight from the source:
-
-```
-https://github.com/dbeley/covertone
-```
-
-If Obtainium prompts you to filter APKs, use the regex `covertone-.*\.apk`.
+[![Get it on Obtainium](https://img.shields.io/badge/Get%20it%20on-Obtainium-1E90FF?style=for-the-badge&logo=android&logoColor=white)](http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/dbeley/covertone)
 
 ## Tech Stack
 
