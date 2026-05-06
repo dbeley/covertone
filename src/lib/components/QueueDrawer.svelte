@@ -79,12 +79,6 @@
             </svg>
           </button>
         {/if}
-        <button class="p-2 rounded-xl hover:bg-white/5 text-text-dim hover:text-text transition-all duration-150 active:scale-90" onclick={() => queueDrawerOpen.set(false)} aria-label="Close queue">
-          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
-            <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-            <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-          </svg>
-        </button>
       </div>
     </div>
     <div class="overflow-y-auto flex-1 min-w-0 pb-16">
@@ -158,12 +152,6 @@
               </svg>
             </button>
           {/if}
-          <button class="p-2 rounded-xl hover:bg-white/5 text-text-dim hover:text-text transition-all duration-150 active:scale-90" onclick={() => queueDrawerOpen.set(false)} aria-label="Close queue">
-            <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
-              <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-              <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-            </svg>
-          </button>
         </div>
       </div>
 

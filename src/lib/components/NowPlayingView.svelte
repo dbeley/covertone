@@ -14,7 +14,6 @@
   let currentTrack = $derived($player.currentTrack);
   let currentTime = $derived($player.currentTime);
   let duration = $derived($player.duration);
-  let repeating = $derived($player.repeating);
   let shuffle = $derived($player.shuffle);
   let favorited = $derived($player.favorited);
   let serverUrl = $derived($settings.serverUrl);
@@ -75,10 +74,6 @@
 
   function toggleShuffle() {
     player.setShuffle(!shuffle);
-  }
-
-  function toggleRepeat() {
-    player.setRepeating(!repeating);
   }
 
   function toggleFavorite() {
@@ -147,19 +142,6 @@
 
       <div class="flex items-center gap-4">
         <button
-          class="p-2.5 rounded-xl transition-all duration-150 active:scale-90 {shuffle ? 'bg-accent/10 text-accent' : 'text-text-dim hover:text-text hover:bg-white/5'}"
-          onclick={toggleShuffle}
-          aria-label="Shuffle"
-        >
-          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
-            <polyline points="17 1 21 5 17 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M3 11V9a4 4 0 0 1 4-4h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-            <polyline points="7 23 3 19 7 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M21 13v2a4 4 0 0 1-4 4H3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-          </svg>
-        </button>
-
-        <button
           class="p-2.5 rounded-xl transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
           onclick={handlePrev}
           aria-label="Previous"
@@ -198,21 +180,23 @@
           </svg>
         </button>
 
-        <button
-          class="p-2.5 rounded-xl transition-all duration-150 active:scale-90 {repeating ? 'bg-accent/10 text-accent' : 'text-text-dim hover:text-text hover:bg-white/5'}"
-          onclick={toggleRepeat}
-          aria-label="Repeat"
-        >
-          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
-            <polyline points="17 1 21 5 17 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M3 11V9a4 4 0 0 1 4-4h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-            <polyline points="7 23 3 19 7 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M21 13v2a4 4 0 0 1-4 4H3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-          </svg>
-        </button>
+
       </div>
 
       <div class="flex items-center gap-6">
+        <button
+          class="p-2.5 rounded-xl transition-all duration-150 active:scale-90 {shuffle ? 'bg-accent/10 text-accent' : 'text-text-dim hover:text-text hover:bg-white/5'}"
+          onclick={toggleShuffle}
+          aria-label="Shuffle"
+        >
+          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+            <path d="M16 3h5v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4 20l16-16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M21 16v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M4 4l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+
         <button
           class="p-2.5 rounded-xl transition-all duration-150 active:scale-90 {favorited ? 'text-accent' : 'text-text-dim hover:text-text hover:bg-white/5'}"
           onclick={toggleFavorite}
