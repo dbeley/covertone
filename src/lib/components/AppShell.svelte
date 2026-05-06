@@ -81,7 +81,7 @@
     <main class="flex-1 overflow-y-auto pt-12 md:pt-0">
       <button
         class="md:hidden fixed left-3 z-30 p-2.5 rounded-xl bg-surface/90 backdrop-blur border border-border shadow-lg hover:border-accent/30 transition-all duration-150 active:scale-95"
-        style="top: calc(0.75rem + env(safe-area-inset-top, 0px))"
+        style="top: calc(0.75rem + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)))"
         onclick={() => { menuOpen = !menuOpen; }}
         aria-label="Toggle menu"
       >
