@@ -4,7 +4,7 @@
   import { router } from '$lib/stores/router';
   import type { Song } from '$lib/api/types';
 
-  let { songs, onPlay, showArtistLink = true }: { songs: Song[]; onPlay?: (song: Song, index: number) => void; showArtistLink?: boolean } = $props();
+  let { songs, onPlay, showArtistLink = true, showPlaylistIndex = false }: { songs: Song[]; onPlay?: (song: Song, index: number) => void; showArtistLink?: boolean; showPlaylistIndex?: boolean } = $props();
 
   let contextMenuIndex = $state<number | null>(null);
   let longPressTimer = $state<ReturnType<typeof setTimeout> | null>(null);
@@ -84,7 +84,7 @@
       tabindex="0"
     >
       <span class="w-6 text-center text-xs text-text-dim group-hover:hidden">
-        {song.track ?? index + 1}
+        {showPlaylistIndex ? index + 1 : (song.track ?? index + 1)}
       </span>
       <span class="w-6 text-center hidden group-hover:block">
         <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current inline-block">

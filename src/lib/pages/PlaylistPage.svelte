@@ -101,7 +101,7 @@
           {playlist.songCount} tracks
           · {formatDuration(playlist.duration)}
         </p>
-        <div class="flex gap-2 mt-2">
+        <div class="flex gap-2 mt-2 flex-wrap">
           <button
             class="px-5 py-2.5 bg-accent text-white rounded-xl text-sm font-medium hover:brightness-110 active:scale-[0.98] transition-all duration-150 shadow-lg shadow-accent/20"
             onclick={() => { queue.replaceAll(songs); player.playTrack(songs[0]); }}
@@ -114,10 +114,20 @@
           >
             Add to Queue
           </button>
+          <button
+            class="px-5 py-2.5 bg-surface border border-border rounded-xl text-sm font-medium hover:border-accent/30 active:scale-[0.98] transition-all duration-150"
+            onclick={() => {
+              const shuffled = [...songs].sort(() => Math.random() - 0.5);
+              queue.replaceAll(shuffled);
+              player.playTrack(shuffled[0]);
+            }}
+          >
+            Shuffle Play
+          </button>
         </div>
       </div>
     </div>
-    <TrackList {songs} showArtistLink={true} onPlay={(song, index) => { queue.replaceAll(songs); queue.playIndex(index); player.playTrack(song); }} />
+    <TrackList {songs} showArtistLink={true} showPlaylistIndex={true} onPlay={(song, index) => { queue.replaceAll(songs); queue.playIndex(index); player.playTrack(song); }} />
   {:else}
     <p class="text-text-dim">Playlist not found or empty</p>
   {/if}
