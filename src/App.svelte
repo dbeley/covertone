@@ -41,11 +41,13 @@
   $effect(() => {
     const theme = $settings.appliedTheme;
     const html = document.documentElement;
-    html.classList.remove('dark', 'amoled');
+    html.classList.remove('dark', 'amoled', 'light');
     if (theme === 'dark') {
       html.classList.add('dark');
     } else if (theme === 'amoled') {
       html.classList.add('dark', 'amoled');
+    } else {
+      html.classList.add('light');
     }
   });
 

@@ -130,7 +130,7 @@
       <div class="flex-1 overflow-y-auto pr-2" id="artist-scroll-container">
         {#each visibleSections as group (group.letter)}
           <div id="letter-{group.letter}" class="mb-8" style="content-visibility: auto; contain-intrinsic-size: auto 320px">
-            <h3 class="text-lg font-semibold mb-3 tracking-tight text-accent sticky top-0 bg-bg/90 backdrop-blur-sm py-1 z-10">{group.letter}</h3>
+            <h3 class="text-lg font-semibold mb-3 tracking-tight text-accent sticky top-0 bg-surface/95 backdrop-blur-sm py-1 z-10">{group.letter}</h3>
             <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
               {#each group.artists as artist (artist.id)}
                 <div

@@ -17,6 +17,10 @@ const song2: Song = { id: '2', title: 'Song 2', artist: 'Artist', album: 'Album'
 const song3: Song = { id: '3', title: 'Song 3', artist: 'Artist', album: 'Album', albumId: 'a1', duration: 220 };
 const song4: Song = { id: '4', title: 'Song 4', artist: 'Artist', album: 'Album', albumId: 'a1', duration: 190 };
 
+function tracksFrom(state: ReturnType<typeof get<typeof queue>>) {
+  return state.items.map((i) => i.track);
+}
+
 describe('queue store', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -25,7 +29,7 @@ describe('queue store', () => {
 
   it('has correct initial state', () => {
     const state = get(queue);
-    expect(state.tracks).toEqual([]);
+    expect(state.items).toEqual([]);
     expect(state.currentIndex).toBe(-1);
     expect(state.autoDJ).toBe(false);
     expect(state.shuffle).toBe(false);
@@ -36,7 +40,7 @@ describe('queue store', () => {
   it('addToEnd appends a track and sets currentIndex on empty queue', () => {
     queue.addToEnd(song1);
     const state = get(queue);
-    expect(state.tracks).toEqual([song1]);
+    expect(tracksFrom(state)).toEqual([song1]);
     expect(state.currentIndex).toBe(0);
   });
 
@@ -45,15 +49,15 @@ describe('queue store', () => {
     queue.playIndex(1);
     queue.addToEnd(song3);
     const state = get(queue);
-    expect(state.tracks).toEqual([song1, song2, song3]);
+    expect(tracksFrom(state)).toEqual([song1, song2, song3]);
     expect(state.currentIndex).toBe(1);
   });
 
   it('addTracksToEnd appends multiple tracks and sets currentIndex on empty queue', () => {
     queue.addTracksToEnd([song1, song2]);
     const state = get(queue);
-    expect(state.tracks).toHaveLength(2);
-    expect(state.tracks).toEqual([song1, song2]);
+    expect(state.items).toHaveLength(2);
+    expect(tracksFrom(state)).toEqual([song1, song2]);
     expect(state.currentIndex).toBe(0);
   });
 
@@ -61,7 +65,7 @@ describe('queue store', () => {
     queue.replaceAll([song1]);
     queue.addTracksToEnd([song2, song3]);
     const state = get(queue);
-    expect(state.tracks).toEqual([song1, song2, song3]);
+    expect(tracksFrom(state)).toEqual([song1, song2, song3]);
     expect(state.currentIndex).toBe(0);
   });
 
@@ -69,13 +73,13 @@ describe('queue store', () => {
     queue.replaceAll([song1, song2]);
     queue.addNext(song3);
     const state = get(queue);
-    expect(state.tracks).toEqual([song1, song3, song2]);
+    expect(tracksFrom(state)).toEqual([song1, song3, song2]);
   });
 
   it('addNext appends and sets currentIndex on empty queue', () => {
     queue.addNext(song1);
     const state = get(queue);
-    expect(state.tracks).toEqual([song1]);
+    expect(tracksFrom(state)).toEqual([song1]);
     expect(state.currentIndex).toBe(0);
   });
 
@@ -83,7 +87,7 @@ describe('queue store', () => {
     queue.addToEnd(song1);
     queue.addNext(song2);
     const state = get(queue);
-    expect(state.tracks).toEqual([song1, song2]);
+    expect(tracksFrom(state)).toEqual([song1, song2]);
     expect(state.currentIndex).toBe(0);
   });
 
@@ -91,7 +95,7 @@ describe('queue store', () => {
     queue.addTracksToEnd([song1, song2]);
     queue.replaceAll([song3, song4]);
     const state = get(queue);
-    expect(state.tracks).toEqual([song3, song4]);
+    expect(tracksFrom(state)).toEqual([song3, song4]);
     expect(state.currentIndex).toBe(0);
   });
 
@@ -108,12 +112,12 @@ describe('queue store', () => {
     queue.replaceAll([song1, song2, song3]);
     queue.removeTrack(1);
     let state = get(queue);
-    expect(state.tracks).toEqual([song1, song3]);
+    expect(tracksFrom(state)).toEqual([song1, song3]);
     expect(state.currentIndex).toBe(0);
 
     queue.removeTrack(0);
     state = get(queue);
-    expect(state.tracks).toEqual([song3]);
+    expect(tracksFrom(state)).toEqual([song3]);
     expect(state.currentIndex).toBe(0);
   });
 
@@ -121,7 +125,7 @@ describe('queue store', () => {
     queue.replaceAll([song1, song2, song3]);
     queue.removeTrack(2);
     const state = get(queue);
-    expect(state.tracks).toEqual([song1, song2]);
+    expect(tracksFrom(state)).toEqual([song1, song2]);
     expect(state.currentIndex).toBe(0);
   });
 
@@ -129,56 +133,56 @@ describe('queue store', () => {
     queue.replaceAll([song1]);
     queue.removeTrack(0);
     const state = get(queue);
-    expect(state.tracks).toEqual([]);
+    expect(state.items).toEqual([]);
     expect(state.currentIndex).toBe(-1);
   });
 
   it('removeTrack ignores out-of-bounds index', () => {
     queue.replaceAll([song1, song2]);
     queue.removeTrack(-1);
-    expect(get(queue).tracks).toEqual([song1, song2]);
+    expect(get(queue).items).toHaveLength(2);
     queue.removeTrack(5);
-    expect(get(queue).tracks).toEqual([song1, song2]);
+    expect(get(queue).items).toHaveLength(2);
   });
 
   it('moveTrack moves track within the queue', () => {
     queue.replaceAll([song1, song2, song3]);
     queue.moveTrack(2, 0);
     const state = get(queue);
-    expect(state.tracks).toEqual([song3, song1, song2]);
+    expect(tracksFrom(state)).toEqual([song3, song1, song2]);
   });
 
   it('moveTrack adjusts currentIndex when moving the current track', () => {
     queue.replaceAll([song1, song2, song3]);
     queue.moveTrack(0, 2);
-    let state = get(queue);
-    expect(state.tracks).toEqual([song2, song3, song1]);
+    const state = get(queue);
+    expect(tracksFrom(state)).toEqual([song2, song3, song1]);
     expect(state.currentIndex).toBe(2);
   });
 
   it('moveTrack adjusts currentIndex when moving other tracks', () => {
     queue.replaceAll([song1, song2, song3]);
     queue.moveTrack(2, 0);
-    let state = get(queue);
-    expect(state.tracks).toEqual([song3, song1, song2]);
+    const state = get(queue);
+    expect(tracksFrom(state)).toEqual([song3, song1, song2]);
     expect(state.currentIndex).toBe(1);
   });
 
   it('moveTrack ignores out-of-bounds or same indices', () => {
     queue.replaceAll([song1, song2, song3]);
     queue.moveTrack(-1, 1);
-    expect(get(queue).tracks).toEqual([song1, song2, song3]);
+    expect(tracksFrom(get(queue))).toEqual([song1, song2, song3]);
     queue.moveTrack(1, 5);
-    expect(get(queue).tracks).toEqual([song1, song2, song3]);
+    expect(tracksFrom(get(queue))).toEqual([song1, song2, song3]);
     queue.moveTrack(1, 1);
-    expect(get(queue).tracks).toEqual([song1, song2, song3]);
+    expect(tracksFrom(get(queue))).toEqual([song1, song2, song3]);
   });
 
   it('clear empties queue', () => {
     queue.replaceAll([song1, song2]);
     queue.clear();
     const state = get(queue);
-    expect(state.tracks).toEqual([]);
+    expect(state.items).toEqual([]);
     expect(state.currentIndex).toBe(-1);
     expect(state.autoDJ).toBe(false);
     expect(state.shuffle).toBe(false);

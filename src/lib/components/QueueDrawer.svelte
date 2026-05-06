@@ -2,9 +2,9 @@
 <script lang="ts">
   import { player } from '$lib/stores/player';
   import { queue, queueDrawerOpen } from '$lib/stores/queue';
-  import type { Song } from '$lib/api/types';
+  import type { QueuedItem } from '$lib/stores/queue';
 
-  let tracks = $derived($queue.tracks);
+  let items = $derived($queue.items);
   let currentIndex = $derived($queue.currentIndex);
 
   function formatDuration(seconds: number): string {
@@ -13,9 +13,9 @@
     return `${m}:${s}`;
   }
 
-  function handleTrackClick(track: Song, index: number) {
+  function handleTrackClick(item: QueuedItem, index: number) {
     queue.playIndex(index);
-    player.playTrack(track);
+    player.playTrack(item.track);
   }
 
   function handleRemove(index: number, e: MouseEvent) {
@@ -67,7 +67,7 @@
     <div class="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
       <h2 class="text-base font-bold">Queue</h2>
       <div class="flex items-center gap-1">
-        {#if tracks.length > 0}
+        {#if items.length > 0}
           <button
             class="p-2 rounded-xl hover:bg-white/5 text-text-dim hover:text-red-400 transition-all duration-150 active:scale-90"
             onclick={() => queue.clear()}
@@ -88,13 +88,13 @@
       </div>
     </div>
     <div class="overflow-y-auto flex-1 min-w-0 pb-16">
-      {#if tracks.length === 0}
+      {#if items.length === 0}
         <p class="text-sm text-text-dim text-center py-8">Queue is empty</p>
       {:else}
-          {#each tracks as track, index (index)}
+        {#each items as item, index (item.key)}
           <div
             class="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0 {index === currentIndex ? 'bg-accent/5' : ''}"
-            onclick={() => handleTrackClick(track, index)}
+            onclick={() => handleTrackClick(item, index)}
             role="button"
             tabindex="0"
           >
@@ -106,10 +106,10 @@
               {/if}
             </span>
             <div class="flex-1 min-w-0">
-              <div class="text-sm font-medium truncate">{track.title}</div>
-              <div class="text-xs text-text-dim truncate">{track.artist}</div>
+              <div class="text-sm font-medium truncate">{item.track.title}</div>
+              <div class="text-xs text-text-dim truncate">{item.track.artist}</div>
             </div>
-            <span class="text-xs text-text-dim w-10 text-right shrink-0">{formatDuration(track.duration)}</span>
+            <span class="text-xs text-text-dim w-10 text-right shrink-0">{formatDuration(item.track.duration)}</span>
             <button
               class="p-1.5 rounded-lg hover:bg-red-500/10 hover:text-red-400 transition-all duration-150 shrink-0"
               onclick={(e) => handleRemove(index, e)}
@@ -146,7 +146,7 @@
       <div class="flex items-center justify-between px-5 py-4 border-b border-border">
         <h2 class="text-lg font-bold">Queue</h2>
         <div class="flex items-center gap-1">
-          {#if tracks.length > 0}
+          {#if items.length > 0}
             <button
               class="p-2 rounded-xl hover:bg-white/5 text-text-dim hover:text-red-400 transition-all duration-150 active:scale-90"
               onclick={() => queue.clear()}
@@ -168,13 +168,13 @@
       </div>
 
       <div class="overflow-y-auto flex-1">
-        {#if tracks.length === 0}
+        {#if items.length === 0}
           <p class="text-sm text-text-dim text-center py-8">Queue is empty</p>
         {:else}
-        {#each tracks as track, index (index)}
+          {#each items as item, index (item.key)}
             <div
               class="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0 {index === currentIndex ? 'bg-accent/5' : ''}"
-              onclick={() => handleTrackClick(track, index)}
+              onclick={() => handleTrackClick(item, index)}
               role="button"
               tabindex="0"
             >
@@ -186,10 +186,10 @@
                 {/if}
               </span>
               <div class="flex-1 min-w-0">
-                <div class="text-sm font-medium truncate">{track.title}</div>
-                <div class="text-xs text-text-dim truncate">{track.artist}</div>
+                <div class="text-sm font-medium truncate">{item.track.title}</div>
+                <div class="text-xs text-text-dim truncate">{item.track.artist}</div>
               </div>
-              <span class="text-xs text-text-dim w-10 text-right shrink-0">{formatDuration(track.duration)}</span>
+              <span class="text-xs text-text-dim w-10 text-right shrink-0">{formatDuration(item.track.duration)}</span>
               <button
                 class="p-1.5 rounded-lg hover:bg-red-500/10 hover:text-red-400 transition-all duration-150 shrink-0"
                 onclick={(e) => handleRemove(index, e)}

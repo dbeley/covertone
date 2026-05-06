@@ -5,8 +5,13 @@ import type { AutoDJ } from "$lib/player/AutoDJ";
 
 export const queueDrawerOpen = writable(false);
 
+export interface QueuedItem {
+  key: string;
+  track: Song;
+}
+
 export interface QueueState {
-  tracks: Song[];
+  items: QueuedItem[];
   currentIndex: number;
   autoDJ: boolean;
   shuffle: boolean;
@@ -16,9 +21,14 @@ export interface QueueState {
 
 function createQueue() {
   let autoDJInstance: AutoDJ | null = null;
+  let nextKey = 0;
+
+  function makeItem(track: Song): QueuedItem {
+    return { key: `q-${nextKey++}`, track: { ...track } };
+  }
 
   const store: Writable<QueueState> = writable({
-    tracks: [],
+    items: [],
     currentIndex: -1,
     autoDJ: false,
     shuffle: false,
@@ -30,8 +40,8 @@ function createQueue() {
 
   function recomputeDerived(state: QueueState): QueueState {
     const hasNext = state.shuffle
-      ? state.tracks.length > 1
-      : state.currentIndex >= 0 && state.currentIndex < state.tracks.length - 1;
+      ? state.items.length > 1
+      : state.currentIndex >= 0 && state.currentIndex < state.items.length - 1;
     return {
       ...state,
       hasNext,
@@ -43,31 +53,31 @@ function createQueue() {
     subscribe,
     addToEnd(track: Song) {
       update((s) => {
-        const newTracks = [...s.tracks, { ...track }];
-        const newIndex = s.tracks.length === 0 ? 0 : s.currentIndex;
-        return recomputeDerived({ ...s, tracks: newTracks, currentIndex: newIndex });
+        const newItems = [...s.items, makeItem(track)];
+        const newIndex = s.items.length === 0 ? 0 : s.currentIndex;
+        return recomputeDerived({ ...s, items: newItems, currentIndex: newIndex });
       });
     },
     addTracksToEnd(tracks: Song[]) {
       update((s) => {
-        const newTracks = [...s.tracks, ...tracks.map((t) => ({ ...t }))];
-        const newIndex = s.tracks.length === 0 && tracks.length > 0 ? 0 : s.currentIndex;
-        return recomputeDerived({ ...s, tracks: newTracks, currentIndex: newIndex });
+        const newItems = [...s.items, ...tracks.map((t) => makeItem(t))];
+        const newIndex = s.items.length === 0 && tracks.length > 0 ? 0 : s.currentIndex;
+        return recomputeDerived({ ...s, items: newItems, currentIndex: newIndex });
       });
     },
     addNext(track: Song) {
       update((s) => {
-        const idx = s.currentIndex < 0 ? s.tracks.length : s.currentIndex + 1;
-        const newTracks = [...s.tracks];
-        newTracks.splice(idx, 0, { ...track });
-        const newIndex = s.tracks.length === 0 ? 0 : s.currentIndex;
-        return recomputeDerived({ ...s, tracks: newTracks, currentIndex: newIndex });
+        const idx = s.currentIndex < 0 ? s.items.length : s.currentIndex + 1;
+        const newItems = [...s.items];
+        newItems.splice(idx, 0, makeItem(track));
+        const newIndex = s.items.length === 0 ? 0 : s.currentIndex;
+        return recomputeDerived({ ...s, items: newItems, currentIndex: newIndex });
       });
     },
     replaceAll(tracks: Song[]) {
       update((s) => {
         const next = {
-          tracks: tracks.map((t) => ({ ...t })),
+          items: tracks.map((t) => makeItem(t)),
           currentIndex: tracks.length > 0 ? 0 : -1,
           autoDJ: s.autoDJ,
           shuffle: s.shuffle,
@@ -79,24 +89,24 @@ function createQueue() {
     },
     playIndex(index: number) {
       update((s) => {
-        if (index < 0 || index >= s.tracks.length) return s;
+        if (index < 0 || index >= s.items.length) return s;
         return recomputeDerived({ ...s, currentIndex: index });
       });
     },
     removeTrack(index: number) {
       update((s) => {
-        if (index < 0 || index >= s.tracks.length) return s;
-        const newTracks = s.tracks.filter((_, i) => i !== index);
+        if (index < 0 || index >= s.items.length) return s;
+        const newItems = s.items.filter((_, i) => i !== index);
         let newIndex = s.currentIndex;
         if (index < s.currentIndex) {
           newIndex = s.currentIndex - 1;
         } else if (index === s.currentIndex) {
-          newIndex = Math.min(s.currentIndex, newTracks.length - 1);
+          newIndex = Math.min(s.currentIndex, newItems.length - 1);
         }
-        if (newTracks.length === 0) newIndex = -1;
+        if (newItems.length === 0) newIndex = -1;
         return recomputeDerived({
           ...s,
-          tracks: newTracks,
+          items: newItems,
           currentIndex: newIndex,
         });
       });
@@ -105,16 +115,16 @@ function createQueue() {
       update((s) => {
         if (
           fromIndex < 0 ||
-          fromIndex >= s.tracks.length ||
+          fromIndex >= s.items.length ||
           toIndex < 0 ||
-          toIndex >= s.tracks.length ||
+          toIndex >= s.items.length ||
           fromIndex === toIndex
         ) {
           return s;
         }
-        const newTracks = [...s.tracks];
-        const [item] = newTracks.splice(fromIndex, 1);
-        newTracks.splice(toIndex, 0, item);
+        const newItems = [...s.items];
+        const [item] = newItems.splice(fromIndex, 1);
+        newItems.splice(toIndex, 0, item);
 
         let newIndex = s.currentIndex;
         if (fromIndex === s.currentIndex) {
@@ -127,7 +137,7 @@ function createQueue() {
 
         return recomputeDerived({
           ...s,
-          tracks: newTracks,
+          items: newItems,
           currentIndex: newIndex,
         });
       });
@@ -135,7 +145,7 @@ function createQueue() {
     clear() {
       set(
         recomputeDerived({
-          tracks: [],
+          items: [],
           currentIndex: -1,
           autoDJ: false,
           shuffle: false,
@@ -155,25 +165,25 @@ function createQueue() {
     },
     getCurrent(): Song | null {
       const s = get(store);
-      if (s.currentIndex >= 0 && s.currentIndex < s.tracks.length) {
-        return s.tracks[s.currentIndex];
+      if (s.currentIndex >= 0 && s.currentIndex < s.items.length) {
+        return s.items[s.currentIndex].track;
       }
       return null;
     },
     getNext(): Song | null {
       let result: Song | null = null;
       update((s) => {
-        if (s.shuffle && s.tracks.length > 1) {
-          let nextIndex = Math.floor(Math.random() * s.tracks.length);
+        if (s.shuffle && s.items.length > 1) {
+          let nextIndex = Math.floor(Math.random() * s.items.length);
           while (nextIndex === s.currentIndex) {
-            nextIndex = Math.floor(Math.random() * s.tracks.length);
+            nextIndex = Math.floor(Math.random() * s.items.length);
           }
-          result = s.tracks[nextIndex];
+          result = s.items[nextIndex].track;
           return recomputeDerived({ ...s, currentIndex: nextIndex });
         }
         const nextIndex = s.currentIndex + 1;
-        if (nextIndex < s.tracks.length) {
-          result = s.tracks[nextIndex];
+        if (nextIndex < s.items.length) {
+          result = s.items[nextIndex].track;
           return recomputeDerived({ ...s, currentIndex: nextIndex });
         }
         return s;
@@ -185,7 +195,7 @@ function createQueue() {
       update((s) => {
         if (s.currentIndex > 0) {
           const prevIndex = s.currentIndex - 1;
-          result = s.tracks[prevIndex];
+          result = s.items[prevIndex].track;
           return recomputeDerived({ ...s, currentIndex: prevIndex });
         }
         return s;
@@ -201,10 +211,10 @@ function createQueue() {
       if (!state.autoDJ || !autoDJInstance || state.currentIndex < 0)
         return null;
 
-      const currentTrack = state.tracks[state.currentIndex];
-      if (!currentTrack) return null;
+      const currentItem = state.items[state.currentIndex];
+      if (!currentItem) return null;
 
-      const similar = await autoDJInstance.fetchSimilar(currentTrack.id, 10);
+      const similar = await autoDJInstance.fetchSimilar(currentItem.track.id, 10);
       if (similar.length === 0) return null;
 
       this.addTracksToEnd(similar);
@@ -213,7 +223,7 @@ function createQueue() {
     syncCurrentTrack(track: Song | null) {
       update((s) => {
         if (!track) return recomputeDerived({ ...s, currentIndex: -1 });
-        const index = s.tracks.findIndex((t) => t.id === track.id);
+        const index = s.items.findIndex((item) => item.track.id === track.id);
         return recomputeDerived({ ...s, currentIndex: index });
       });
     },
