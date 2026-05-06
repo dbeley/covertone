@@ -55,14 +55,23 @@ function createQueue() {
       update((s) => {
         const newItems = [...s.items, makeItem(track)];
         const newIndex = s.items.length === 0 ? 0 : s.currentIndex;
-        return recomputeDerived({ ...s, items: newItems, currentIndex: newIndex });
+        return recomputeDerived({
+          ...s,
+          items: newItems,
+          currentIndex: newIndex,
+        });
       });
     },
     addTracksToEnd(tracks: Song[]) {
       update((s) => {
         const newItems = [...s.items, ...tracks.map((t) => makeItem(t))];
-        const newIndex = s.items.length === 0 && tracks.length > 0 ? 0 : s.currentIndex;
-        return recomputeDerived({ ...s, items: newItems, currentIndex: newIndex });
+        const newIndex =
+          s.items.length === 0 && tracks.length > 0 ? 0 : s.currentIndex;
+        return recomputeDerived({
+          ...s,
+          items: newItems,
+          currentIndex: newIndex,
+        });
       });
     },
     addNext(track: Song) {
@@ -71,7 +80,11 @@ function createQueue() {
         const newItems = [...s.items];
         newItems.splice(idx, 0, makeItem(track));
         const newIndex = s.items.length === 0 ? 0 : s.currentIndex;
-        return recomputeDerived({ ...s, items: newItems, currentIndex: newIndex });
+        return recomputeDerived({
+          ...s,
+          items: newItems,
+          currentIndex: newIndex,
+        });
       });
     },
     replaceAll(tracks: Song[]) {
@@ -214,7 +227,10 @@ function createQueue() {
       const currentItem = state.items[state.currentIndex];
       if (!currentItem) return null;
 
-      const similar = await autoDJInstance.fetchSimilar(currentItem.track.id, 10);
+      const similar = await autoDJInstance.fetchSimilar(
+        currentItem.track.id,
+        10,
+      );
       if (similar.length === 0) return null;
 
       this.addTracksToEnd(similar);
