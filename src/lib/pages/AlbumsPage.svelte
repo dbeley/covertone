@@ -18,6 +18,17 @@
   let activeTab = $state<AlbumListType>('random');
   let sentinelEl = $state<HTMLDivElement | null>(null);
 
+  // Auto-load more if the sentinel is still visible after a fetch completes
+  // (fixes infinite scroll on large screens where the first page doesn't fill the viewport)
+  $effect(() => {
+    if (!loading && hasMore && sentinelEl) {
+      const rect = sentinelEl.getBoundingClientRect();
+      if (rect.top <= window.innerHeight) {
+        loadMore();
+      }
+    }
+  });
+
   const tabs: { label: string; type: AlbumListType }[] = [
     { label: 'Random', type: 'random' },
     { label: 'A-Z', type: 'alphabeticalByName' },
