@@ -12,6 +12,7 @@ import type {
   StarredResult,
   Album,
   Song,
+  Playlist,
 } from "./types";
 
 export interface SubsonicAPIConfig {
@@ -247,6 +248,23 @@ export class SubsonicAPI {
       time: params.time,
       submission: (params.submission ?? true) ? 1 : 0,
     });
+  }
+
+  async getPlaylists(): Promise<{ playlists: { playlist: Playlist[] } }> {
+    const data = await this.request<{ playlists: { playlist: Playlist[] } }>(
+      ENDPOINTS.getPlaylists,
+    );
+    return data["subsonic-response"];
+  }
+
+  async getPlaylist(params: {
+    id: string;
+  }): Promise<{ playlist: Playlist & { entry: Song[] } }> {
+    const data = await this.request<{ playlist: Playlist & { entry: Song[] } }>(
+      ENDPOINTS.getPlaylist,
+      { id: params.id },
+    );
+    return data["subsonic-response"];
   }
 
   async getStarred(): Promise<StarredResult> {

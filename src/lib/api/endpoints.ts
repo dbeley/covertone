@@ -9,6 +9,8 @@ export const ENDPOINTS = {
   getRandomSongs: "getRandomSongs",
   getSimilarSongs: "getSimilarSongs",
   search3: "search3",
+  getPlaylists: "getPlaylists",
+  getPlaylist: "getPlaylist",
   getCoverArt: "getCoverArt",
   stream: "stream",
   scrobble: "scrobble",

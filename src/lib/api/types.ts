@@ -120,6 +120,18 @@ export interface AlbumResult {
   };
 }
 
+export interface Playlist {
+  id: string;
+  name: string;
+  comment?: string;
+  owner?: string;
+  public?: boolean;
+  songCount: number;
+  duration: number;
+  created?: string;
+  coverArt?: string;
+}
+
 export interface ArtistsResult {
   artists: {
     index?: {

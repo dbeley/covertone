@@ -8,8 +8,10 @@
   import Home from '$lib/pages/Home.svelte';
   import AlbumsPage from '$lib/pages/AlbumsPage.svelte';
   import ArtistsPage from '$lib/pages/ArtistsPage.svelte';
+  import PlaylistsPage from '$lib/pages/PlaylistsPage.svelte';
   import AlbumPage from '$lib/pages/AlbumPage.svelte';
   import ArtistPage from '$lib/pages/ArtistPage.svelte';
+  import PlaylistPage from '$lib/pages/PlaylistPage.svelte';
   import SearchPage from '$lib/pages/SearchPage.svelte';
   import GamePage from '$lib/pages/GamePage.svelte';
   import SettingsPage from '$lib/pages/SettingsPage.svelte';
@@ -95,10 +97,14 @@
         <AlbumsPage />
       {:else if route.matches('/artists')}
         <ArtistsPage />
+      {:else if route.matches('/playlists')}
+        <PlaylistsPage />
       {:else if route.matches('/album/:id')}
         <AlbumPage />
       {:else if route.matches('/artist/:id')}
         <ArtistPage />
+      {:else if route.matches('/playlist/:id')}
+        <PlaylistPage />
       {:else if route.matches('/search')}
         <SearchPage />
       {:else if route.matches('/game')}
