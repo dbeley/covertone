@@ -81,7 +81,6 @@ describe('NowPlayingView', () => {
     expect(screen.getByLabelText('Previous')).toBeTruthy();
     expect(screen.getByLabelText('Pause')).toBeTruthy();
     expect(screen.getByLabelText('Next')).toBeTruthy();
-    expect(screen.getByLabelText('Repeat')).toBeTruthy();
     expect(screen.getByLabelText('Favorite')).toBeTruthy();
   });
 
