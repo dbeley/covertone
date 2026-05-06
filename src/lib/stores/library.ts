@@ -85,8 +85,11 @@ function createLibrary() {
         const albums = result.albumList2.album;
         update((s) => {
           const isNewType = s.currentAlbumListType !== params.type;
-          const merged =
-            isNewType || offset === 0 ? albums : [...s.albums, ...albums];
+          const shouldReplace = isNewType || offset === 0;
+          const existingIds = new Set(s.albums.map((a) => a.id));
+          const merged = shouldReplace
+            ? albums
+            : [...s.albums, ...albums.filter((a) => !existingIds.has(a.id))];
           return {
             ...s,
             albums: merged,
