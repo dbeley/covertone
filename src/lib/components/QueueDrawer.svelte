@@ -118,7 +118,7 @@
   function handleRowTouchStart(index: number, e: globalThis.TouchEvent) {
     e.stopPropagation();
     const target = e.target;
-    if (!(target instanceof Element) || !target.closest(TOUCH_DRAG_HANDLE_SELECTOR)) {
+    if (!(target instanceof globalThis.Element) || !target.closest(TOUCH_DRAG_HANDLE_SELECTOR)) {
       touchDragActive = false;
       touchDragMoved = false;
       clearDragState();
@@ -225,7 +225,7 @@
             <span
               aria-hidden="true"
               data-queue-drag-handle="true"
-              class="text-text-dim opacity-60 shrink-0 pointer-events-none"
+              class="text-text-dim opacity-60 shrink-0"
             >
               <svg viewBox="0 0 12 12" class="w-3 h-3 fill-current">
                 <circle cx="3" cy="2.5" r="1" />
@@ -330,7 +330,7 @@
               <span
                 aria-hidden="true"
                 data-queue-drag-handle="true"
-                class="text-text-dim opacity-60 shrink-0 pointer-events-none"
+                class="text-text-dim opacity-60 shrink-0"
               >
                 <svg viewBox="0 0 12 12" class="w-3 h-3 fill-current">
                   <circle cx="3" cy="2.5" r="1" />
