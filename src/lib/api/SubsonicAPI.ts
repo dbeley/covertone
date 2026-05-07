@@ -1,5 +1,6 @@
 import md5 from "md5";
 import { ENDPOINTS } from "./endpoints";
+import { cacheGet, cacheSet, cacheInvalidate } from "$lib/stores/apiCache";
 import type {
   SubsonicResponse,
   AlbumListResult,
@@ -118,6 +119,31 @@ export class SubsonicAPI {
     }
   }
 
+  private async requestCached<T>(
+    endpoint: string,
+    params: RequestParams = {},
+  ): Promise<SubsonicResponse<T>> {
+    const key = this.buildCacheKey(endpoint, params);
+    const cached = cacheGet<SubsonicResponse<T>>(key);
+    if (cached) return cached;
+    const data = await this.request<T>(endpoint, params);
+    cacheSet(key, data);
+    return data;
+  }
+
+  private buildCacheKey(endpoint: string, params: RequestParams = {}): string {
+    const sorted = Object.keys(params)
+      .filter((k) => params[k] !== undefined)
+      .sort()
+      .map((k) => `${k}=${params[k]}`)
+      .join("&");
+    return `${endpoint}?${sorted}`;
+  }
+
+  private invalidateCache(): void {
+    cacheInvalidate();
+  }
+
   async ping(): Promise<boolean> {
     try {
       await this.request(ENDPOINTS.ping);
@@ -135,33 +161,36 @@ export class SubsonicAPI {
     fromYear?: number;
     toYear?: number;
   }): Promise<AlbumListResult> {
-    const data = await this.request<AlbumListResult>(ENDPOINTS.getAlbumList, {
-      type: params.type,
-      size: params.size ?? 20,
-      offset: params.offset ?? 0,
-      genre: params.genre,
-      fromYear: params.fromYear,
-      toYear: params.toYear,
-    });
+    const data = await this.requestCached<AlbumListResult>(
+      ENDPOINTS.getAlbumList,
+      {
+        type: params.type,
+        size: params.size ?? 20,
+        offset: params.offset ?? 0,
+        genre: params.genre,
+        fromYear: params.fromYear,
+        toYear: params.toYear,
+      },
+    );
     return data["subsonic-response"];
   }
 
   async getAlbum(params: { id: string }): Promise<AlbumResult> {
-    const data = await this.request<AlbumResult>(ENDPOINTS.getAlbum, {
+    const data = await this.requestCached<AlbumResult>(ENDPOINTS.getAlbum, {
       id: params.id,
     });
     return data["subsonic-response"];
   }
 
   async getArtists(): Promise<ArtistsResult> {
-    const data = await this.request<ArtistsResult>(ENDPOINTS.getArtists);
+    const data = await this.requestCached<ArtistsResult>(ENDPOINTS.getArtists);
     return data["subsonic-response"];
   }
 
   async getArtist(params: {
     id: string;
   }): Promise<{ artist: { id: string; name: string; album: Album[] } }> {
-    const data = await this.request<{
+    const data = await this.requestCached<{
       artist: { id: string; name: string; album: Album[] };
     }>(ENDPOINTS.getArtist, { id: params.id });
     return data["subsonic-response"];
@@ -171,10 +200,13 @@ export class SubsonicAPI {
     id: string;
     count?: number;
   }): Promise<ArtistInfoResult> {
-    const data = await this.request<ArtistInfoResult>(ENDPOINTS.getArtistInfo, {
-      id: params.id,
-      count: params.count ?? 20,
-    });
+    const data = await this.requestCached<ArtistInfoResult>(
+      ENDPOINTS.getArtistInfo,
+      {
+        id: params.id,
+        count: params.count ?? 20,
+      },
+    );
     return data["subsonic-response"];
   }
 
@@ -182,10 +214,13 @@ export class SubsonicAPI {
     artist: string;
     count?: number;
   }): Promise<TopSongsResult> {
-    const data = await this.request<TopSongsResult>(ENDPOINTS.getTopSongs, {
-      artist: params.artist,
-      count: params.count ?? 50,
-    });
+    const data = await this.requestCached<TopSongsResult>(
+      ENDPOINTS.getTopSongs,
+      {
+        artist: params.artist,
+        count: params.count ?? 50,
+      },
+    );
     return data["subsonic-response"];
   }
 
@@ -195,7 +230,7 @@ export class SubsonicAPI {
     fromYear?: number;
     toYear?: number;
   }): Promise<RandomSongsResult> {
-    const data = await this.request<RandomSongsResult>(
+    const data = await this.requestCached<RandomSongsResult>(
       ENDPOINTS.getRandomSongs,
       {
         size: params.size ?? 10,
@@ -211,7 +246,7 @@ export class SubsonicAPI {
     id: string;
     count?: number;
   }): Promise<{ similarSongs: { song: Song[] } }> {
-    const data = await this.request<{ similarSongs: { song: Song[] } }>(
+    const data = await this.requestCached<{ similarSongs: { song: Song[] } }>(
       ENDPOINTS.getSimilarSongs,
       { id: params.id, count: params.count ?? 50 },
     );
@@ -224,7 +259,7 @@ export class SubsonicAPI {
     albumCount?: number;
     songCount?: number;
   }): Promise<{ searchResult3: SearchResult }> {
-    const data = await this.request<{ searchResult3: SearchResult }>(
+    const data = await this.requestCached<{ searchResult3: SearchResult }>(
       ENDPOINTS.search3,
       {
         query: params.query,
@@ -257,27 +292,27 @@ export class SubsonicAPI {
       time: params.time,
       submission: (params.submission ?? true) ? 1 : 0,
     });
+    this.invalidateCache();
   }
 
   async getPlaylists(): Promise<{ playlists: { playlist: Playlist[] } }> {
-    const data = await this.request<{ playlists: { playlist: Playlist[] } }>(
-      ENDPOINTS.getPlaylists,
-    );
+    const data = await this.requestCached<{
+      playlists: { playlist: Playlist[] };
+    }>(ENDPOINTS.getPlaylists);
     return data["subsonic-response"];
   }
 
   async getPlaylist(params: {
     id: string;
   }): Promise<{ playlist: Playlist & { entry: Song[] } }> {
-    const data = await this.request<{ playlist: Playlist & { entry: Song[] } }>(
-      ENDPOINTS.getPlaylist,
-      { id: params.id },
-    );
+    const data = await this.requestCached<{
+      playlist: Playlist & { entry: Song[] };
+    }>(ENDPOINTS.getPlaylist, { id: params.id });
     return data["subsonic-response"];
   }
 
   async getStarred(): Promise<StarredResult> {
-    const data = await this.request<StarredResult>(ENDPOINTS.getStarred);
+    const data = await this.requestCached<StarredResult>(ENDPOINTS.getStarred);
     return data["subsonic-response"];
   }
 
@@ -287,6 +322,7 @@ export class SubsonicAPI {
     artistId?: string;
   }): Promise<void> {
     await this.request(ENDPOINTS.star, params);
+    this.invalidateCache();
   }
 
   async unstar(params: {
@@ -295,6 +331,7 @@ export class SubsonicAPI {
     artistId?: string;
   }): Promise<void> {
     await this.request(ENDPOINTS.unstar, params);
+    this.invalidateCache();
   }
 }
 
