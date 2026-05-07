@@ -6,6 +6,14 @@
 
   let items = $derived($queue.items);
   let currentIndex = $derived($queue.currentIndex);
+  let currentTrack = $derived($player.currentTrack);
+
+  const MINI_PLAYER_HEIGHT = '4rem';
+  let drawerBottomPadding = $derived(
+    currentTrack
+      ? `calc(env(safe-area-inset-bottom, 0px) + ${MINI_PLAYER_HEIGHT})`
+      : 'env(safe-area-inset-bottom, 0px)'
+  );
 
   function formatDuration(seconds: number): string {
     const m = Math.floor(seconds / 60);
@@ -127,7 +135,7 @@
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick={() => queueDrawerOpen.set(false)}></div>
     <div
       class="relative w-full max-w-lg bg-surface border border-border border-b-0 rounded-t-2xl max-h-[70vh] flex flex-col animate-slide-up shadow-2xl shadow-black/20"
-      style="padding-bottom: env(safe-area-inset-bottom, 0px); transform: translateY({dragY}px); transition: {dragging ? 'none' : 'transform 0.3s ease-out'}"
+      style="padding-bottom: {drawerBottomPadding}; transform: translateY({dragY}px); transition: {dragging ? 'none' : 'transform 0.3s ease-out'}"
       onclick={(e) => e.stopPropagation()}
       ontouchstart={onTouchStart}
       ontouchmove={onTouchMove}
