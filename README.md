@@ -2,12 +2,22 @@
 
 [![Get it on Obtainium](https://img.shields.io/badge/Get%20it%20on-Obtainium-1E90FF?style=for-the-badge&logo=android&logoColor=white)](http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/dbeley/covertone)
 
-A Subsonic/Navidrome music streaming client — Progressive Web App with Android/iOS support via Capacitor.
+A Subsonic/Navidrome music streaming client tailored to my needs.
+
+I wanted a Subsonic client that fit my needs exactly. **Covertone is focused on music discovery with features that can't be found on any other Subsonic clients out there (cf. [Features](#features)).**
 
 <img src="imgs/album-view.png" width="600" />
 <img src="imgs/now-playing-view.png" width="600" />
 
-## Quick Start
+## Features
+
+- **Tabbed browsing** - Switch between up to 10 tabs, each allowing to navigate the library at different place
+- **Auto DJ** - When the queue ends, automatically fetches similar songs
+- **Guess the Artist** - Trivia game that plays a song and challenges you to pick the right artist
+- **Random album discovery** - Navigation heavily favors showing random albums to help discover new things
+- **Cross-platform** - Installable PWA, Android app (via Capacitor), iOS app (via Capacitor), or Docker image
+
+## Quick start
 
 ```bash
 # Enter the dev shell (Nix)
@@ -51,8 +61,6 @@ The PWA uses `vite-plugin-pwa` with auto-updating service worker. Installable as
 pnpm docker:build   # build image tagged covertone:latest
 pnpm docker:run     # serve at http://localhost:8080
 ```
-
-Multi-stage build: Node 22 builds the app, nginx:alpine serves it with SPA fallback.
 
 ### Android
 
