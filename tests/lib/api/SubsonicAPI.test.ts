@@ -61,6 +61,20 @@ describe('SubsonicAPI', () => {
     expect(result).toBe(false);
   });
 
+  it('ping settles when fetch ignores abort', async () => {
+    vi.useFakeTimers();
+    try {
+      fetchSpy.mockImplementation(() => new Promise(() => {}));
+
+      const pingPromise = api.ping();
+      await vi.advanceTimersByTimeAsync(16000);
+
+      await expect(pingPromise).resolves.toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('getAlbumList fetches album list with params', async () => {
     const mockAlbum: Album = {
       id: '1', name: 'Test Album', artist: 'Artist', artistId: 'a1',

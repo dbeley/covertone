@@ -82,10 +82,19 @@ export class SubsonicAPI {
   ): Promise<SubsonicResponse<T>> {
     const url = this.buildUrl(endpoint, params);
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), this.timeout);
-    const response = await fetch(url, { signal: controller.signal }).finally(
-      () => clearTimeout(timer),
-    );
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => {
+        controller.abort();
+        reject(new Error(`Request timed out after ${this.timeout}ms`));
+      }, this.timeout);
+    });
+    const response = await Promise.race([
+      fetch(url, { signal: controller.signal }),
+      timeoutPromise,
+    ]).finally(() => {
+      if (timer) clearTimeout(timer);
+    });
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);

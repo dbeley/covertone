@@ -10,7 +10,9 @@ describe("handleNativeBackButton", () => {
     handleNativeBackButton({
       canGoBack: true,
       isQueueDrawerOpen: true,
+      isNowPlayingOpen: false,
       closeQueueDrawer,
+      closeNowPlaying: vi.fn(),
       goBack,
       exitApp,
     });
@@ -28,7 +30,9 @@ describe("handleNativeBackButton", () => {
     handleNativeBackButton({
       canGoBack: true,
       isQueueDrawerOpen: false,
+      isNowPlayingOpen: false,
       closeQueueDrawer,
+      closeNowPlaying: vi.fn(),
       goBack,
       exitApp,
     });
@@ -46,7 +50,9 @@ describe("handleNativeBackButton", () => {
     handleNativeBackButton({
       canGoBack: false,
       isQueueDrawerOpen: false,
+      isNowPlayingOpen: false,
       closeQueueDrawer,
+      closeNowPlaying: vi.fn(),
       goBack,
       exitApp,
     });
@@ -54,5 +60,27 @@ describe("handleNativeBackButton", () => {
     expect(exitApp).toHaveBeenCalledTimes(1);
     expect(closeQueueDrawer).not.toHaveBeenCalled();
     expect(goBack).not.toHaveBeenCalled();
+  });
+
+  it("closes now playing before navigating back", () => {
+    const closeQueueDrawer = vi.fn();
+    const closeNowPlaying = vi.fn();
+    const goBack = vi.fn();
+    const exitApp = vi.fn();
+
+    handleNativeBackButton({
+      canGoBack: true,
+      isQueueDrawerOpen: false,
+      isNowPlayingOpen: true,
+      closeQueueDrawer,
+      closeNowPlaying,
+      goBack,
+      exitApp,
+    });
+
+    expect(closeNowPlaying).toHaveBeenCalledTimes(1);
+    expect(closeQueueDrawer).not.toHaveBeenCalled();
+    expect(goBack).not.toHaveBeenCalled();
+    expect(exitApp).not.toHaveBeenCalled();
   });
 });

@@ -12,6 +12,7 @@
   const MINI_PLAYER_HEIGHT = '4rem';
   const DRAG_THRESHOLD = 10;
   const CLOSE_THRESHOLD = 100;
+  const TOUCH_DRAG_HANDLE_SELECTOR = '[data-queue-drag-handle="true"]';
   let drawerBottomPadding = $derived(
     currentTrack
       ? `calc(env(safe-area-inset-bottom, 0px) + ${MINI_PLAYER_HEIGHT})`
@@ -116,6 +117,13 @@
 
   function handleRowTouchStart(index: number, e: globalThis.TouchEvent) {
     e.stopPropagation();
+    const target = e.target;
+    if (!(target instanceof Element) || !target.closest(TOUCH_DRAG_HANDLE_SELECTOR)) {
+      touchDragActive = false;
+      touchDragMoved = false;
+      clearDragState();
+      return;
+    }
     touchDragActive = true;
     touchDragMoved = false;
     draggedIndex = index;
@@ -214,7 +222,11 @@
                 {index + 1}
               {/if}
             </span>
-            <span aria-hidden="true" class="text-text-dim opacity-60 shrink-0 pointer-events-none">
+            <span
+              aria-hidden="true"
+              data-queue-drag-handle="true"
+              class="text-text-dim opacity-60 shrink-0 pointer-events-none"
+            >
               <svg viewBox="0 0 12 12" class="w-3 h-3 fill-current">
                 <circle cx="3" cy="2.5" r="1" />
                 <circle cx="3" cy="6" r="1" />
@@ -315,7 +327,11 @@
                   {index + 1}
                 {/if}
               </span>
-              <span aria-hidden="true" class="text-text-dim opacity-60 shrink-0 pointer-events-none">
+              <span
+                aria-hidden="true"
+                data-queue-drag-handle="true"
+                class="text-text-dim opacity-60 shrink-0 pointer-events-none"
+              >
                 <svg viewBox="0 0 12 12" class="w-3 h-3 fill-current">
                   <circle cx="3" cy="2.5" r="1" />
                   <circle cx="3" cy="6" r="1" />

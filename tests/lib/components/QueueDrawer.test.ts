@@ -130,21 +130,48 @@ describe('QueueDrawer', () => {
     render(QueueDrawer);
     const firstRow = screen.getAllByLabelText('Play Song One by Artist A')[1] as HTMLElement;
     const secondRow = screen.getAllByLabelText('Play Song Two by Artist B')[1] as HTMLElement;
+    const firstHandle = firstRow.querySelector('[data-queue-drag-handle="true"]') as HTMLElement;
     const originalElementFromPoint = document.elementFromPoint;
     Object.defineProperty(document, 'elementFromPoint', {
       configurable: true,
       value: vi.fn(() => secondRow as unknown as Element),
     });
 
-    await fireEvent.touchStart(firstRow, {
+    await fireEvent.touchStart(firstHandle, {
       touches: [{ clientX: 10, clientY: 10 }],
     });
-    await fireEvent.touchMove(firstRow, {
+    await fireEvent.touchMove(firstHandle, {
       touches: [{ clientX: 12, clientY: 12 }],
     });
-    await fireEvent.touchEnd(firstRow);
+    await fireEvent.touchEnd(firstHandle);
 
     expect(queueFns.moveTrack).toHaveBeenCalledWith(0, 1);
+    Object.defineProperty(document, 'elementFromPoint', {
+      configurable: true,
+      value: originalElementFromPoint,
+    });
+  });
+
+  it('does not reorder queue when swiping the row outside drag handle', async () => {
+    render(QueueDrawer);
+    const firstRow = screen.getAllByLabelText('Play Song One by Artist A')[1] as HTMLElement;
+    const secondRow = screen.getAllByLabelText('Play Song Two by Artist B')[1] as HTMLElement;
+    const title = firstRow.querySelector('.text-sm.font-medium.truncate') as HTMLElement;
+    const originalElementFromPoint = document.elementFromPoint;
+    Object.defineProperty(document, 'elementFromPoint', {
+      configurable: true,
+      value: vi.fn(() => secondRow as unknown as Element),
+    });
+
+    await fireEvent.touchStart(title, {
+      touches: [{ clientX: 10, clientY: 10 }],
+    });
+    await fireEvent.touchMove(title, {
+      touches: [{ clientX: 12, clientY: 12 }],
+    });
+    await fireEvent.touchEnd(title);
+
+    expect(queueFns.moveTrack).not.toHaveBeenCalled();
     Object.defineProperty(document, 'elementFromPoint', {
       configurable: true,
       value: originalElementFromPoint,

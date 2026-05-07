@@ -4,6 +4,7 @@
   import NowPlayingView from './NowPlayingView.svelte';
   import QueueDrawer from './QueueDrawer.svelte';
   import { router } from '$lib/stores/router';
+  import { nowPlayingOpen } from '$lib/stores/ui';
 
   import Home from '$lib/pages/Home.svelte';
   import AlbumsPage from '$lib/pages/AlbumsPage.svelte';
@@ -18,7 +19,6 @@
 
   let route = $derived($router);
 
-  let nowPlayingOpen = $state(false);
   let menuOpen = $state(false);
 
   let swipeX = $state(0);
@@ -26,27 +26,6 @@
   let swipeStartX = $state(0);
   const SWIPE_EDGE = 30;
   const SWIPE_THRESHOLD = 80;
-  const PULL_MAX_DISTANCE = 96;
-  const PULL_TRIGGER_THRESHOLD = 64;
-  const PULL_DIRECTION_TOLERANCE = 6;
-
-  let mainContentEl: HTMLElement | null = null;
-  let pullDistance = $state(0);
-  let refreshing = $state(false);
-  let pullTracking = $state(false);
-  let pullEligible = $state(false);
-  let pullStartX = $state(0);
-  let pullStartY = $state(0);
-
-  let pullReady = $derived(pullDistance >= PULL_TRIGGER_THRESHOLD);
-  let pullIndicatorVisible = $derived(pullDistance > 0 || refreshing);
-  let pullLabel = $derived(
-    refreshing
-      ? 'Refreshing...'
-      : pullReady
-        ? 'Release to refresh'
-        : 'Pull to refresh'
-  );
 
   function onSwipeStart(e: TouchEvent) {
     const x = e.touches[0].clientX;
@@ -71,100 +50,14 @@
     swipeX = 0;
   }
 
-  function onPullStart(e: TouchEvent) {
-    if (refreshing) return;
-    const touch = e.touches[0];
-    if (!touch) return;
-
-    pullTracking = true;
-    pullStartX = touch.clientX;
-    pullStartY = touch.clientY;
-    pullDistance = 0;
-
-    pullEligible =
-      touch.clientX > SWIPE_EDGE &&
-      !!mainContentEl &&
-      mainContentEl.scrollTop <= 0;
-  }
-
-  function onPullMove(e: TouchEvent) {
-    if (!pullTracking || !pullEligible || refreshing) return;
-    const touch = e.touches[0];
-    if (!touch) return;
-
-    if (mainContentEl && mainContentEl.scrollTop > 0) {
-      pullEligible = false;
-      pullDistance = 0;
-      return;
-    }
-
-    const deltaX = touch.clientX - pullStartX;
-    const deltaY = touch.clientY - pullStartY;
-
-    if (deltaY <= 0) {
-      pullDistance = 0;
-      return;
-    }
-
-    if (Math.abs(deltaY) < PULL_DIRECTION_TOLERANCE) return;
-
-    if (Math.abs(deltaY) <= Math.abs(deltaX)) {
-      pullEligible = false;
-      pullDistance = 0;
-      return;
-    }
-
-    pullDistance = Math.min(deltaY * 0.6, PULL_MAX_DISTANCE);
-  }
-
-  function onPullEnd() {
-    if (!pullTracking) return;
-
-    const shouldRefresh =
-      pullEligible &&
-      !refreshing &&
-      pullDistance >= PULL_TRIGGER_THRESHOLD;
-
-    pullTracking = false;
-    pullEligible = false;
-
-    if (shouldRefresh) {
-      refreshing = true;
-      pullDistance = PULL_TRIGGER_THRESHOLD;
-      window.location.reload();
-      return;
-    }
-
-    pullDistance = 0;
-  }
-
-  function onPullCancel() {
-    pullTracking = false;
-    pullEligible = false;
-    if (!refreshing) {
-      pullDistance = 0;
-    }
-  }
-
-  function captureMain(node: HTMLElement) {
-    mainContentEl = node;
-    return {
-      destroy() {
-        if (mainContentEl === node) {
-          mainContentEl = null;
-        }
-      }
-    };
-  }
-
   function closeMenu() {
     menuOpen = false;
   }
   function openNowPlaying() {
-    nowPlayingOpen = true;
+    nowPlayingOpen.set(true);
   }
   function closeNowPlaying() {
-    nowPlayingOpen = false;
+    nowPlayingOpen.set(false);
   }
 </script>
 
@@ -187,45 +80,7 @@
     <NavBar mobileOpen={menuOpen} onNavigate={closeMenu} swipeOffset={swipeX} />
     <main
       class="flex-1 overflow-y-auto pt-12 md:pt-0"
-      use:captureMain
-      ontouchstart={onPullStart}
-      ontouchmove={onPullMove}
-      ontouchend={onPullEnd}
-      ontouchcancel={onPullCancel}
     >
-      <div
-        class="pointer-events-none sticky top-0 z-20 flex justify-center overflow-hidden transition-[height,opacity] duration-150"
-        class:opacity-0={!pullIndicatorVisible}
-        class:opacity-100={pullIndicatorVisible}
-        style:height={`${pullIndicatorVisible ? (refreshing ? PULL_TRIGGER_THRESHOLD : pullDistance) : 0}px`}
-      >
-        <div role="status" aria-live="polite" class="mt-2 inline-flex items-center gap-2 rounded-full border border-border/70 bg-surface/85 px-3 py-1 text-xs shadow-sm backdrop-blur">
-          <svg
-            viewBox="0 0 24 24"
-            class="h-3.5 w-3.5 transition-transform duration-150"
-            class:animate-spin={refreshing}
-            class:rotate-180={!refreshing && pullReady}
-            aria-hidden="true"
-          >
-            <path
-              d="M12 4a8 8 0 1 1-6.32 3.1"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-            <path
-              d="m5 4 .7 3.7L9.4 7"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-          <span>{pullLabel}</span>
-        </div>
-      </div>
       <button
         class="md:hidden fixed left-3 z-30 p-2.5 rounded-xl bg-surface/90 backdrop-blur border border-border shadow-lg hover:border-accent/30 transition-all duration-150 active:scale-95"
         style="top: calc(0.75rem + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)))"
@@ -269,7 +124,7 @@
     onExpand={openNowPlaying}
   />
 
-  {#if nowPlayingOpen}
+  {#if $nowPlayingOpen}
     <NowPlayingView
       onClose={closeNowPlaying}
     />

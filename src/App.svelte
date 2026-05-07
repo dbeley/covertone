@@ -5,6 +5,7 @@
   import { settings } from '$lib/stores/settings';
   import { player } from '$lib/stores/player';
   import { queue, queueDrawerOpen } from '$lib/stores/queue';
+  import { nowPlayingOpen } from '$lib/stores/ui';
   import { getStreamBaseUrl } from '$lib/api/SubsonicAPI';
   import { SubsonicAPI } from '$lib/api/SubsonicAPI';
   import { AutoDJ } from '$lib/player/AutoDJ';
@@ -26,7 +27,9 @@
           handleNativeBackButton({
             canGoBack,
             isQueueDrawerOpen: get(queueDrawerOpen),
+            isNowPlayingOpen: get(nowPlayingOpen),
             closeQueueDrawer: () => queueDrawerOpen.set(false),
+            closeNowPlaying: () => nowPlayingOpen.set(false),
             goBack: () => window.history.back(),
             exitApp: () => App.exitApp(),
           });
