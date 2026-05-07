@@ -1,5 +1,6 @@
 <script lang="ts">
   import { router } from '$lib/stores/router';
+  import { tabsStore } from '$lib/stores/tabs';
 
   let { mobileOpen = false, onNavigate = () => {}, swipeOffset = 0 }: { mobileOpen?: boolean; onNavigate?: () => void; swipeOffset?: number } = $props();
 
@@ -38,4 +39,15 @@
       {item.label}
     </button>
   {/each}
+  <div class="mt-auto pt-2 border-t border-border">
+    <button
+      class="w-full text-left px-3 py-2 rounded-xl text-sm font-medium text-text-dim hover:text-text hover:bg-white/5 transition-all duration-150 flex items-center gap-2"
+      onclick={() => tabsStore.createTab()}
+    >
+      <svg viewBox="0 0 16 16" class="w-4 h-4 shrink-0">
+        <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2" fill="none" />
+      </svg>
+      Create a new tab
+    </button>
+  </div>
 </nav>
