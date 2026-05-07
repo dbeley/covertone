@@ -69,7 +69,10 @@ describe("player store - NativeMedia integration", () => {
   it("calls NativeMedia.setPlaying when playTrack is called", () => {
     player.setStreamBase("http://example.com/stream?id=");
     player.playTrack(mockSong);
-    expect(mockBridge.setPlaying).toHaveBeenCalledWith("Test Song", "Test Artist");
+    expect(mockBridge.setPlaying).toHaveBeenCalledWith(
+      "Test Song",
+      "Test Artist",
+    );
   });
 
   it("calls NativeMedia.setPaused when pause is called", () => {
@@ -78,7 +81,10 @@ describe("player store - NativeMedia integration", () => {
     mockBridge.setPlaying.mockClear();
 
     player.pause();
-    expect(mockBridge.setPaused).toHaveBeenCalledWith("Test Song", "Test Artist");
+    expect(mockBridge.setPaused).toHaveBeenCalledWith(
+      "Test Song",
+      "Test Artist",
+    );
   });
 
   it("calls NativeMedia.setPlaying when resume is called", () => {
@@ -89,7 +95,10 @@ describe("player store - NativeMedia integration", () => {
     mockBridge.setPaused.mockClear();
 
     player.resume();
-    expect(mockBridge.setPlaying).toHaveBeenCalledWith("Test Song", "Test Artist");
+    expect(mockBridge.setPlaying).toHaveBeenCalledWith(
+      "Test Song",
+      "Test Artist",
+    );
   });
 
   it("calls NativeMedia.hide when stop is called", () => {
@@ -119,7 +128,12 @@ describe("player store - NativeMedia integration", () => {
     player.setStreamBase("http://example.com/stream?id=");
     player.playTrack(mockSong);
 
-    const song2: Song = { ...mockSong, id: "2", title: "Second", artist: "Artist2" };
+    const song2: Song = {
+      ...mockSong,
+      id: "2",
+      title: "Second",
+      artist: "Artist2",
+    };
     mockBridge.setPlaying.mockClear();
     player.playTrack(song2);
 

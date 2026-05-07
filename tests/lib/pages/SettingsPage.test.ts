@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
-import SettingsPage from '$lib/pages/SettingsPage.svelte';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/svelte";
+import SettingsPage from "$lib/pages/SettingsPage.svelte";
 
 const settingsMocks = vi.hoisted(() => ({
   setServerConfig: vi.fn(),
@@ -9,16 +9,16 @@ const settingsMocks = vi.hoisted(() => ({
 }));
 
 const initialState = {
-  theme: 'system' as const,
-  appliedTheme: 'light' as const,
-  serverUrl: '',
-  username: '',
-  password: '',
+  theme: "system" as const,
+  appliedTheme: "light" as const,
+  serverUrl: "",
+  username: "",
+  password: "",
   isConfigured: false,
   scrobbleEnabled: true,
 };
 
-vi.mock('$lib/stores/settings', () => ({
+vi.mock("$lib/stores/settings", () => ({
   settings: {
     subscribe: (cb: (value: typeof initialState) => void) => {
       cb(initialState);
@@ -30,45 +30,45 @@ vi.mock('$lib/stores/settings', () => ({
   },
 }));
 
-vi.mock('$lib/api/SubsonicAPI', () => ({
+vi.mock("$lib/api/SubsonicAPI", () => ({
   SubsonicAPI: vi.fn().mockImplementation(() => ({
     ping: vi.fn().mockResolvedValue(true),
   })),
 }));
 
-describe('SettingsPage', () => {
+describe("SettingsPage", () => {
   beforeEach(() => {
     settingsMocks.setServerConfig.mockClear();
     settingsMocks.setTheme.mockClear();
     settingsMocks.setScrobbleEnabled.mockClear();
   });
 
-  it('associates server labels with corresponding controls', () => {
+  it("associates server labels with corresponding controls", () => {
     render(SettingsPage);
-    const urlInput = screen.getByLabelText('URL') as HTMLInputElement;
-    const usernameInput = screen.getByLabelText('Username') as HTMLInputElement;
-    const passwordInput = screen.getByLabelText('Password') as HTMLInputElement;
-    expect(urlInput.id).toBe('settings-server-url');
-    expect(usernameInput.id).toBe('settings-username');
-    expect(passwordInput.id).toBe('settings-password');
+    const urlInput = screen.getByLabelText("URL") as HTMLInputElement;
+    const usernameInput = screen.getByLabelText("Username") as HTMLInputElement;
+    const passwordInput = screen.getByLabelText("Password") as HTMLInputElement;
+    expect(urlInput.id).toBe("settings-server-url");
+    expect(usernameInput.id).toBe("settings-username");
+    expect(passwordInput.id).toBe("settings-password");
   });
 
-  it('saves server configuration with user-provided values', async () => {
+  it("saves server configuration with user-provided values", async () => {
     render(SettingsPage);
-    await fireEvent.input(screen.getByLabelText('URL'), {
-      target: { value: 'https://demo.example.com' },
+    await fireEvent.input(screen.getByLabelText("URL"), {
+      target: { value: "https://demo.example.com" },
     });
-    await fireEvent.input(screen.getByLabelText('Username'), {
-      target: { value: 'demo-user' },
+    await fireEvent.input(screen.getByLabelText("Username"), {
+      target: { value: "demo-user" },
     });
-    await fireEvent.input(screen.getByLabelText('Password'), {
-      target: { value: 'demo-pass' },
+    await fireEvent.input(screen.getByLabelText("Password"), {
+      target: { value: "demo-pass" },
     });
-    await fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await fireEvent.click(screen.getByRole("button", { name: "Save" }));
     expect(settingsMocks.setServerConfig).toHaveBeenCalledWith({
-      server: 'https://demo.example.com',
-      username: 'demo-user',
-      password: 'demo-pass',
+      server: "https://demo.example.com",
+      username: "demo-user",
+      password: "demo-pass",
     });
   });
 });

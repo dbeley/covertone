@@ -5,6 +5,10 @@
   import QueueDrawer from './QueueDrawer.svelte';
   import { router } from '$lib/stores/router';
   import { nowPlayingOpen } from '$lib/stores/ui';
+  import TabBar from './TabBar.svelte';
+  import { tabsStore } from '$lib/stores/tabs';
+  import { get } from 'svelte/store';
+  import { tick } from 'svelte';
 
   import Home from '$lib/pages/Home.svelte';
   import AlbumsPage from '$lib/pages/AlbumsPage.svelte';
@@ -59,9 +63,57 @@
   function closeNowPlaying() {
     nowPlayingOpen.set(false);
   }
+
+  let tabsState = $derived($tabsStore);
+  let activeTabId = $derived(tabsState.activeTabId);
+  let hasTabs = $derived(tabsState.tabs.length > 0);
+
+  let prevActiveTabId: string | null = null;
+  let isTabSwitch = false;
+
+  $effect(() => {
+    const id = activeTabId;
+    if (id === null) { prevActiveTabId = null; return; }
+
+    const state = get(tabsStore);
+    const prev = prevActiveTabId;
+
+    if (prev !== null && prev !== id) {
+      tabsStore.saveScroll(prev, window.scrollY);
+      isTabSwitch = true;
+    }
+
+    const tab = state.tabs.find((t) => t.id === id);
+    if (tab) {
+      window.location.hash = '#' + tab.route;
+    }
+
+    prevActiveTabId = id;
+  });
+
+  $effect(() => {
+    const path = $router.path;
+    const state = get(tabsStore);
+    if (!state.activeTabId || state.tabs.length === 0) return;
+
+    const activeTab = state.tabs.find((t) => t.id === state.activeTabId);
+    if (activeTab && activeTab.route !== path) {
+      tabsStore.updateRoute(state.activeTabId, path);
+    }
+
+    if (isTabSwitch) {
+      isTabSwitch = false;
+      if (activeTab && activeTab.scrollY > 0) {
+        tick().then(() => window.scrollTo(0, activeTab.scrollY));
+      }
+    }
+  });
 </script>
 
   <div class="h-dvh w-full flex flex-col" style="padding-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px)); padding-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))">
+{#if hasTabs}
+  <TabBar />
+{/if}
   <div class="flex-1 flex min-h-0"
     ontouchstart={onSwipeStart}
     ontouchmove={onSwipeMove}
@@ -83,7 +135,7 @@
     >
       <button
         class="md:hidden fixed left-3 z-30 p-2.5 rounded-xl bg-surface/90 backdrop-blur border border-border shadow-lg hover:border-accent/30 transition-all duration-150 active:scale-95"
-        style="top: calc(0.75rem + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)))"
+        style="top: calc(0.75rem + {hasTabs ? '2.5rem' : '0rem'} + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)))"
         onclick={() => { menuOpen = !menuOpen; }}
         aria-label="Toggle menu"
       >

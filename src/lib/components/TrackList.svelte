@@ -81,7 +81,7 @@
 {/if}
 
 <div class="w-full border border-border rounded-xl overflow-hidden bg-surface/50" style="padding-bottom: {listBottomPadding}">
-  {#each songs as song, index (song.id)}
+  {#each songs as song, index (song.id + '-' + index)}
     <div
       class="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors group relative border-b border-border/50 last:border-b-0"
       onclick={() => handleRowClick(song, index)}
