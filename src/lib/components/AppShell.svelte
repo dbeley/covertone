@@ -84,10 +84,8 @@
     }
 
     const tab = state.tabs.find((t) => t.id === id);
-    if (tab && tab.route !== $router.path) {
+    if (tab) {
       window.location.hash = '#' + tab.route;
-    } else {
-      isTabSwitch = false;
     }
 
     prevActiveTabId = id;
