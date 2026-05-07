@@ -1,6 +1,6 @@
 interface NativeMediaInterface {
-  setPlaying(title: string, artist: string): void;
-  setPaused(title: string, artist: string): void;
+  setPlaying(title: string, artist: string, artworkUrl?: string): void;
+  setPaused(title: string, artist: string, artworkUrl?: string): void;
   hide(): void;
   setArtwork(imageUrl: string): void;
 }
@@ -21,12 +21,19 @@ export function showPlaying(
   artworkUrl?: string,
 ) {
   if (typeof window === "undefined") return;
+  if (artworkUrl) {
+    window.NativeMedia?.setPlaying(title, artist, artworkUrl);
+    return;
+  }
   window.NativeMedia?.setPlaying(title, artist);
-  if (artworkUrl) window.NativeMedia?.setArtwork(artworkUrl);
 }
 
-export function showPaused(title: string, artist: string) {
+export function showPaused(title: string, artist: string, artworkUrl?: string) {
   if (typeof window === "undefined") return;
+  if (artworkUrl) {
+    window.NativeMedia?.setPaused(title, artist, artworkUrl);
+    return;
+  }
   window.NativeMedia?.setPaused(title, artist);
 }
 

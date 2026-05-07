@@ -60,6 +60,8 @@ public class PlaybackService extends Service {
     private String currentArtist = "";
     private boolean isPlaying = false;
     private Bitmap coverBitmap;
+    private String currentArtworkUrl = "";
+    private Integer artworkAccentColor = null;
 
     public static boolean isRunning() {
         return instance != null;
@@ -158,11 +160,37 @@ public class PlaybackService extends Service {
         }
         svc.isPlaying = playing;
 
-        svc.mainHandler.post(svc::doUpdate);
-
-        if (artworkUrl != null && !artworkUrl.isEmpty()) {
-            svc.loadArtwork(artworkUrl);
+        if (artworkUrl != null) {
+            if (artworkUrl.isEmpty()) {
+                svc.currentArtworkUrl = "";
+                svc.coverBitmap = null;
+                svc.artworkAccentColor = null;
+            } else if (!artworkUrl.equals(svc.currentArtworkUrl)) {
+                svc.currentArtworkUrl = artworkUrl;
+                svc.loadArtwork(artworkUrl);
+            }
         }
+
+        svc.mainHandler.post(svc::doUpdate);
+    }
+
+    public static void updateArtwork(String artworkUrl) {
+        if (artworkUrl == null || artworkUrl.isEmpty()) return;
+        PlaybackService svc = instance;
+        if (svc == null) {
+            PendingUpdate pending = pendingUpdate;
+            if (pending == null) {
+                pendingUpdate = new PendingUpdate("", "", false, artworkUrl);
+            } else {
+                pendingUpdate = new PendingUpdate(
+                    pending.title, pending.artist, pending.playing, artworkUrl);
+            }
+            return;
+        }
+        if (artworkUrl.equals(svc.currentArtworkUrl)) return;
+
+        svc.currentArtworkUrl = artworkUrl;
+        svc.loadArtwork(artworkUrl);
     }
 
     public static void hideNotification() {
@@ -210,7 +238,7 @@ public class PlaybackService extends Service {
             return;
         }
 
-        Notification notif = new NotificationCompat.Builder(this, CHANNEL_ID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_media_play)
             .setContentTitle(currentTitle)
             .setContentText(currentArtist)
@@ -227,8 +255,13 @@ public class PlaybackService extends Service {
                 makeActionIntent(isPlaying ? "pause" : "play", isPlaying ? REQ_PAUSE : REQ_PLAY))
             .addAction(android.R.drawable.ic_media_next, "Next", makeActionIntent("next", REQ_NEXT))
             .addAction(android.R.drawable.ic_delete, "Stop", makeActionIntent("stop", REQ_STOP))
-            .setLargeIcon(coverBitmap)
-            .build();
+            .setLargeIcon(coverBitmap);
+
+        if (artworkAccentColor != null) {
+            builder.setColorized(true).setColor(artworkAccentColor);
+        }
+
+        Notification notif = builder.build();
 
         try {
             if (isPlaying) {
@@ -286,6 +319,7 @@ public class PlaybackService extends Service {
 
                 if (bmp != null) {
                     coverBitmap = bmp;
+                    artworkAccentColor = extractDominantColor(bmp);
                     mainHandler.post(this::doUpdate);
                 }
             } catch (Exception ignored) {
@@ -298,6 +332,37 @@ public class PlaybackService extends Service {
                 }
             }
         });
+    }
+
+    private int extractDominantColor(Bitmap bmp) {
+        int w = bmp.getWidth();
+        int h = bmp.getHeight();
+        if (w <= 0 || h <= 0) return 0xFF1DB954;
+
+        long r = 0;
+        long g = 0;
+        long b = 0;
+        long count = 0;
+        int stepX = Math.max(1, w / 24);
+        int stepY = Math.max(1, h / 24);
+
+        for (int y = 0; y < h; y += stepY) {
+            for (int x = 0; x < w; x += stepX) {
+                int c = bmp.getPixel(x, y);
+                int alpha = (c >> 24) & 0xFF;
+                if (alpha < 32) continue;
+                r += (c >> 16) & 0xFF;
+                g += (c >> 8) & 0xFF;
+                b += c & 0xFF;
+                count++;
+            }
+        }
+
+        if (count == 0) return 0xFF1DB954;
+        int rr = (int) (r / count);
+        int gg = (int) (g / count);
+        int bb = (int) (b / count);
+        return 0xFF000000 | (rr << 16) | (gg << 8) | bb;
     }
 
     private void fire(String action) {

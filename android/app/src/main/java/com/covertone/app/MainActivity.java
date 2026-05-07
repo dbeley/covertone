@@ -104,14 +104,14 @@ public class MainActivity extends BridgeActivity {
         }
 
         @JavascriptInterface
-        public void setPlaying(String title, String artist) {
+        public void setPlaying(String title, String artist, String artworkUrl) {
             ensureService();
-            PlaybackService.update(title, artist, true, null);
+            PlaybackService.update(title, artist, true, artworkUrl);
         }
 
         @JavascriptInterface
-        public void setPaused(String title, String artist) {
-            PlaybackService.update(title, artist, false, null);
+        public void setPaused(String title, String artist, String artworkUrl) {
+            PlaybackService.update(title, artist, false, artworkUrl);
         }
 
         @JavascriptInterface
@@ -122,7 +122,7 @@ public class MainActivity extends BridgeActivity {
         @JavascriptInterface
         public void setArtwork(String imageUrl) {
             ensureService();
-            PlaybackService.update("", "", true, imageUrl);
+            PlaybackService.updateArtwork(imageUrl);
         }
     }
 }
