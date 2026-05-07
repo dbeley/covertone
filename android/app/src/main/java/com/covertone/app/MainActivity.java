@@ -82,6 +82,8 @@ public class MainActivity extends BridgeActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        setIntent(intent);
+        if (intent == null) return;
         String act = intent.getStringExtra("media_action");
         if (act == null) return;
         dispatchMediaAction(act);
@@ -111,6 +113,7 @@ public class MainActivity extends BridgeActivity {
 
         @JavascriptInterface
         public void setPaused(String title, String artist, String artworkUrl) {
+            ensureService();
             PlaybackService.update(title, artist, false, artworkUrl);
         }
 
