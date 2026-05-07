@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/svelte';
 import { writable } from 'svelte/store';
 import QueueDrawer from '$lib/components/QueueDrawer.svelte';
 import type { Song } from '$lib/api/types';
+import type { QueuedItem } from '$lib/stores/queue';
 
 const tracks: Song[] = [
   { id: '1', title: 'Song One', artist: 'Artist A', album: 'Album A', albumId: 'a1', duration: 180, track: 1 },
@@ -22,10 +23,12 @@ const mockPlayerState = {
 };
 
 const queueStore = writable({
-  tracks,
-  itemIds: ['q-1', 'q-2', 'q-3'],
+  items: tracks.map(
+    (track, index): QueuedItem => ({ key: `q-${index + 1}`, track }),
+  ),
   currentIndex: 0,
   autoDJ: false,
+  shuffle: false,
   hasNext: true,
   hasPrevious: false,
 });
@@ -53,7 +56,7 @@ vi.mock('$lib/stores/player', () => ({
 
 vi.mock('$lib/stores/queue', () => ({
   queue: {
-    subscribe: vi.fn((cb: (state: { tracks: Song[]; itemIds: string[]; currentIndex: number }) => void) => {
+    subscribe: vi.fn((cb: (state: { items: QueuedItem[]; currentIndex: number }) => void) => {
       const unsubscribe = queueStore.subscribe((state) => cb(state));
       return unsubscribe;
     }),
@@ -98,7 +101,7 @@ describe('QueueDrawer', () => {
 
   it('plays a track when pressing Enter on a queue row', async () => {
     render(QueueDrawer);
-    const row = screen.getByLabelText('Play Song One by Artist A');
+    const row = screen.getAllByLabelText('Play Song One by Artist A')[0];
     await fireEvent.keyDown(row, { key: 'Enter' });
     expect(queueFns.playIndex).toHaveBeenCalledWith(0);
     expect(playerFns.playTrack).toHaveBeenCalledWith(tracks[0]);
@@ -113,8 +116,8 @@ describe('QueueDrawer', () => {
 
   it('reorders queue items with mouse drag and drop', async () => {
     render(QueueDrawer);
-    const firstRow = screen.getByLabelText('Play Song One by Artist A');
-    const thirdRow = screen.getByLabelText('Play Song Three by Artist C');
+    const firstRow = screen.getAllByLabelText('Play Song One by Artist A')[0];
+    const thirdRow = screen.getAllByLabelText('Play Song Three by Artist C')[0];
 
     await fireEvent.dragStart(firstRow);
     await fireEvent.dragOver(thirdRow);
@@ -125,8 +128,8 @@ describe('QueueDrawer', () => {
 
   it('reorders queue items with touch drag and drop', async () => {
     render(QueueDrawer);
-    const firstRow = screen.getByLabelText('Play Song One by Artist A');
-    const secondRow = screen.getByLabelText('Play Song Two by Artist B');
+    const firstRow = screen.getAllByLabelText('Play Song One by Artist A')[1] as HTMLElement;
+    const secondRow = screen.getAllByLabelText('Play Song Two by Artist B')[1] as HTMLElement;
     const originalElementFromPoint = document.elementFromPoint;
     Object.defineProperty(document, 'elementFromPoint', {
       configurable: true,
