@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render } from '@testing-library/svelte';
+import { render, screen, fireEvent } from '@testing-library/svelte';
 import { writable } from 'svelte/store';
 import QueueDrawer from '$lib/components/QueueDrawer.svelte';
 import type { Song } from '$lib/api/types';
@@ -28,13 +28,23 @@ const queueStore = writable({
   hasPrevious: false,
 });
 
+const queueFns = vi.hoisted(() => ({
+  playIndex: vi.fn(),
+  removeTrack: vi.fn(),
+  setDrawerOpen: vi.fn(),
+}));
+
+const playerFns = vi.hoisted(() => ({
+  playTrack: vi.fn(),
+}));
+
 vi.mock('$lib/stores/player', () => ({
   player: {
     subscribe: vi.fn((cb: (state: typeof mockPlayerState) => void) => {
       cb(mockPlayerState);
       return vi.fn();
     }),
-    playTrack: vi.fn(),
+    playTrack: playerFns.playTrack,
   },
 }));
 
@@ -44,21 +54,25 @@ vi.mock('$lib/stores/queue', () => ({
       const unsubscribe = queueStore.subscribe((state) => cb(state));
       return unsubscribe;
     }),
-    playIndex: vi.fn(),
-    removeTrack: vi.fn(),
+    playIndex: queueFns.playIndex,
+    removeTrack: queueFns.removeTrack,
   },
   queueDrawerOpen: {
     subscribe: (cb: (value: boolean) => void) => {
       cb(true);
       return () => {};
     },
-    set: vi.fn(),
+    set: queueFns.setDrawerOpen,
   },
 }));
 
 describe('QueueDrawer', () => {
   beforeEach(() => {
     mockPlayerState.currentTrack = null;
+    queueFns.playIndex.mockClear();
+    queueFns.removeTrack.mockClear();
+    queueFns.setDrawerOpen.mockClear();
+    playerFns.playTrack.mockClear();
   });
 
   it('uses safe-area bottom padding when no mini player is active', () => {
@@ -75,5 +89,20 @@ describe('QueueDrawer', () => {
     const style = drawer.getAttribute('style');
     expect(style).toContain('safe-area-inset-bottom');
     expect(style).toContain('4rem');
+  });
+
+  it('plays a track when pressing Enter on a queue row', async () => {
+    render(QueueDrawer);
+    const row = screen.getByLabelText('Play Song One by Artist A');
+    await fireEvent.keyDown(row, { key: 'Enter' });
+    expect(queueFns.playIndex).toHaveBeenCalledWith(0);
+    expect(playerFns.playTrack).toHaveBeenCalledWith(tracks[0]);
+  });
+
+  it('closes the drawer when clicking the backdrop close button', async () => {
+    render(QueueDrawer);
+    const closeButtons = screen.getAllByRole('button', { name: 'Close queue' });
+    await fireEvent.click(closeButtons[0]);
+    expect(queueFns.setDrawerOpen).toHaveBeenCalledWith(false);
   });
 });

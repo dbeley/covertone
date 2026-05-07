@@ -63,6 +63,13 @@
     dragY = 0;
     dragThresholdMet = false;
   }
+
+  function onTrackKeydown(e: KeyboardEvent, item: QueuedItem, index: number) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleTrackClick(item, index);
+    }
+  }
 </script>
 
 <!-- Desktop side panel -->
@@ -132,7 +139,12 @@
 <!-- Mobile bottom sheet -->
 {#if $queueDrawerOpen}
   <div class="fixed inset-0 z-50 flex items-end justify-center animate-fade-in md:hidden">
-    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick={() => queueDrawerOpen.set(false)}></div>
+    <button
+      type="button"
+      class="absolute inset-0 bg-black/50 backdrop-blur-sm cursor-default"
+      aria-label="Close queue"
+      onclick={() => queueDrawerOpen.set(false)}
+    ></button>
     <div
       class="relative w-full max-w-lg bg-surface border border-border border-b-0 rounded-t-2xl max-h-[70vh] flex flex-col animate-slide-up shadow-2xl shadow-black/20"
       style="padding-bottom: {drawerBottomPadding}; transform: translateY({dragY}px); transition: {dragging ? 'none' : 'transform 0.3s ease-out'}"
@@ -171,8 +183,10 @@
             <div
               class="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0 {index === currentIndex ? 'bg-accent/5' : ''}"
               onclick={() => handleTrackClick(item, index)}
+              onkeydown={(e) => onTrackKeydown(e, item, index)}
               role="button"
               tabindex="0"
+              aria-label={`Play ${item.track.title} by ${item.track.artist}`}
             >
               <span class="w-5 text-center text-xs text-text-dim shrink-0">
                 {#if index === currentIndex}

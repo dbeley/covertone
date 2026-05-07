@@ -69,6 +69,19 @@
     }
   }
 
+  function playFromTopTracks(song: Song, index: number) {
+    queue.replaceAll(topSongs);
+    queue.playIndex(index);
+    player.playTrack(song);
+  }
+
+  function onSongKeydown(e: KeyboardEvent, song: Song, index: number) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      playFromTopTracks(song, index);
+    }
+  }
+
   $effect(() => {
     if (!$settings.isConfigured) { loading = false; return; }
 
@@ -175,12 +188,14 @@
           {#each topSongs as song, index (song.id)}
             <div
               class="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors group relative border-b border-border/50 last:border-b-0"
-              onclick={() => { queue.replaceAll(topSongs); queue.playIndex(index); player.playTrack(song); }}
+              onclick={() => playFromTopTracks(song, index)}
               ontouchstart={() => startLongPress(index)}
               ontouchend={cancelLongPress}
               ontouchmove={cancelLongPress}
+              onkeydown={(e) => onSongKeydown(e, song, index)}
               role="button"
               tabindex="0"
+              aria-label={`Play ${song.title} by ${song.artist}`}
             >
               <span class="w-6 text-center text-xs text-text-dim">{index + 1}</span>
               <div class="flex-1 min-w-0">
