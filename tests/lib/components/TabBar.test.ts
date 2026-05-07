@@ -2,6 +2,17 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/svelte";
 import TabBar from "$lib/components/TabBar.svelte";
 
+vi.mock("$lib/stores/router", () => ({
+  router: {
+    subscribe: vi.fn((cb: (v: any) => void) => {
+      cb({ path: "/", params: {}, matches: () => false, extractParams: () => ({}) });
+      return vi.fn();
+    }),
+    navigate: vi.fn(),
+    reset: vi.fn(),
+  },
+}));
+
 vi.mock("$lib/stores/tabs", () => ({
   tabsStore: {
     subscribe: vi.fn((cb: (v: any) => void) => {
@@ -32,9 +43,8 @@ describe("TabBar", () => {
     expect(screen.getByLabelText("Create new tab")).toBeTruthy();
   });
 
-  it("renders nothing when no tabs", () => {
-    render(TabBar);
-    // With the mock returning 2 tabs, this won't test empty state well
-    // but we verify the component mounts without error
+  it("mounts without error", () => {
+    const { container } = render(TabBar);
+    expect(container.querySelector('[class*="flex"]')).toBeTruthy();
   });
 });

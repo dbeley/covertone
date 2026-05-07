@@ -39,12 +39,22 @@ function createTabsStore() {
 
   return {
     subscribe,
-    createTab() {
+    createTab(currentRoute?: string) {
       update((state) => {
         if (state.tabs.length >= MAX_TABS) return state;
+        const newTabs = [...state.tabs];
+        if (state.tabs.length === 0 && currentRoute) {
+          const firstId = `tab-${nextId++}`;
+          newTabs.push({
+            id: firstId,
+            route: currentRoute,
+            title: routeToTitle(currentRoute),
+            scrollY: 0,
+          });
+        }
         const id = `tab-${nextId++}`;
-        const tab: TabInfo = { id, route: "/", title: "Home", scrollY: 0 };
-        return { tabs: [...state.tabs, tab], activeTabId: id };
+        newTabs.push({ id, route: "/", title: "Home", scrollY: 0 });
+        return { tabs: newTabs, activeTabId: id };
       });
     },
     closeTab(id: string) {

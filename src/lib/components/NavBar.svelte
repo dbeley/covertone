@@ -44,7 +44,7 @@
   <div class="mt-auto pt-2 border-t border-border">
     <button
       class="w-full text-left px-3 py-2 rounded-xl text-sm font-medium text-text-dim hover:text-text hover:bg-white/5 transition-all duration-150 flex items-center gap-2"
-      onclick={() => { if (!atMax) tabsStore.createTab(); }}
+      onclick={() => { if (!atMax) tabsStore.createTab($router.path); }}
       title={atMax ? 'Maximum 10 tabs' : ''}
     >
       <svg viewBox="0 0 16 16" class="w-4 h-4 shrink-0">

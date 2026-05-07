@@ -23,6 +23,17 @@ describe('tabsStore', () => {
     expect(state.activeTabId).toBe(state.tabs[0].id);
   });
 
+  it('createTab with currentRoute captures current view as first tab', () => {
+    tabsStore.createTab('/albums');
+    const state = get(tabsStore);
+    expect(state.tabs).toHaveLength(2);
+    expect(state.tabs[0].route).toBe('/albums');
+    expect(state.tabs[0].title).toBe('Albums');
+    expect(state.tabs[1].route).toBe('/');
+    expect(state.tabs[1].title).toBe('Home');
+    expect(state.activeTabId).toBe(state.tabs[1].id);
+  });
+
   it('createTab activates the new tab', () => {
     tabsStore.createTab();
     const state1 = get(tabsStore);

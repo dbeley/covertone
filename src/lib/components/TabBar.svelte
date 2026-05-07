@@ -1,5 +1,6 @@
 <script lang="ts">
   import { tabsStore } from "$lib/stores/tabs";
+  import { router } from "$lib/stores/router";
 
   let state = $derived($tabsStore);
   let tabs = $derived(state.tabs);
@@ -17,15 +18,15 @@
   }
 
   function handleNewTab() {
-    if (!atMax) tabsStore.createTab();
+    if (!atMax) tabsStore.createTab($router.path);
   }
 </script>
 
-{#if tabs.length > 0}
-  <div
-    class="flex items-center gap-0.5 h-10 px-2 bg-surface border-b border-border overflow-x-auto"
-    style="scrollbar-width: none;"
-  >
+<div
+  class="flex items-center gap-0.5 h-10 px-2 bg-surface border-b border-border overflow-x-auto"
+  style="scrollbar-width: none;"
+>
+  {#if tabs.length > 0}
     {#each tabs as tab (tab.id)}
       <button
         class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm whitespace-nowrap transition-all duration-150 shrink-0 max-w-[140px]
@@ -46,15 +47,15 @@
         </span>
       </button>
     {/each}
-    <button
-      class="shrink-0 p-1.5 rounded-lg text-text-dim hover:text-text hover:bg-white/5 transition-colors"
-      onclick={handleNewTab}
-      aria-label="Create new tab"
-      title={atMax ? 'Maximum 10 tabs' : ''}
-    >
-      <svg viewBox="0 0 16 16" class="w-4 h-4">
-        <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2" fill="none" />
-      </svg>
-    </button>
-  </div>
-{/if}
+  {/if}
+  <button
+    class="shrink-0 p-1.5 rounded-lg text-text-dim hover:text-text hover:bg-white/5 transition-colors"
+    onclick={handleNewTab}
+    aria-label="Create new tab"
+    title={atMax ? 'Maximum 10 tabs' : ''}
+  >
+    <svg viewBox="0 0 16 16" class="w-4 h-4">
+      <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2" fill="none" />
+    </svg>
+  </button>
+</div>
