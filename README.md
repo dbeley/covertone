@@ -4,17 +4,17 @@
 
 A Subsonic/Navidrome music streaming client tailored to my needs.
 
-I wanted a Subsonic client that fit my needs exactly. **Covertone is focused on music discovery with features that can't be found on any other Subsonic clients out there (cf. [Features](#features)).**
+**Covertone is focused on music discovery with features that can't be found in any other Subsonic client out there (see [Features](#features)).**
 
 <img src="imgs/album-view.png" width="600" />
 <img src="imgs/now-playing-view.png" width="600" />
 
 ## Features
 
-- **Tabbed browsing** - Switch between up to 10 tabs, each allowing to navigate the library at different place
+- **Tabbed browsing** - Switch between up to 10 tabs, each allowing you to navigate to a different part of the library
 - **Auto DJ** - When the queue ends, automatically fetches similar songs
 - **Guess the Artist** - Trivia game that plays a song and challenges you to pick the right artist
-- **Random album discovery** - Navigation heavily favors showing random albums to help discover new things
+- **Random album discovery** - The default sorting view for albums is random to help you discover music
 - **Cross-platform** - Installable PWA, Android app (via Capacitor), iOS app (via Capacitor), or Docker image
 
 ## Quick start
