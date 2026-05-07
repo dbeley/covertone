@@ -1,4 +1,4 @@
-import { writable } from "svelte/store";
+import { writable, get } from "svelte/store";
 import type { Writable } from "svelte/store";
 
 export interface TabInfo {
@@ -57,7 +57,7 @@ function createTabsStore() {
           if (newTabs.length === 0) {
             newActiveId = null;
           } else {
-            newActiveId = newTabs[Math.min(idx, newTabs.length - 1)].id;
+            newActiveId = idx > 0 ? newTabs[idx - 1].id : newTabs[0].id;
           }
         }
         return { tabs: newTabs, activeTabId: newActiveId };
@@ -84,6 +84,11 @@ function createTabsStore() {
         );
         return { ...state, tabs: newTabs };
       });
+    },
+    getActiveTab(): TabInfo | null {
+      const state = get(store);
+      if (!state.activeTabId) return null;
+      return state.tabs.find((t) => t.id === state.activeTabId) ?? null;
     },
   };
 }

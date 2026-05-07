@@ -5,17 +5,19 @@
   let tabs = $derived(state.tabs);
   let activeTabId = $derived(state.activeTabId);
 
-  function handleTabClick(id: string) {
-    tabsStore.activateTab(id);
-  }
+  let atMax = $derived(tabs.length >= 10);
 
-  function handleTabClose(e: Event, id: string) {
-    e.stopPropagation();
-    tabsStore.closeTab(id);
+  function handleTabAction(e: MouseEvent | KeyboardEvent, id: string) {
+    const target = e.target as HTMLElement;
+    if (target.closest('[data-tab-close]')) {
+      tabsStore.closeTab(id);
+    } else {
+      tabsStore.activateTab(id);
+    }
   }
 
   function handleNewTab() {
-    tabsStore.createTab();
+    if (!atMax) tabsStore.createTab();
   }
 </script>
 
@@ -30,26 +32,25 @@
                {tab.id === activeTabId
                  ? "bg-accent/10 text-accent ring-1 ring-accent/20 font-medium"
                  : "text-text-dim hover:text-text hover:bg-white/5"}"
-        onclick={() => handleTabClick(tab.id)}
+        onclick={(e) => handleTabAction(e, tab.id)}
       >
         <span class="truncate">{tab.title}</span>
-        <svg
-          viewBox="0 0 16 16"
-          class="w-3.5 h-3.5 shrink-0 opacity-50 hover:opacity-100"
-          onclick={(e) => handleTabClose(e, tab.id)}
-          onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleTabClose(e, tab.id); }}
-          role="button"
-          tabindex="-1"
+        <span
+          data-tab-close
+          class="flex items-center justify-center w-4 h-4 rounded hover:bg-white/10"
           aria-label="Close tab"
         >
-          <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" fill="none" />
-        </svg>
+          <svg viewBox="0 0 16 16" class="w-3 h-3">
+            <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" fill="none" />
+          </svg>
+        </span>
       </button>
     {/each}
     <button
       class="shrink-0 p-1.5 rounded-lg text-text-dim hover:text-text hover:bg-white/5 transition-colors"
       onclick={handleNewTab}
       aria-label="Create new tab"
+      title={atMax ? 'Maximum 10 tabs' : ''}
     >
       <svg viewBox="0 0 16 16" class="w-4 h-4">
         <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2" fill="none" />
