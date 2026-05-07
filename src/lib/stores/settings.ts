@@ -11,6 +11,7 @@ export interface SettingsState {
   password: string;
   isConfigured: boolean;
   scrobbleEnabled: boolean;
+  autoDJ: boolean;
 }
 
 const STORAGE_KEY = "covertone-settings";
@@ -62,6 +63,7 @@ function createSettings() {
     password: persisted.password ?? "",
     isConfigured: !!(persisted.serverUrl && persisted.username),
     scrobbleEnabled: persisted.scrobbleEnabled ?? true,
+    autoDJ: persisted.autoDJ ?? true,
   });
 
   return {
@@ -81,6 +83,13 @@ function createSettings() {
       update((state) => {
         const next = { ...state, scrobbleEnabled: enabled };
         persist({ scrobbleEnabled: enabled });
+        return next;
+      });
+    },
+    setAutoDJ(enabled: boolean) {
+      update((state) => {
+        const next = { ...state, autoDJ: enabled };
+        persist({ autoDJ: enabled });
         return next;
       });
     },
@@ -119,6 +128,7 @@ function createSettings() {
         password: "",
         isConfigured: false,
         scrobbleEnabled: true,
+        autoDJ: true,
       });
     },
     reload() {
@@ -132,6 +142,7 @@ function createSettings() {
         password: persisted.password ?? "",
         isConfigured: !!(persisted.serverUrl && persisted.username),
         scrobbleEnabled: persisted.scrobbleEnabled ?? true,
+        autoDJ: persisted.autoDJ ?? true,
       });
     },
   };

@@ -132,7 +132,7 @@
           max={duration}
           value={currentTime}
           oninput={handleSeek}
-          class="w-full h-1 appearance-none bg-white/20 rounded-full [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent"
+          class="w-full h-1 appearance-none bg-text-dim/20 rounded-full [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent [&::-webkit-slider-track]:bg-text-dim/20"
         />
         <div class="flex justify-between text-xs text-text-dim">
           <span>{currentMinutes}:{currentSeconds}</span>

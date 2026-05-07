@@ -345,6 +345,7 @@ describe('queue store', () => {
   it('getNextAutoDJ returns null when autoDJ is disabled and no next', async () => {
     queue.setAutoDJInstance(mockAutoDJ as any);
     queue.replaceAll([song1]);
+    queue.setAutoDJ(false);
     const next = await queue.getNextAutoDJ();
     expect(next).toBeNull();
     expect(mockAutoDJ.fetchSimilar).not.toHaveBeenCalled();

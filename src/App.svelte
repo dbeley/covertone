@@ -78,6 +78,7 @@
         password: $settings.password,
       });
       queue.setAutoDJInstance(new AutoDJ(api));
+      queue.setAutoDJ($settings.autoDJ);
     }
   });
 </script>

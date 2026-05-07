@@ -144,6 +144,19 @@
       </label>
       <span class="text-sm">Report plays to Navidrome (scrobbling)</span>
     </div>
+    <div class="flex items-center gap-3 mt-4">
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input
+          type="checkbox"
+          checked={$settings.autoDJ}
+          onchange={(e) => settings.setAutoDJ((e.target as HTMLInputElement).checked)}
+          class="sr-only peer"
+        />
+        <div class="w-10 h-5 bg-surface border border-border rounded-full peer-checked:bg-accent peer-checked:border-accent transition-all duration-150 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full {!$settings.autoDJ ? 'opacity-60' : ''}">
+        </div>
+      </label>
+      <span class="text-sm">Auto-fill queue with similar songs when empty (Auto DJ)</span>
+    </div>
   </section>
 
   {#if !isNativeAvailable()}
