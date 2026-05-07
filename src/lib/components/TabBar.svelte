@@ -37,6 +37,10 @@
           viewBox="0 0 16 16"
           class="w-3.5 h-3.5 shrink-0 opacity-50 hover:opacity-100"
           onclick={(e) => handleTabClose(e, tab.id)}
+          onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleTabClose(e, tab.id); }}
+          role="button"
+          tabindex="-1"
+          aria-label="Close tab"
         >
           <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" fill="none" />
         </svg>
