@@ -1,25 +1,32 @@
-
 <script lang="ts">
   import { player } from '$lib/stores/player';
   import { queue, queueDrawerOpen } from '$lib/stores/queue';
   import type { QueuedItem } from '$lib/stores/queue';
+  import { formatDuration } from '$lib/utils/format';
+  import { handleActivationKey } from '$lib/utils/keyboard';
 
   let items = $derived($queue.items);
   let currentIndex = $derived($queue.currentIndex);
   let currentTrack = $derived($player.currentTrack);
 
   const MINI_PLAYER_HEIGHT = '4rem';
+  const DRAG_THRESHOLD = 10;
+  const CLOSE_THRESHOLD = 100;
   let drawerBottomPadding = $derived(
     currentTrack
       ? `calc(env(safe-area-inset-bottom, 0px) + ${MINI_PLAYER_HEIGHT})`
       : 'env(safe-area-inset-bottom, 0px)'
   );
 
-  function formatDuration(seconds: number): string {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
-  }
+  let dragY = $state(0);
+  let dragging = $state(false);
+  let startY = $state(0);
+  let dragThresholdMet = $state(false);
+  let draggedIndex = $state<number | null>(null);
+  let dropTargetIndex = $state<number | null>(null);
+  let touchDragActive = $state(false);
+  let touchDragMoved = $state(false);
+  let skipNextRowClick = $state(false);
 
   function handleTrackClick(item: QueuedItem, index: number) {
     queue.playIndex(index);
@@ -31,22 +38,14 @@
     queue.removeTrack(index);
   }
 
-  // Mobile swipe
-  let dragY = $state(0);
-  let dragging = $state(false);
-  let startY = $state(0);
-  let dragThresholdMet = $state(false);
-  const DRAG_THRESHOLD = 10;
-  const CLOSE_THRESHOLD = 100;
-
-  function onTouchStart(e: TouchEvent) {
+  function onTouchStart(e: globalThis.TouchEvent) {
     dragging = true;
     dragThresholdMet = false;
     startY = e.touches[0].clientY;
     dragY = 0;
   }
 
-  function onTouchMove(e: TouchEvent) {
+  function onTouchMove(e: globalThis.TouchEvent) {
     if (!dragging) return;
     const delta = e.touches[0].clientY - startY;
     if (delta < 0) return;
@@ -64,11 +63,105 @@
     dragThresholdMet = false;
   }
 
-  function onTrackKeydown(e: KeyboardEvent, item: QueuedItem, index: number) {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      handleTrackClick(item, index);
+  function handleDragStart(index: number, e: globalThis.DragEvent) {
+    draggedIndex = index;
+    dropTargetIndex = index;
+    e.dataTransfer?.setData('text/plain', `${index}`);
+    if (e.dataTransfer) {
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.dropEffect = 'move';
     }
+  }
+
+  function handleDragOver(index: number, e: globalThis.DragEvent) {
+    e.preventDefault();
+    if (dropTargetIndex !== index) {
+      dropTargetIndex = index;
+    }
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = 'move';
+    }
+  }
+
+  function handleDrop(index: number, e: globalThis.DragEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (draggedIndex === null || draggedIndex === index) {
+      clearDragState();
+      return;
+    }
+    queue.moveTrack(draggedIndex, index);
+    clearDragState();
+  }
+
+  function handleDragEnd() {
+    clearDragState();
+  }
+
+  function clearDragState() {
+    draggedIndex = null;
+    dropTargetIndex = null;
+  }
+
+  function getRowIndexFromTouch(touch: globalThis.Touch) {
+    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (!(target instanceof HTMLElement)) return null;
+    const row = target.closest<HTMLElement>('[data-queue-index]');
+    if (!row) return null;
+    const rawIndex = row.dataset.queueIndex;
+    if (rawIndex === undefined) return null;
+    const parsed = Number(rawIndex);
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+
+  function handleRowTouchStart(index: number, e: globalThis.TouchEvent) {
+    e.stopPropagation();
+    touchDragActive = true;
+    touchDragMoved = false;
+    draggedIndex = index;
+    dropTargetIndex = index;
+  }
+
+  function handleRowTouchMove(e: globalThis.TouchEvent) {
+    e.stopPropagation();
+    if (!touchDragActive || e.touches.length === 0) return;
+    touchDragMoved = true;
+    const nextIndex = getRowIndexFromTouch(e.touches[0]);
+    if (nextIndex !== null) {
+      dropTargetIndex = nextIndex;
+    }
+  }
+
+  function handleRowTouchEnd(e: globalThis.TouchEvent) {
+    e.stopPropagation();
+    if (
+      touchDragActive &&
+      touchDragMoved &&
+      draggedIndex !== null &&
+      dropTargetIndex !== null &&
+      draggedIndex !== dropTargetIndex
+    ) {
+      queue.moveTrack(draggedIndex, dropTargetIndex);
+      skipNextRowClick = true;
+    }
+    touchDragActive = false;
+    touchDragMoved = false;
+    clearDragState();
+  }
+
+  function handleRowTouchCancel(e: globalThis.TouchEvent) {
+    e.stopPropagation();
+    touchDragActive = false;
+    touchDragMoved = false;
+    clearDragState();
+  }
+
+  function handleRowClick(item: QueuedItem, index: number) {
+    if (skipNextRowClick) {
+      skipNextRowClick = false;
+      return;
+    }
+    handleTrackClick(item, index);
   }
 </script>
 
@@ -102,10 +195,17 @@
       {:else}
         {#each items as item, index (item.key)}
           <div
-            class="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0 {index === currentIndex ? 'bg-accent/5' : ''}"
-            onclick={() => handleTrackClick(item, index)}
+            class="flex items-center gap-2.5 sm:gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0 {index === currentIndex ? 'bg-accent/5' : ''} {draggedIndex === index ? 'opacity-60 bg-accent/10' : ''} {dropTargetIndex === index && draggedIndex !== index ? 'ring-1 ring-inset ring-accent/40 bg-accent/10' : ''}"
+            draggable="true"
+            onclick={() => handleRowClick(item, index)}
+            onkeydown={(e) => handleActivationKey(e, () => handleTrackClick(item, index))}
+            ondragstart={(e) => handleDragStart(index, e)}
+            ondragover={(e) => handleDragOver(index, e)}
+            ondrop={(e) => handleDrop(index, e)}
+            ondragend={handleDragEnd}
             role="button"
             tabindex="0"
+            aria-label={`Play ${item.track.title} by ${item.track.artist}`}
           >
             <span class="w-5 text-center text-xs text-text-dim shrink-0">
               {#if index === currentIndex}
@@ -113,6 +213,16 @@
               {:else}
                 {index + 1}
               {/if}
+            </span>
+            <span aria-hidden="true" class="text-text-dim opacity-60 shrink-0 pointer-events-none">
+              <svg viewBox="0 0 12 12" class="w-3 h-3 fill-current">
+                <circle cx="3" cy="2.5" r="1" />
+                <circle cx="3" cy="6" r="1" />
+                <circle cx="3" cy="9.5" r="1" />
+                <circle cx="9" cy="2.5" r="1" />
+                <circle cx="9" cy="6" r="1" />
+                <circle cx="9" cy="9.5" r="1" />
+              </svg>
             </span>
             <div class="flex-1 min-w-0">
               <div class="text-sm font-medium truncate">{item.track.title}</div>
@@ -181,9 +291,19 @@
         {:else}
           {#each items as item, index (item.key)}
             <div
-              class="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0 {index === currentIndex ? 'bg-accent/5' : ''}"
-              onclick={() => handleTrackClick(item, index)}
-              onkeydown={(e) => onTrackKeydown(e, item, index)}
+              class="flex items-center gap-2.5 sm:gap-3 px-5 py-3 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0 {index === currentIndex ? 'bg-accent/5' : ''} {draggedIndex === index ? 'opacity-60 bg-accent/10' : ''} {dropTargetIndex === index && draggedIndex !== index ? 'ring-1 ring-inset ring-accent/40 bg-accent/10' : ''}"
+              data-queue-index={index}
+              draggable="true"
+              onclick={() => handleRowClick(item, index)}
+              onkeydown={(e) => handleActivationKey(e, () => handleTrackClick(item, index))}
+              ondragstart={(e) => handleDragStart(index, e)}
+              ondragover={(e) => handleDragOver(index, e)}
+              ondrop={(e) => handleDrop(index, e)}
+              ondragend={handleDragEnd}
+              ontouchstart={(e) => handleRowTouchStart(index, e)}
+              ontouchmove={handleRowTouchMove}
+              ontouchend={handleRowTouchEnd}
+              ontouchcancel={handleRowTouchCancel}
               role="button"
               tabindex="0"
               aria-label={`Play ${item.track.title} by ${item.track.artist}`}
@@ -194,6 +314,16 @@
                 {:else}
                   {index + 1}
                 {/if}
+              </span>
+              <span aria-hidden="true" class="text-text-dim opacity-60 shrink-0 pointer-events-none">
+                <svg viewBox="0 0 12 12" class="w-3 h-3 fill-current">
+                  <circle cx="3" cy="2.5" r="1" />
+                  <circle cx="3" cy="6" r="1" />
+                  <circle cx="3" cy="9.5" r="1" />
+                  <circle cx="9" cy="2.5" r="1" />
+                  <circle cx="9" cy="6" r="1" />
+                  <circle cx="9" cy="9.5" r="1" />
+                </svg>
               </span>
               <div class="flex-1 min-w-0">
                 <div class="text-sm font-medium truncate">{item.track.title}</div>
