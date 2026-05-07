@@ -182,7 +182,7 @@
       <section>
         <h3 class="text-lg font-semibold mb-3 tracking-tight">Songs</h3>
         <div class="space-y-1">
-          {#each songs as song (song.id)}
+          {#each songs as song, index (song.id + '-' + index)}
             <div
               class="flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer hover:bg-white/5 transition-colors"
               onclick={() => playSong(song)}
