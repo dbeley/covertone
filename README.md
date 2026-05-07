@@ -7,10 +7,10 @@ A modern Subsonic/Navidrome music streaming client for Web / Android / iOS tailo
 **Covertone is focused on music discovery with features that can't be found in any other Subsonic client out there (see [Features](#features)).**
 
 <p align="center">
-  <img src="imgs/home-view-desktop.png" width="600" />
-  <img src="imgs/home-view-mobile.png" width="200" />
-  <img src="imgs/album-view-desktop.png" width="600" />
-  <img src="imgs/album-view-mobile.png" width="200" />
+  <img src="imgs/home-view-desktop.png" width="500" />
+  <img src="imgs/home-view-mobile.png" width="145" />
+  <img src="imgs/album-view-desktop.png" width="500" />
+  <img src="imgs/album-view-mobile.png" width="145" />
 </p>
 
 ## Features
