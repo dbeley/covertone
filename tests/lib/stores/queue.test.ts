@@ -301,6 +301,13 @@ describe('queue store', () => {
     expect(get(queue).currentIndex).toBe(1);
   });
 
+  it('syncCurrentTrack keeps currently selected duplicate index', () => {
+    queue.replaceAll([song1, song1, song1]);
+    queue.playIndex(2);
+    queue.syncCurrentTrack(song1);
+    expect(get(queue).currentIndex).toBe(2);
+  });
+
   it('syncCurrentTrack resets currentIndex when track is not in queue', () => {
     queue.replaceAll([song1, song2]);
     queue.syncCurrentTrack(song3);
