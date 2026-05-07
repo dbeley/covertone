@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { on } from 'svelte/events';
   import { player } from '$lib/stores/player';
   import { queue, queueDrawerOpen } from '$lib/stores/queue';
   import type { QueuedItem } from '$lib/stores/queue';
@@ -124,6 +125,9 @@
       clearDragState();
       return;
     }
+    if (e.cancelable) {
+      e.preventDefault();
+    }
     touchDragActive = true;
     touchDragMoved = false;
     draggedIndex = index;
@@ -133,6 +137,9 @@
   function handleRowTouchMove(e: globalThis.TouchEvent) {
     e.stopPropagation();
     if (!touchDragActive || e.touches.length === 0) return;
+    if (e.cancelable) {
+      e.preventDefault();
+    }
     touchDragMoved = true;
     const nextIndex = getRowIndexFromTouch(e.touches[0]);
     if (nextIndex !== null) {
@@ -162,6 +169,40 @@
     touchDragActive = false;
     touchDragMoved = false;
     clearDragState();
+  }
+
+  function getNodeQueueIndex(node: HTMLElement) {
+    const rawIndex = node.dataset.queueIndex;
+    if (rawIndex === undefined) return null;
+    const parsed = Number(rawIndex);
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+
+  function touchDragListeners(node: HTMLElement) {
+    const offTouchStart = on(
+      node,
+      'touchstart',
+      (e) => {
+        const index = getNodeQueueIndex(node);
+        if (index === null) return;
+        handleRowTouchStart(index, e);
+      },
+      { passive: false }
+    );
+    const offTouchMove = on(node, 'touchmove', (e) => handleRowTouchMove(e), {
+      passive: false
+    });
+    const offTouchEnd = on(node, 'touchend', (e) => handleRowTouchEnd(e));
+    const offTouchCancel = on(node, 'touchcancel', (e) => handleRowTouchCancel(e));
+
+    return {
+      destroy() {
+        offTouchStart();
+        offTouchMove();
+        offTouchEnd();
+        offTouchCancel();
+      }
+    };
   }
 
   function handleRowClick(item: QueuedItem, index: number) {
@@ -226,6 +267,7 @@
               aria-hidden="true"
               data-queue-drag-handle="true"
               class="text-text-dim opacity-60 shrink-0"
+              style="touch-action: none;"
             >
               <svg viewBox="0 0 12 12" class="w-3 h-3 fill-current">
                 <circle cx="3" cy="2.5" r="1" />
@@ -312,10 +354,7 @@
               ondragover={(e) => handleDragOver(index, e)}
               ondrop={(e) => handleDrop(index, e)}
               ondragend={handleDragEnd}
-              ontouchstart={(e) => handleRowTouchStart(index, e)}
-              ontouchmove={handleRowTouchMove}
-              ontouchend={handleRowTouchEnd}
-              ontouchcancel={handleRowTouchCancel}
+              use:touchDragListeners
               role="button"
               tabindex="0"
               aria-label={`Play ${item.track.title} by ${item.track.artist}`}
@@ -331,6 +370,7 @@
                 aria-hidden="true"
                 data-queue-drag-handle="true"
                 class="text-text-dim opacity-60 shrink-0"
+                style="touch-action: none;"
               >
                 <svg viewBox="0 0 12 12" class="w-3 h-3 fill-current">
                   <circle cx="3" cy="2.5" r="1" />
