@@ -46,7 +46,11 @@ describe("NativeMedia", () => {
 
     it("passes artwork URL when provided", () => {
       const bridge = mockBridge();
-      NativeMedia.showPlaying("Song", "Artist", "https://img.example/cover.jpg");
+      NativeMedia.showPlaying(
+        "Song",
+        "Artist",
+        "https://img.example/cover.jpg",
+      );
       expect(bridge.setPlaying).toHaveBeenCalledWith(
         "Song",
         "Artist",
