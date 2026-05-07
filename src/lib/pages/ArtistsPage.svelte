@@ -75,6 +75,17 @@
     });
   }
 
+  function openArtist(id: string) {
+    router.navigate(`artist/${id}`);
+  }
+
+  function onArtistKeydown(e: KeyboardEvent, id: string) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openArtist(id);
+    }
+  }
+
   function setupObserver() {
     if (observer) observer.disconnect();
     const sentinel = document.getElementById('artist-sentinel');
@@ -136,9 +147,11 @@
               {#each group.artists as artist (artist.id)}
                 <div
                   class="cursor-pointer group flex flex-col items-center gap-1.5 text-center transition-all duration-200 active:scale-95"
-                  onclick={() => router.navigate(`artist/${artist.id}`)}
+                  onclick={() => openArtist(artist.id)}
+                  onkeydown={(e) => onArtistKeydown(e, artist.id)}
                   role="button"
                   tabindex="0"
+                  aria-label={`Open artist ${artist.name}`}
                 >
                   <div class="w-20 h-20 rounded-full overflow-hidden ring-1 ring-border group-hover:ring-accent/30 transition-all duration-300 bg-surface">
                     <LazyImage

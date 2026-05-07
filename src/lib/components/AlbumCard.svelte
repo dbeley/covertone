@@ -4,13 +4,26 @@
   import type { Album } from '$lib/api/types';
 
   let { album, coverArtUrl }: { album: Album; coverArtUrl: string } = $props();
+
+  function open() {
+    router.navigate(`album/${album.id}`);
+  }
+
+  function onKeydown(e: KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      open();
+    }
+  }
 </script>
 
 <div
   class="cursor-pointer group rounded-xl border border-border bg-surface hover:border-accent/20 hover:shadow-lg hover:shadow-accent/5 transition-all duration-200 overflow-hidden active:scale-[0.98]"
-  onclick={() => router.navigate(`album/${album.id}`)}
+  onclick={open}
+  onkeydown={onKeydown}
   role="button"
   tabindex="0"
+  aria-label={`Open album ${album.name}`}
 >
   <div class="aspect-square overflow-hidden">
     <LazyImage

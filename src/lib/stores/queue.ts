@@ -239,6 +239,10 @@ function createQueue() {
     syncCurrentTrack(track: Song | null) {
       update((s) => {
         if (!track) return recomputeDerived({ ...s, currentIndex: -1 });
+        const currentItem = s.items[s.currentIndex];
+        if (currentItem?.track.id === track.id) {
+          return recomputeDerived(s);
+        }
         const index = s.items.findIndex((item) => item.track.id === track.id);
         return recomputeDerived({ ...s, currentIndex: index });
       });

@@ -1,14 +1,16 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { get } from 'svelte/store';
   import { router } from '$lib/stores/router';
   import { settings } from '$lib/stores/settings';
   import { player } from '$lib/stores/player';
-  import { queue } from '$lib/stores/queue';
+  import { queue, queueDrawerOpen } from '$lib/stores/queue';
   import { getStreamBaseUrl } from '$lib/api/SubsonicAPI';
   import { SubsonicAPI } from '$lib/api/SubsonicAPI';
   import { AutoDJ } from '$lib/player/AutoDJ';
   import { isNativeAvailable } from '$lib/player/NativeMedia';
   import { initKeyboardShortcuts } from '$lib/keyboard/shortcuts';
+  import { handleNativeBackButton } from '$lib/navigation/nativeBack';
   import AppShell from '$lib/components/AppShell.svelte';
 
   onMount(() => {
@@ -21,11 +23,13 @@
     if (isNativeAvailable()) {
       import('@capacitor/app').then(({ App }) => {
         App.addListener('backButton', ({ canGoBack }) => {
-          if (canGoBack) {
-            window.history.back();
-          } else {
-            App.exitApp();
-          }
+          handleNativeBackButton({
+            canGoBack,
+            isQueueDrawerOpen: get(queueDrawerOpen),
+            closeQueueDrawer: () => queueDrawerOpen.set(false),
+            goBack: () => window.history.back(),
+            exitApp: () => App.exitApp(),
+          });
         }).then((handle) => {
           removeBackListener = () => handle.remove();
         });

@@ -4,9 +4,23 @@ import TrackList from '$lib/components/TrackList.svelte';
 import { player } from '$lib/stores/player';
 import type { Song } from '$lib/api/types';
 
+const mockPlayerState = {
+  status: 'idle' as const,
+  currentTrack: null as Song | null,
+  currentTime: 0,
+  duration: 0,
+  volume: 1,
+  repeating: false,
+  shuffle: false,
+  favorited: false,
+};
+
 vi.mock('$lib/stores/player', () => ({
   player: {
-    subscribe: vi.fn(() => vi.fn()),
+    subscribe: vi.fn((cb: (state: typeof mockPlayerState) => void) => {
+      cb(mockPlayerState);
+      return vi.fn();
+    }),
     playTrack: vi.fn(),
     togglePlay: vi.fn(),
   },
@@ -28,6 +42,7 @@ describe('TrackList', () => {
   ];
 
   beforeEach(() => {
+    mockPlayerState.currentTrack = null;
     vi.mocked(player.playTrack).mockClear();
   });
 
@@ -80,5 +95,20 @@ describe('TrackList', () => {
     expect(onPlay).toHaveBeenCalledTimes(1);
     expect(onPlay).toHaveBeenCalledWith(songs[1], 1);
     expect(player.playTrack).not.toHaveBeenCalled();
+  });
+
+  it('adds safe-area bottom padding without mini player offset when idle', () => {
+    const { container } = render(TrackList, { songs });
+    const list = container.querySelector('.w-full') as HTMLElement;
+    expect(list.getAttribute('style') ?? '').not.toContain('4rem');
+  });
+
+  it('adds mini player offset when there is a current track', () => {
+    mockPlayerState.currentTrack = songs[0];
+    const { container } = render(TrackList, { songs });
+    const list = container.querySelector('.w-full') as HTMLElement;
+    const style = list.getAttribute('style');
+    expect(style).toContain('safe-area-inset-bottom');
+    expect(style).toContain('4rem');
   });
 });

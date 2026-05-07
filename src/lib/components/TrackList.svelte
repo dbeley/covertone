@@ -6,6 +6,15 @@
 
   let { songs, onPlay, showArtistLink = true, showPlaylistIndex = false }: { songs: Song[]; onPlay?: (song: Song, index: number) => void; showArtistLink?: boolean; showPlaylistIndex?: boolean } = $props();
 
+  const MINI_PLAYER_HEIGHT = '4rem';
+
+  let currentTrack = $derived($player.currentTrack);
+  let listBottomPadding = $derived(
+    currentTrack
+      ? `calc(env(safe-area-inset-bottom, 0px) + ${MINI_PLAYER_HEIGHT})`
+      : 'env(safe-area-inset-bottom, 0px)'
+  );
+
   let contextMenuIndex = $state<number | null>(null);
   let longPressTimer = $state<ReturnType<typeof setTimeout> | null>(null);
 
@@ -71,7 +80,7 @@
   ></div>
 {/if}
 
-<div class="w-full border border-border rounded-xl overflow-hidden bg-surface/50">
+<div class="w-full border border-border rounded-xl overflow-hidden bg-surface/50" style="padding-bottom: {listBottomPadding}">
   {#each songs as song, index (song.id)}
     <div
       class="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors group relative border-b border-border/50 last:border-b-0"

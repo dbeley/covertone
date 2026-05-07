@@ -55,8 +55,9 @@
 
     <div class="space-y-4">
       <div>
-        <label class="block text-sm font-medium text-text-dim mb-1.5">URL</label>
+        <label for="settings-server-url" class="block text-sm font-medium text-text-dim mb-1.5">URL</label>
         <input
+          id="settings-server-url"
           type="text"
           bind:value={server}
           placeholder="https://navidrome.example.com"
@@ -64,8 +65,9 @@
         />
       </div>
       <div>
-        <label class="block text-sm font-medium text-text-dim mb-1.5">Username</label>
+        <label for="settings-username" class="block text-sm font-medium text-text-dim mb-1.5">Username</label>
         <input
+          id="settings-username"
           type="text"
           bind:value={username}
           placeholder="username"
@@ -73,8 +75,9 @@
         />
       </div>
       <div>
-        <label class="block text-sm font-medium text-text-dim mb-1.5">Password</label>
+        <label for="settings-password" class="block text-sm font-medium text-text-dim mb-1.5">Password</label>
         <input
+          id="settings-password"
           type="password"
           bind:value={password}
           placeholder="password"

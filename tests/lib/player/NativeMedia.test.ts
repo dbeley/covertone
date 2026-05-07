@@ -44,6 +44,16 @@ describe("NativeMedia", () => {
       expect(bridge.setPlaying).toHaveBeenCalledWith("Song", "Artist");
     });
 
+    it("passes artwork URL when provided", () => {
+      const bridge = mockBridge();
+      NativeMedia.showPlaying("Song", "Artist", "https://img.example/cover.jpg");
+      expect(bridge.setPlaying).toHaveBeenCalledWith(
+        "Song",
+        "Artist",
+        "https://img.example/cover.jpg",
+      );
+    });
+
     it("does not throw when bridge is absent", () => {
       expect(() => NativeMedia.showPlaying("Song", "Artist")).not.toThrow();
     });
@@ -54,6 +64,16 @@ describe("NativeMedia", () => {
       const bridge = mockBridge();
       NativeMedia.showPaused("Song", "Artist");
       expect(bridge.setPaused).toHaveBeenCalledWith("Song", "Artist");
+    });
+
+    it("passes artwork URL when provided", () => {
+      const bridge = mockBridge();
+      NativeMedia.showPaused("Song", "Artist", "https://img.example/cover.jpg");
+      expect(bridge.setPaused).toHaveBeenCalledWith(
+        "Song",
+        "Artist",
+        "https://img.example/cover.jpg",
+      );
     });
   });
 

@@ -172,10 +172,27 @@ describe('queue store', () => {
     queue.replaceAll([song1, song2, song3]);
     queue.moveTrack(-1, 1);
     expect(tracksFrom(get(queue))).toEqual([song1, song2, song3]);
+    queue.moveTrack(1, -1);
+    expect(tracksFrom(get(queue))).toEqual([song1, song2, song3]);
     queue.moveTrack(1, 5);
+    expect(tracksFrom(get(queue))).toEqual([song1, song2, song3]);
+    queue.moveTrack(5, 1);
     expect(tracksFrom(get(queue))).toEqual([song1, song2, song3]);
     queue.moveTrack(1, 1);
     expect(tracksFrom(get(queue))).toEqual([song1, song2, song3]);
+  });
+
+  it('assigns unique queue keys for duplicate songs', () => {
+    queue.clear();
+    queue.addToEnd(song1);
+    queue.addToEnd(song1);
+    queue.addToEnd(song1);
+
+    const state = get(queue);
+    expect(tracksFrom(state)).toEqual([song1, song1, song1]);
+    const keys = state.items.map((item) => item.key);
+    expect(keys).toHaveLength(3);
+    expect(new Set(keys).size).toBe(3);
   });
 
   it('clear empties queue', () => {
@@ -282,6 +299,13 @@ describe('queue store', () => {
     queue.replaceAll([song1, song2, song3]);
     queue.syncCurrentTrack(song2);
     expect(get(queue).currentIndex).toBe(1);
+  });
+
+  it('syncCurrentTrack keeps currently selected duplicate index', () => {
+    queue.replaceAll([song1, song1, song1]);
+    queue.playIndex(2);
+    queue.syncCurrentTrack(song1);
+    expect(get(queue).currentIndex).toBe(2);
   });
 
   it('syncCurrentTrack resets currentIndex when track is not in queue', () => {

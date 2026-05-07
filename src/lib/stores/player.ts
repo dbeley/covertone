@@ -53,6 +53,11 @@ function createPlayer() {
   }
 
   let lastTrack: Song | null = null;
+  const getCoverArtUrl = (track: Song | null): string | undefined => {
+    if (!track?.coverArt) return undefined;
+    const s = get(settings);
+    return `${s.serverUrl.replace(/\/$/, "")}/rest/getCoverArt?id=${track.coverArt}&size=512`;
+  };
 
   NativeMedia.listen({
     onPlay: () => {
@@ -65,6 +70,7 @@ function createPlayer() {
             NativeMedia.showPlaying(
               s.currentTrack.title,
               s.currentTrack.artist,
+              getCoverArtUrl(s.currentTrack),
             );
         } else {
           player.playTrack(lastTrack);
@@ -76,7 +82,11 @@ function createPlayer() {
       if (engine) engine.pause();
       const s = get(store);
       if (s.currentTrack)
-        NativeMedia.showPaused(s.currentTrack.title, s.currentTrack.artist);
+        NativeMedia.showPaused(
+          s.currentTrack.title,
+          s.currentTrack.artist,
+          getCoverArtUrl(s.currentTrack),
+        );
     },
     onStop: () => {
       update((s) => ({ ...s, status: "idle" }));
@@ -173,11 +183,7 @@ function createPlayer() {
       engine.load(`${streamBase}${track.id}`);
       engine.play();
 
-      let artUrl: string | undefined;
-      if (track.coverArt) {
-        const s = get(settings);
-        artUrl = `${s.serverUrl.replace(/\/$/, "")}/rest/getCoverArt?id=${track.coverArt}&size=512`;
-      }
+      const artUrl = getCoverArtUrl(track);
       NativeMedia.showPlaying(track.title, track.artist, artUrl);
       fireScrobble(track.id, false);
     },
@@ -187,7 +193,11 @@ function createPlayer() {
         update((s) => ({ ...s, status: "paused" }));
         const s = get(store);
         if (s.currentTrack)
-          NativeMedia.showPaused(s.currentTrack.title, s.currentTrack.artist);
+          NativeMedia.showPaused(
+            s.currentTrack.title,
+            s.currentTrack.artist,
+            getCoverArtUrl(s.currentTrack),
+          );
       }
     },
     resume() {
@@ -196,7 +206,11 @@ function createPlayer() {
         update((s) => ({ ...s, status: "playing" }));
         const s = get(store);
         if (s.currentTrack)
-          NativeMedia.showPlaying(s.currentTrack.title, s.currentTrack.artist);
+          NativeMedia.showPlaying(
+            s.currentTrack.title,
+            s.currentTrack.artist,
+            getCoverArtUrl(s.currentTrack),
+          );
       }
     },
     togglePlay() {

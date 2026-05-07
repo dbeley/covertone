@@ -76,6 +76,35 @@
   function playSong(song: Song) {
     player.playTrack(song);
   }
+
+  function openArtist(id: string) {
+    router.navigate(`artist/${id}`);
+  }
+
+  function openAlbum(id: string) {
+    router.navigate(`album/${id}`);
+  }
+
+  function onArtistKeydown(e: KeyboardEvent, id: string) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openArtist(id);
+    }
+  }
+
+  function onAlbumKeydown(e: KeyboardEvent, id: string) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openAlbum(id);
+    }
+  }
+
+  function onSongKeydown(e: KeyboardEvent, song: Song) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      playSong(song);
+    }
+  }
 </script>
 
 <div class="p-6">
@@ -101,9 +130,11 @@
           {#each artists as artist (artist.id)}
             <div
               class="cursor-pointer group flex flex-col items-center gap-2 text-center shrink-0"
-              onclick={() => router.navigate(`artist/${artist.id}`)}
+              onclick={() => openArtist(artist.id)}
+              onkeydown={(e) => onArtistKeydown(e, artist.id)}
               role="button"
               tabindex="0"
+              aria-label={`Open artist ${artist.name}`}
             >
               <div class="w-20 h-20 rounded-full overflow-hidden">
                 <LazyImage
@@ -126,9 +157,11 @@
           {#each albums as album (album.id)}
             <div
               class="cursor-pointer group shrink-0"
-              onclick={() => router.navigate(`album/${album.id}`)}
+              onclick={() => openAlbum(album.id)}
+              onkeydown={(e) => onAlbumKeydown(e, album.id)}
               role="button"
               tabindex="0"
+              aria-label={`Open album ${album.name}`}
             >
               <div class="w-32 h-32 rounded-lg overflow-hidden mb-1">
                 <LazyImage
@@ -153,8 +186,10 @@
             <div
               class="flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer hover:bg-white/5 transition-colors"
               onclick={() => playSong(song)}
+              onkeydown={(e) => onSongKeydown(e, song)}
               role="button"
               tabindex="0"
+              aria-label={`Play ${song.title} by ${song.artist}`}
             >
               <LazyImage
                 src={coverUrl(song.coverArt ?? '', 40)}

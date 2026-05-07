@@ -3,6 +3,7 @@
   import { router } from '$lib/stores/router';
   import { settings } from '$lib/stores/settings';
   import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
+  import { handleActivationKey } from '$lib/utils/keyboard';
   import LazyImage from '$lib/components/LazyImage.svelte';
   import type { Playlist } from '$lib/api/types';
 
@@ -57,6 +58,7 @@
         <div
           class="cursor-pointer group rounded-xl border border-border bg-surface hover:border-accent/20 hover:shadow-lg hover:shadow-accent/5 transition-all duration-200 overflow-hidden active:scale-[0.98]"
           onclick={() => router.navigate(`playlist/${playlist.id}`)}
+          onkeydown={(e) => handleActivationKey(e, () => router.navigate(`playlist/${playlist.id}`))}
           role="button"
           tabindex="0"
         >
