@@ -2,12 +2,16 @@
 
 [![Get it on Obtainium](https://img.shields.io/badge/Get%20it%20on-Obtainium-1E90FF?style=for-the-badge&logo=android&logoColor=white)](http://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/dbeley/covertone)
 
-A Subsonic/Navidrome music streaming client tailored to my needs.
+A modern Subsonic/Navidrome music streaming client for Web / Android / iOS tailored to my needs.
 
 **Covertone is focused on music discovery with features that can't be found in any other Subsonic client out there (see [Features](#features)).**
 
-<img src="imgs/album-view.png" width="600" />
-<img src="imgs/now-playing-view.png" width="600" />
+<p align="center">
+  <img src="imgs/home-view-desktop.png" width="600" />
+  <img src="imgs/home-view-mobile.png" width="200" />
+  <img src="imgs/album-view-desktop.png" width="600" />
+  <img src="imgs/album-view-mobile.png" width="200" />
+</p>
 
 ## Features
 
