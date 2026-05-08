@@ -29,6 +29,31 @@ function resolveAppliedTheme(theme: Theme): AppliedTheme {
   return theme as AppliedTheme;
 }
 
+interface RuntimeConfig {
+  server?: string;
+  username?: string;
+  password?: string;
+}
+
+declare global {
+  interface Window {
+    __COVERTONE_CONFIG__?: RuntimeConfig;
+  }
+}
+
+function loadRuntimeConfig(): Partial<SettingsState> {
+  const cfg =
+    typeof window !== "undefined" ? window.__COVERTONE_CONFIG__ : undefined;
+  if (cfg?.server && cfg?.username) {
+    return {
+      serverUrl: cfg.server,
+      username: cfg.username,
+      password: cfg.password ?? "",
+    };
+  }
+  return {};
+}
+
 function loadPersisted(): Partial<SettingsState> {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -36,7 +61,7 @@ function loadPersisted(): Partial<SettingsState> {
   } catch {
     /* ignore */
   }
-  return {};
+  return loadRuntimeConfig();
 }
 
 function persist(state: Partial<SettingsState>): void {

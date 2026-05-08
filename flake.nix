@@ -25,6 +25,7 @@
             statix
             git
             gh
+            python3
           ];
 
           JAVA_HOME = "${pkgs.jdk21.home}";

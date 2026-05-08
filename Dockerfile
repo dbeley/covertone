@@ -1,6 +1,9 @@
 # ---- Build Stage ----
 FROM node:22-alpine AS build
 
+ARG BASE_URL=/
+ENV BASE_URL=$BASE_URL
+
 WORKDIR /app
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
@@ -15,6 +18,10 @@ RUN pnpm build
 FROM nginx:alpine
 
 COPY --from=build /app/dist /usr/share/nginx/html
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # SPA fallback: serve index.html for any unknown route (hash-based routing)
 RUN printf 'server {\n\

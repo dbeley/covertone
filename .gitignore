@@ -12,3 +12,4 @@ android/app/build/
 android/captures/
 android-sdk/
 *.keystore
+.opencode/

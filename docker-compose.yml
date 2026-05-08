@@ -1,0 +1,11 @@
+services:
+  covertone:
+    build: .
+    image: covertone:latest
+    ports:
+      - "${PORT:-8080}:80"
+    environment:
+      - COVERTONE_SERVER=${COVERTONE_SERVER:-}
+      - COVERTONE_USERNAME=${COVERTONE_USERNAME:-}
+      - COVERTONE_PASSWORD=${COVERTONE_PASSWORD:-}
+    restart: unless-stopped
