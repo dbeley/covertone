@@ -19,9 +19,22 @@
   let frequentAlbums = $state<Album[]>([]);
   let loading = $state(true);
 
-  async function fetchSection(api: SubsonicAPI, type: string): Promise<Album[]> {
+  function getColumnCount(): number {
+    if (typeof window === 'undefined') return 2;
+    const w = window.innerWidth;
+    if (w >= 1536) return 8;
+    if (w >= 1280) return 6;
+    if (w >= 1024) return 5;
+    if (w >= 768) return 4;
+    if (w >= 640) return 3;
+    return 2;
+  }
+
+  let sectionSize = $derived(getColumnCount() * 2);
+
+  async function fetchSection(api: SubsonicAPI, type: string, size: number): Promise<Album[]> {
     try {
-      const result = await api.getAlbumList({ type, size: 12 });
+      const result = await api.getAlbumList({ type, size });
       return result.albumList2.album;
     } catch {
       return [];
@@ -38,10 +51,10 @@
     const api = new SubsonicAPI({ server: serverUrl, username, password });
 
     const [recent, newest, random, frequent] = await Promise.all([
-      fetchSection(api, 'recent'),
-      fetchSection(api, 'newest'),
-      fetchSection(api, 'random'),
-      fetchSection(api, 'frequent'),
+      fetchSection(api, 'recent', sectionSize),
+      fetchSection(api, 'newest', sectionSize),
+      fetchSection(api, 'random', sectionSize),
+      fetchSection(api, 'frequent', sectionSize),
     ]);
 
     recentAlbums = recent;
