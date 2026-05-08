@@ -1,5 +1,6 @@
 import { writable } from "svelte/store";
 import { SubsonicAPI } from "$lib/api/SubsonicAPI";
+import { cacheInvalidate } from "$lib/stores/apiCache";
 import type { Album, Artist } from "$lib/api/types";
 
 export type AlbumListType =
@@ -66,10 +67,14 @@ function createLibrary() {
       type: AlbumListType;
       size?: number;
       offset?: number;
+      refresh?: boolean;
     }) {
       if (!api) return;
       const size = params.size ?? 20;
       const offset = params.offset ?? 0;
+      if (params.refresh) {
+        cacheInvalidate("getAlbumList");
+      }
       update((s) => ({
         ...s,
         loading: true,

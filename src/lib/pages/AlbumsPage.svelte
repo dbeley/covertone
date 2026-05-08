@@ -126,7 +126,7 @@
   >
     <h2 class="text-2xl font-bold mb-6 tracking-tight">Albums</h2>
 
-    <div class="flex gap-2 mb-6">
+    <div class="flex gap-2 mb-6 items-center">
       {#each tabs as tab (tab.type)}
         <button
           class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150 border border-border
@@ -136,6 +136,18 @@
           {tab.label}
         </button>
       {/each}
+      {#if activeTab === 'random'}
+        <button
+          class="p-2 rounded-xl text-text-dim hover:text-accent hover:bg-accent/10 transition-all duration-150 active:scale-90"
+          onclick={() => library.fetchAlbums({ type: 'random', offset: 0, refresh: true })}
+          aria-label="Refresh random albums"
+        >
+          <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current">
+            <path d="M1 4v6h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      {/if}
     </div>
 
     {#if albums.length > 0}
