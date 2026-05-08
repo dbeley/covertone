@@ -8,16 +8,12 @@
 
   let items = $derived($queue.items);
   let currentIndex = $derived($queue.currentIndex);
-  let currentTrack = $derived($player.currentTrack);
 
-  const MINI_PLAYER_HEIGHT = '4rem';
   const DRAG_THRESHOLD = 10;
   const CLOSE_THRESHOLD = 100;
   const TOUCH_DRAG_HANDLE_SELECTOR = '[data-queue-drag-handle="true"]';
   let drawerBottomPadding = $derived(
-    currentTrack
-      ? `calc(env(safe-area-inset-bottom, 0px) + ${MINI_PLAYER_HEIGHT})`
-      : 'env(safe-area-inset-bottom, 0px)'
+    'var(--safe-area-inset-bottom)'
   );
 
   let dragY = $state(0);
@@ -302,7 +298,7 @@
 
 <!-- Mobile bottom sheet -->
 {#if $queueDrawerOpen}
-  <div class="fixed inset-0 z-50 flex items-end justify-center animate-fade-in md:hidden">
+  <div class="fixed inset-0 z-[60] flex items-end justify-center animate-fade-in md:hidden">
     <button
       type="button"
       class="absolute inset-0 bg-black/50 backdrop-blur-sm cursor-default"
@@ -339,7 +335,7 @@
         </div>
       </div>
 
-      <div class="overflow-y-auto flex-1">
+      <div class="overflow-y-auto flex-1 pb-16">
         {#if items.length === 0}
           <p class="text-sm text-text-dim text-center py-8">Queue is empty</p>
         {:else}

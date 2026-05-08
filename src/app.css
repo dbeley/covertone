@@ -20,6 +20,8 @@
   --accent: #6366f1;
   --border-color: rgba(0, 0, 0, 0.06);
   --ring: rgba(99, 102, 241, 0.2);
+  --safe-area-inset-top: max(env(safe-area-inset-top, 0px), 1.5rem);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .dark {

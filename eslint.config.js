@@ -42,6 +42,7 @@ export default tseslint.config(
         navigator: 'readonly',
         MediaMetadata: 'readonly',
         TouchEvent: 'readonly',
+        MediaQueryListEvent: 'readonly',
         NodeJS: 'readonly',
       },
     },

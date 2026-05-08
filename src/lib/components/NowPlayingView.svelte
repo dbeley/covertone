@@ -79,6 +79,21 @@
   function toggleFavorite() {
     player.setFavorited(!favorited);
   }
+
+  let isDesktop = $state(
+    typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+      ? window.matchMedia('(min-width: 768px)').matches
+      : false
+  );
+
+  $effect(() => {
+    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+      const mq = window.matchMedia('(min-width: 768px)');
+      const handler = (e: MediaQueryListEvent) => isDesktop = e.matches;
+      mq.addEventListener('change', handler);
+      return () => mq.removeEventListener('change', handler);
+    }
+  });
 </script>
 
 <div
@@ -99,7 +114,7 @@
     {/key}
     <div class="absolute inset-0 bg-gradient-to-b from-bg/20 via-bg/60 to-bg/90"></div>
   {/if}
-  <div class="relative z-10 flex flex-col h-full" style="padding-top: env(safe-area-inset-top, 0px)">
+  <div class="relative z-10 flex flex-col h-full" style="padding-top: var(--safe-area-inset-top)">
     <button class="p-4 self-start rounded-xl hover:bg-white/5 text-text-dim hover:text-text transition-all duration-150 active:scale-90" onclick={onClose} aria-label="Close">
     <svg viewBox="0 0 24 24" class="w-6 h-6 fill-current">
       <polyline points="6,9 12,15 18,9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -209,7 +224,7 @@
 
         <button
           class="p-2.5 rounded-xl transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
-          onclick={() => { queueDrawerOpen.set(true); onClose(); }}
+          onclick={() => { queueDrawerOpen.set(true); if (isDesktop) onClose(); }}
           aria-label="Queue"
         >
           <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">

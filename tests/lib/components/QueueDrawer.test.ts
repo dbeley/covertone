@@ -122,7 +122,8 @@ describe("QueueDrawer", () => {
     const drawer = container.querySelector('[role="dialog"]') as HTMLElement;
     const style = drawer.getAttribute("style");
     expect(style).toContain("safe-area-inset-bottom");
-    expect(style).toContain("4rem");
+    const content = drawer.querySelector(".overflow-y-auto") as HTMLElement;
+    expect(content.className).toContain("pb-16");
   });
 
   it("plays a track when pressing Enter on a queue row", async () => {

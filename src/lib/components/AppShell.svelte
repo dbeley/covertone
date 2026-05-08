@@ -110,7 +110,7 @@
   });
 </script>
 
-  <div class="h-dvh w-full flex flex-col" style="padding-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px)); padding-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))">
+  <div class="h-dvh w-full flex flex-col" style="padding-top: var(--safe-area-inset-top); padding-bottom: var(--safe-area-inset-bottom)">
 {#if hasTabs}
   <TabBar />
 {/if}
@@ -135,7 +135,7 @@
     >
       <button
         class="md:hidden fixed left-3 z-30 p-2.5 rounded-xl bg-surface/90 backdrop-blur border border-border shadow-lg hover:border-accent/30 transition-all duration-150 active:scale-95"
-        style="top: calc(0.75rem + {hasTabs ? '2.5rem' : '0rem'} + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)))"
+        style="top: calc(0.75rem + {hasTabs ? '2.5rem' : '0rem'} + var(--safe-area-inset-top))"
         onclick={() => { menuOpen = !menuOpen; }}
         aria-label="Toggle menu"
       >
