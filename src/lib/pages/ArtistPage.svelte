@@ -112,7 +112,12 @@
           coverArt: artistData.artist.album?.[0]?.coverArt,
           albumCount: artistData.artist.album?.length ?? 0,
         };
-        albums = artistData.artist.album.map(a => ({
+        const seen: Record<string, true> = {};
+        albums = artistData.artist.album.filter(a => {
+          if (seen[a.id]) return false;
+          seen[a.id] = true;
+          return true;
+        }).map(a => ({
           ...a,
           artistId: id,
           artist: artistData.artist.name,
@@ -259,7 +264,7 @@
       <div class="mb-8">
         <h2 class="text-lg font-semibold mb-3 tracking-tight">Similar Artists</h2>
         <div class="flex gap-4 overflow-x-auto pb-2">
-          {#each similarArtists as sArtist (sArtist.id)}
+          {#each similarArtists as sArtist, i (sArtist.id + i)}
             <a
               href="#artist/{encodeURIComponent(sArtist.id)}"
               class="cursor-pointer group flex flex-col items-center gap-1.5 text-center shrink-0 no-underline transition-all duration-200 active:scale-95"
