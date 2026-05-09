@@ -126,10 +126,10 @@
   >
     <h2 class="text-2xl font-bold mb-6 tracking-tight">Albums</h2>
 
-    <div class="flex gap-2 mb-6 items-center">
+    <div class="flex flex-wrap gap-2 mb-6 items-center">
       {#each tabs as tab (tab.type)}
         <button
-          class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150 border border-border
+          class="whitespace-nowrap px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150 border border-border
                  {activeTab === tab.type ? 'bg-accent text-white border-accent shadow-sm shadow-accent/20' : 'text-text-dim hover:text-text hover:border-accent/30'}"
           onclick={() => switchTab(tab.type)}
         >
