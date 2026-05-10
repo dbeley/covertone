@@ -5,6 +5,7 @@
   import QueueDrawer from './QueueDrawer.svelte';
   import { router } from '$lib/stores/router';
   import { nowPlayingOpen } from '$lib/stores/ui';
+  import { player } from '$lib/stores/player';
   import TabBar from './TabBar.svelte';
   import { tabsStore } from '$lib/stores/tabs';
   import { get } from 'svelte/store';
@@ -67,6 +68,8 @@
   let tabsState = $derived($tabsStore);
   let activeTabId = $derived(tabsState.activeTabId);
   let hasTabs = $derived(tabsState.tabs.length > 0);
+
+  let mainBottomPadding = $derived($player.currentTrack ? '4rem' : '0px');
 
   let prevActiveTabId: string | null = null;
   let isTabSwitch = false;
@@ -132,6 +135,7 @@
     <NavBar mobileOpen={menuOpen} onNavigate={closeMenu} swipeOffset={swipeX} />
     <main
       class="flex-1 overflow-y-auto pt-12 md:pt-0"
+      style:padding-bottom={mainBottomPadding}
     >
       <button
         class="md:hidden fixed left-3 z-30 p-2.5 rounded-xl bg-surface/90 backdrop-blur border border-border shadow-lg hover:border-accent/30 transition-all duration-150 active:scale-95"

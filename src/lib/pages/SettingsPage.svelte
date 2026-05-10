@@ -1,6 +1,5 @@
 <script lang="ts">
   import { settings } from '$lib/stores/settings';
-  import { player } from '$lib/stores/player';
   import { SubsonicAPI } from '$lib/api/SubsonicAPI';
   import { isNativeAvailable } from '$lib/player/NativeMedia';
   import type { Theme } from '$lib/stores/settings';
@@ -41,13 +40,6 @@
     }
   }
 
-  let currentTrack = $derived($player.currentTrack);
-  let pageBottomPadding = $derived(
-    currentTrack
-      ? `calc(env(safe-area-inset-bottom, 0px) + 4rem)`
-      : 'env(safe-area-inset-bottom, 0px)'
-  );
-
   function saveConfig() {
     settings.setServerConfig({ server, username, password });
     saveStatus = 'saved';
@@ -55,7 +47,7 @@
   }
 </script>
 
-<div class="p-6 max-w-lg" style="padding-bottom: {pageBottomPadding}">
+<div class="p-6 max-w-lg">
   <h2 class="text-2xl font-bold mb-8 tracking-tight">Settings</h2>
 
   <section class="mb-8">

@@ -125,18 +125,16 @@ describe("TrackList", () => {
     expect(player.playTrack).not.toHaveBeenCalled();
   });
 
-  it("adds safe-area bottom padding without mini player offset when idle", () => {
+  it("no longer manages its own bottom padding (handled by AppShell)", () => {
     const { container } = render(TrackList, { songs });
     const list = container.querySelector(".w-full") as HTMLElement;
-    expect(list.getAttribute("style") ?? "").not.toContain("4rem");
+    expect(list.hasAttribute("style")).toBe(false);
   });
 
-  it("adds mini player offset when there is a current track", () => {
+  it("no longer manages its own bottom padding even with a current track (handled by AppShell)", () => {
     mockPlayerState.currentTrack = songs[0];
     const { container } = render(TrackList, { songs });
     const list = container.querySelector(".w-full") as HTMLElement;
-    const style = list.getAttribute("style");
-    expect(style).toContain("safe-area-inset-bottom");
-    expect(style).toContain("4rem");
+    expect(list.hasAttribute("style")).toBe(false);
   });
 });
