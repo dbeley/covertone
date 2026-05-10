@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/svelte";
+import { render, screen, fireEvent } from "@testing-library/svelte";
 import FavoritesPage from "$lib/pages/FavoritesPage.svelte";
 
 const mockInstance = vi.hoisted(() => ({
@@ -52,25 +52,23 @@ vi.mock("$lib/stores/queue", () => ({
 
 const starredData = {
   starred: {
-    artist: [
-      { id: "a1", name: "Test Artist", albumCount: 3 },
-    ],
     album: [
-      { id: "al1", name: "Test Album", artist: "Artist", artistId: "a1", coverArt: "ca1", songCount: 5, duration: 1000 },
+      { id: "al1", name: "Test Album", artist: "Artist", artistId: "a1", coverArt: "ca1", songCount: 5, duration: 1000, starred: "2024-01-01T00:00:00Z" },
+    ],
+    artist: [
+      { id: "a1", name: "Test Artist", albumCount: 3, starred: "2024-01-01T00:00:00Z" },
     ],
     song: [
-      { id: "s1", title: "Test Song", artist: "Artist", album: "Album", albumId: "al1", duration: 200 },
+      { id: "s1", title: "Test Song", artist: "Artist", album: "Album", albumId: "al1", duration: 200, starred: "2024-01-01T00:00:00Z" },
     ],
   },
 };
 
-const emptyData = { starred: { artist: [], album: [], song: [] } };
+const emptyData = { starred: { album: [], artist: [], song: [] } };
 
 describe("FavoritesPage", () => {
   beforeEach(() => {
-    mockInstance.getStarred.mockClear();
-    mockInstance.star.mockClear();
-    mockInstance.unstar.mockClear();
+    vi.clearAllMocks();
   });
 
   it("shows loading state initially", () => {
@@ -80,23 +78,39 @@ describe("FavoritesPage", () => {
     expect(mockInstance.getStarred).toHaveBeenCalledTimes(1);
   });
 
-  it("renders sections for artists, albums, and songs", async () => {
-    mockInstance.getStarred = vi.fn().mockResolvedValue(starredData);
+  it("shows Albums tab by default", async () => {
+    mockInstance.getStarred.mockResolvedValue(starredData);
     render(FavoritesPage);
-    await vi.waitFor(() => {
-      expect(screen.getByText("Artists")).toBeTruthy();
-    }, { timeout: 3000 });
-    expect(screen.getByText("Albums")).toBeTruthy();
-    expect(screen.getByText("Songs")).toBeTruthy();
-    expect(screen.getByText("Test Artist")).toBeTruthy();
-    expect(screen.getByText("Test Song")).toBeTruthy();
+    expect(await screen.findByText("Albums")).toBeTruthy();
+    expect(screen.getByText("Albums")!.classList.contains("bg-accent")).toBe(true);
+  });
+
+  it("loads everything on mount and shows sort dropdown on all tabs", async () => {
+    mockInstance.getStarred.mockResolvedValue(starredData);
+    render(FavoritesPage);
+    await screen.findByText("Albums");
+    const tabs = ["Artists", "Songs"];
+    for (const tab of tabs) {
+      await fireEvent.click(screen.getByText(tab));
+      expect(screen.getByLabelText("Sort order")).toBeTruthy();
+    }
+  });
+
+  it("switching tabs resets pagination and shows correct content", async () => {
+    mockInstance.getStarred.mockResolvedValue(starredData);
+    render(FavoritesPage);
+    await screen.findByText("Albums");
+    const artistsTab = screen.getByText("Artists");
+    await fireEvent.click(artistsTab);
+    expect(await screen.findByText("Test Artist")).toBeTruthy();
+    const songsTab = screen.getByText("Songs");
+    await fireEvent.click(songsTab);
+    expect(await screen.findByText("Test Song")).toBeTruthy();
   });
 
   it("shows empty state when no items are starred", async () => {
     mockInstance.getStarred.mockResolvedValue(emptyData);
     render(FavoritesPage);
-    await vi.waitFor(() => {
-      expect(screen.getByText(/No starred items yet/i)).toBeTruthy();
-    });
+    expect(await screen.findByText(/No starred albums yet/i)).toBeTruthy();
   });
 });

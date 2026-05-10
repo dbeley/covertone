@@ -9,33 +9,106 @@
   import LazyImage from '$lib/components/LazyImage.svelte';
   import type { Artist, Album, Song } from '$lib/api/types';
 
+  type Tab = 'albums' | 'artists' | 'songs';
+  type SortMode = 'last-starred' | 'a-z' | 'z-a' | 'random';
+
   let serverUrl = $derived($settings.serverUrl);
   let username = $derived($settings.username);
   let password = $derived($settings.password);
   let configured = $derived($settings.isConfigured);
 
-  let artists = $state<Artist[]>([]);
-  let albums = $state<Album[]>([]);
-  let songs = $state<Song[]>([]);
+  let allAlbums = $state<Album[]>([]);
+  let allArtists = $state<Artist[]>([]);
+  let allSongs = $state<Song[]>([]);
   let loading = $state(true);
+
+  let activeTab = $state<Tab>('albums');
+  let sortMode = $state<SortMode>('last-starred');
+
+  const tabs: { key: Tab; label: string }[] = [
+    { key: 'albums', label: 'Albums' },
+    { key: 'artists', label: 'Artists' },
+    { key: 'songs', label: 'Songs' },
+  ];
+
+  const sortOptions: { key: SortMode; label: string }[] = [
+    { key: 'last-starred', label: 'Last Starred' },
+    { key: 'a-z', label: 'A-Z' },
+    { key: 'z-a', label: 'Z-A' },
+    { key: 'random', label: 'Random' },
+  ];
 
   onMount(async () => {
     if (!configured) { loading = false; return; }
     try {
       const api = new SubsonicAPI({ server: serverUrl, username, password });
       const result = await api.getStarred();
-      artists = result.starred?.artist ?? [];
-      albums = result.starred?.album ?? [];
-      songs = result.starred?.song ?? [];
+      allAlbums = result.starred?.album ?? [];
+      allArtists = result.starred?.artist ?? [];
+      allSongs = result.starred?.song ?? [];
     } catch {
       // silent
     }
     loading = false;
   });
 
+  function switchTab(tab: Tab) {
+    activeTab = tab;
+  }
+
+  function changeSort(e: Event) {
+    sortMode = (e.target as HTMLInputElement).value as SortMode;
+  }
+
+  function sortAlbums(items: Album[]): Album[] {
+    const sorted = [...items];
+    switch (sortMode) {
+      case 'last-starred':
+        return sorted.sort((a, b) => new Date(b.starred ?? 0).getTime() - new Date(a.starred ?? 0).getTime());
+      case 'a-z':
+        return sorted.sort((a, b) => a.name.localeCompare(b.name));
+      case 'z-a':
+        return sorted.sort((a, b) => b.name.localeCompare(a.name));
+      case 'random':
+        return sorted.sort(() => Math.random() - 0.5);
+    }
+  }
+
+  function sortArtists(items: Artist[]): Artist[] {
+    const sorted = [...items];
+    switch (sortMode) {
+      case 'last-starred':
+        return sorted.sort((a, b) => new Date(b.starred ?? 0).getTime() - new Date(a.starred ?? 0).getTime());
+      case 'a-z':
+        return sorted.sort((a, b) => a.name.localeCompare(b.name));
+      case 'z-a':
+        return sorted.sort((a, b) => b.name.localeCompare(a.name));
+      case 'random':
+        return sorted.sort(() => Math.random() - 0.5);
+    }
+  }
+
+  function sortSongs(items: Song[]): Song[] {
+    const sorted = [...items];
+    switch (sortMode) {
+      case 'last-starred':
+        return sorted.sort((a, b) => new Date(b.starred ?? 0).getTime() - new Date(a.starred ?? 0).getTime());
+      case 'a-z':
+        return sorted.sort((a, b) => a.title.localeCompare(b.title));
+      case 'z-a':
+        return sorted.sort((a, b) => b.title.localeCompare(a.title));
+      case 'random':
+        return sorted.sort(() => Math.random() - 0.5);
+    }
+  }
+
+  let sortedAlbums = $derived(sortAlbums(allAlbums));
+  let sortedArtists = $derived(sortArtists(allArtists));
+  let sortedSongs = $derived(sortSongs(allSongs));
+
   function playSong(song: Song) {
-    queue.replaceAll(songs);
-    queue.playIndex(songs.indexOf(song));
+    queue.replaceAll(allSongs);
+    queue.playIndex(allSongs.indexOf(song));
     player.playTrack(song);
   }
 
@@ -57,14 +130,39 @@
 
   {#if loading}
     <p class="text-text-dim">Loading...</p>
-  {:else if artists.length === 0 && albums.length === 0 && songs.length === 0}
-    <p class="text-text-dim text-center py-16">No starred items yet. Star albums, artists, or songs to see them here.</p>
   {:else}
-    {#if artists.length > 0}
-      <section class="mb-8">
-        <h3 class="text-lg font-semibold mb-3 tracking-tight">Artists</h3>
+    <div class="flex flex-wrap items-center gap-2 mb-6">
+      {#each tabs as tab (tab.key)}
+        <button
+          class="whitespace-nowrap px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150 border border-border
+                 {activeTab === tab.key ? 'bg-accent text-white border-accent shadow-sm shadow-accent/20' : 'text-text-dim hover:text-text hover:border-accent/30'}"
+          onclick={() => switchTab(tab.key)}
+        >
+          {tab.label}
+        </button>
+      {/each}
+
+      <select
+        class="ml-auto px-3 py-2 rounded-xl text-sm bg-surface border border-border text-text-dim hover:text-text hover:border-accent/30 transition-all duration-150 outline-none"
+        onchange={changeSort}
+        aria-label="Sort order"
+      >
+        {#each sortOptions as opt (opt.key)}
+          <option value={opt.key} selected={sortMode === opt.key}>{opt.label}</option>
+        {/each}
+      </select>
+    </div>
+
+    {#if activeTab === 'albums'}
+      {#if allAlbums.length > 0}
+        <AlbumGrid albums={sortedAlbums} {serverUrl} {username} {password} />
+      {:else if !loading}
+        <p class="text-text-dim text-center py-16">No starred albums yet.</p>
+      {/if}
+    {:else if activeTab === 'artists'}
+      {#if allArtists.length > 0}
         <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
-          {#each artists as artist (artist.id)}
+          {#each sortedArtists as artist (artist.id)}
             <div
               class="cursor-pointer group flex flex-col items-center gap-1.5 text-center transition-all duration-200 active:scale-95"
               onclick={() => router.navigate(`artist/${artist.id}`)}
@@ -86,21 +184,13 @@
             </div>
           {/each}
         </div>
-      </section>
-    {/if}
-
-    {#if albums.length > 0}
-      <section class="mb-8">
-        <h3 class="text-lg font-semibold mb-3 tracking-tight">Albums</h3>
-        <AlbumGrid {albums} {serverUrl} {username} {password} />
-      </section>
-    {/if}
-
-    {#if songs.length > 0}
-      <section>
-        <h3 class="text-lg font-semibold mb-3 tracking-tight">Songs</h3>
+      {:else if !loading}
+        <p class="text-text-dim text-center py-16">No starred artists yet.</p>
+      {/if}
+    {:else if activeTab === 'songs'}
+      {#if allSongs.length > 0}
         <div class="border border-border rounded-xl overflow-hidden bg-surface/50">
-          {#each songs as song (song.id)}
+          {#each sortedSongs as song (song.id)}
             <div
               class="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors group border-b border-border/50 last:border-b-0"
               onclick={() => playSong(song)}
@@ -124,7 +214,10 @@
             </div>
           {/each}
         </div>
-      </section>
+      {:else if !loading}
+        <p class="text-text-dim text-center py-16">No starred songs yet.</p>
+      {/if}
     {/if}
+
   {/if}
 </div>
