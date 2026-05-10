@@ -13,3 +13,4 @@ android/captures/
 android-sdk/
 *.keystore
 .opencode/
+.env
