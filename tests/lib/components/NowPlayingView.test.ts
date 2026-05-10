@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/svelte";
+import { render, screen, fireEvent } from "@testing-library/svelte";
 import NowPlayingView from "$lib/components/NowPlayingView.svelte";
+import { player } from "$lib/stores/player";
 
 const mockPlayerState = {
   status: "idle" as const,
@@ -62,11 +63,13 @@ vi.mock("$lib/stores/settings", () => ({
   },
 }));
 
+const apiMock = vi.hoisted(() => ({
+  star: vi.fn(),
+  unstar: vi.fn(),
+}));
+
 vi.mock("$lib/api/SubsonicAPI", () => ({
-  SubsonicAPI: vi.fn().mockImplementation(() => ({
-    star: vi.fn(),
-    unstar: vi.fn(),
-  })),
+  SubsonicAPI: vi.fn().mockImplementation(() => apiMock),
   getCoverArtUrl: vi.fn(() => ""),
 }));
 
@@ -87,6 +90,8 @@ describe("NowPlayingView", () => {
     mockPlayerState.repeating = false;
     mockPlayerState.shuffle = false;
     mockPlayerState.favorited = false;
+    apiMock.star.mockClear();
+    apiMock.unstar.mockClear();
   });
 
   it("renders title and artist when playing", () => {
@@ -144,6 +149,40 @@ describe("NowPlayingView", () => {
     };
     render(NowPlayingView);
     expect(screen.getByLabelText("Close")).toBeTruthy();
+  });
+
+  it("calls api.star when favorite heart is toggled on", async () => {
+    mockPlayerState.status = "playing";
+    mockPlayerState.favorited = false;
+    mockPlayerState.currentTrack = {
+      id: "track-1",
+      title: "Test Song",
+      artist: "Test Artist",
+      album: "Test Album",
+      coverArt: "123",
+    };
+    render(NowPlayingView);
+    const heart = screen.getByLabelText("Favorite");
+    await fireEvent.click(heart);
+    expect(player.setFavorited).toHaveBeenCalledWith(true);
+    expect(apiMock.star).toHaveBeenCalledWith({ id: "track-1" });
+  });
+
+  it("calls api.unstar when favorite heart is toggled off", async () => {
+    mockPlayerState.status = "playing";
+    mockPlayerState.favorited = true;
+    mockPlayerState.currentTrack = {
+      id: "track-2",
+      title: "Test Song",
+      artist: "Test Artist",
+      album: "Test Album",
+      coverArt: "123",
+    };
+    render(NowPlayingView);
+    const heart = screen.getByLabelText("Favorite");
+    await fireEvent.click(heart);
+    expect(player.setFavorited).toHaveBeenCalledWith(false);
+    expect(apiMock.unstar).toHaveBeenCalledWith({ id: "track-2" });
   });
 
   it("calls onClose when artist link is clicked", () => {

@@ -60,51 +60,28 @@
     sortMode = (e.target as HTMLInputElement).value as SortMode;
   }
 
-  function sortAlbums(items: Album[]): Album[] {
+  function sortBy<T>(
+    items: T[],
+    getName: (item: T) => string,
+    getStarred: (item: T) => string | undefined,
+    mode: SortMode,
+  ): T[] {
     const sorted = [...items];
-    switch (sortMode) {
+    switch (mode) {
       case 'last-starred':
-        return sorted.sort((a, b) => new Date(b.starred ?? 0).getTime() - new Date(a.starred ?? 0).getTime());
+        return sorted.sort((a, b) => new Date(getStarred(b) ?? 0).getTime() - new Date(getStarred(a) ?? 0).getTime());
       case 'a-z':
-        return sorted.sort((a, b) => a.name.localeCompare(b.name));
+        return sorted.sort((a, b) => getName(a).localeCompare(getName(b)));
       case 'z-a':
-        return sorted.sort((a, b) => b.name.localeCompare(a.name));
+        return sorted.sort((a, b) => getName(b).localeCompare(getName(a)));
       case 'random':
         return sorted.sort(() => Math.random() - 0.5);
     }
   }
 
-  function sortArtists(items: Artist[]): Artist[] {
-    const sorted = [...items];
-    switch (sortMode) {
-      case 'last-starred':
-        return sorted.sort((a, b) => new Date(b.starred ?? 0).getTime() - new Date(a.starred ?? 0).getTime());
-      case 'a-z':
-        return sorted.sort((a, b) => a.name.localeCompare(b.name));
-      case 'z-a':
-        return sorted.sort((a, b) => b.name.localeCompare(a.name));
-      case 'random':
-        return sorted.sort(() => Math.random() - 0.5);
-    }
-  }
-
-  function sortSongs(items: Song[]): Song[] {
-    const sorted = [...items];
-    switch (sortMode) {
-      case 'last-starred':
-        return sorted.sort((a, b) => new Date(b.starred ?? 0).getTime() - new Date(a.starred ?? 0).getTime());
-      case 'a-z':
-        return sorted.sort((a, b) => a.title.localeCompare(b.title));
-      case 'z-a':
-        return sorted.sort((a, b) => b.title.localeCompare(a.title));
-      case 'random':
-        return sorted.sort(() => Math.random() - 0.5);
-    }
-  }
-
-  let sortedAlbums = $derived(sortAlbums(allAlbums));
-  let sortedArtists = $derived(sortArtists(allArtists));
-  let sortedSongs = $derived(sortSongs(allSongs));
+  let sortedAlbums = $derived(sortBy(allAlbums, a => a.name, a => a.starred, sortMode));
+  let sortedArtists = $derived(sortBy(allArtists, a => a.name, a => a.starred, sortMode));
+  let sortedSongs = $derived(sortBy(allSongs, s => s.title, s => s.starred, sortMode));
 
   function playSong(song: Song) {
     queue.replaceAll(allSongs);

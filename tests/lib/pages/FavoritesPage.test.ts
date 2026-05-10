@@ -96,7 +96,7 @@ describe("FavoritesPage", () => {
     }
   });
 
-  it("switching tabs resets pagination and shows correct content", async () => {
+  it("switching tabs shows correct content", async () => {
     mockInstance.getStarred.mockResolvedValue(starredData);
     render(FavoritesPage);
     await screen.findByText("Albums");
