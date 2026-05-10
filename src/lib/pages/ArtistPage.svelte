@@ -185,7 +185,7 @@
         <div class="flex items-center gap-3">
           <h1 class="text-2xl font-bold tracking-tight">{artist.name}</h1>
           <button
-            class="p-2 rounded-xl transition-all duration-150 active:scale-90 {isStarred ? 'text-accent' : 'text-text-dim hover:text-text hover:bg-white/5'}"
+            class="p-2.5 rounded-xl transition-all duration-150 active:scale-90 {isStarred ? 'text-accent' : 'text-text-dim hover:text-text hover:bg-white/5'}"
             onclick={toggleStar}
             aria-label={isStarred ? 'Remove from favorites' : 'Add to favorites'}
           >

@@ -69,7 +69,7 @@
         const api = new SubsonicAPI({ server: srv, username: usr, password: pwd });
         const data = await api.getAlbum({ id });
         if (cancelled) return;
-        album = { id: data.album.id, name: data.album.name, artist: data.album.artist, artistId: data.album.artistId, coverArt: data.album.coverArt, songCount: data.album.songCount, duration: data.album.duration, year: data.album.year, genre: data.album.genre };
+        album = { id: data.album.id, name: data.album.name, artist: data.album.artist, artistId: data.album.artistId, coverArt: data.album.coverArt, songCount: data.album.songCount, duration: data.album.duration, year: data.album.year, genre: data.album.genre, starred: data.album.starred };
         isStarred = !!data.album.starred;
         songs = data.album.song;
       } catch (e) {

@@ -21,6 +21,7 @@
   let allArtists = $state<Artist[]>([]);
   let allSongs = $state<Song[]>([]);
   let loading = $state(true);
+  let error = $state('');
 
   let activeTab = $state<Tab>('albums');
   let sortMode = $state<SortMode>('last-starred');
@@ -46,8 +47,8 @@
       allAlbums = result.starred?.album ?? [];
       allArtists = result.starred?.artist ?? [];
       allSongs = result.starred?.song ?? [];
-    } catch {
-      // silent
+    } catch (e) {
+      error = e instanceof Error ? e.message : 'Failed to load favorites';
     }
     loading = false;
   });
@@ -107,6 +108,8 @@
 
   {#if loading}
     <p class="text-text-dim">Loading...</p>
+  {:else if error}
+    <p class="text-red-500">{error}</p>
   {:else}
     <div class="flex flex-wrap items-center gap-2 mb-6">
       {#each tabs as tab (tab.key)}

@@ -56,10 +56,12 @@ const starredData = {
       { id: "al1", name: "Test Album", artist: "Artist", artistId: "a1", coverArt: "ca1", songCount: 5, duration: 1000, starred: "2024-01-01T00:00:00Z" },
     ],
     artist: [
-      { id: "a1", name: "Test Artist", albumCount: 3, starred: "2024-01-01T00:00:00Z" },
+      { id: "a1", name: "Z Artist", albumCount: 3, starred: "2024-01-01T00:00:00Z" },
+      { id: "a2", name: "A Artist", albumCount: 2, starred: "2023-01-01T00:00:00Z" },
     ],
     song: [
-      { id: "s1", title: "Test Song", artist: "Artist", album: "Album", albumId: "al1", duration: 200, starred: "2024-01-01T00:00:00Z" },
+      { id: "s1", title: "Z Song", artist: "Artist", album: "Album", albumId: "al1", duration: 200, starred: "2024-01-01T00:00:00Z" },
+      { id: "s2", title: "A Song", artist: "Artist", album: "Album", albumId: "al1", duration: 180, starred: "2023-01-01T00:00:00Z" },
     ],
   },
 };
@@ -102,15 +104,36 @@ describe("FavoritesPage", () => {
     await screen.findByText("Albums");
     const artistsTab = screen.getByText("Artists");
     await fireEvent.click(artistsTab);
-    expect(await screen.findByText("Test Artist")).toBeTruthy();
+    expect(await screen.findByText("A Artist")).toBeTruthy();
     const songsTab = screen.getByText("Songs");
     await fireEvent.click(songsTab);
-    expect(await screen.findByText("Test Song")).toBeTruthy();
+    expect(await screen.findByText("A Song")).toBeTruthy();
   });
 
   it("shows empty state when no items are starred", async () => {
     mockInstance.getStarred.mockResolvedValue(emptyData);
     render(FavoritesPage);
     expect(await screen.findByText(/No starred albums yet/i)).toBeTruthy();
+  });
+
+  it("shows error message when API call fails", async () => {
+    mockInstance.getStarred.mockRejectedValue(new Error("Network error"));
+    render(FavoritesPage);
+    expect(await screen.findByText(/Network error/i)).toBeTruthy();
+  });
+
+  it("re-sorts artists when sort mode is changed", async () => {
+    mockInstance.getStarred.mockResolvedValue(starredData);
+    render(FavoritesPage);
+    await screen.findByText("Albums");
+    await fireEvent.click(screen.getByText("Artists"));
+    expect(await screen.findByText("A Artist")).toBeTruthy();
+
+    const select = screen.getByLabelText("Sort order") as HTMLSelectElement;
+    await fireEvent.change(select, { target: { value: "z-a" } });
+    await vi.waitFor(() => {
+      const artistEls = screen.getAllByText(/Artist$/);
+      expect(artistEls.length).toBe(2);
+    });
   });
 });
