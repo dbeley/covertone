@@ -17,6 +17,7 @@
     { path: '/albums', label: 'Albums' },
     { path: '/artists', label: 'Artists' },
     { path: '/playlists', label: 'Playlists' },
+    { path: '/favorites', label: 'Favorites' },
     { path: '/search', label: 'Search' },
     { path: '/game', label: 'Game' },
     { path: '/settings', label: 'Settings' },

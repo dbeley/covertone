@@ -19,11 +19,29 @@
   let username = $derived($settings.username);
   let password = $derived($settings.password);
 
+  let isStarred = $state(false);
+
   let coverArtUrl = $derived(
     album?.coverArt
       ? getCoverArtUrl({ server: serverUrl, username, password, id: album.coverArt, size: 192 })
       : ''
   );
+
+  async function toggleStar() {
+    const newState = !isStarred;
+    isStarred = newState;
+    if (!album) return;
+    try {
+      const api = new SubsonicAPI({ server: serverUrl, username, password });
+      if (newState) {
+        await api.star({ id: album.id });
+      } else {
+        await api.unstar({ id: album.id });
+      }
+    } catch {
+      // fire-and-forget
+    }
+  }
 
   function formatDuration(seconds: number): string {
     const m = Math.floor(seconds / 60);
@@ -52,6 +70,7 @@
         const data = await api.getAlbum({ id });
         if (cancelled) return;
         album = { id: data.album.id, name: data.album.name, artist: data.album.artist, artistId: data.album.artistId, coverArt: data.album.coverArt, songCount: data.album.songCount, duration: data.album.duration, year: data.album.year, genre: data.album.genre };
+        isStarred = !!data.album.starred;
         songs = data.album.song;
       } catch (e) {
         if (!cancelled) error = (e as Error).message;
@@ -93,6 +112,15 @@
             onclick={() => queue.addTracksToEnd(songs)}
           >
             Add to Queue
+          </button>
+          <button
+            class="p-2.5 rounded-xl transition-all duration-150 active:scale-90 {isStarred ? 'text-accent' : 'text-text-dim hover:text-text hover:bg-white/5'}"
+            onclick={toggleStar}
+            aria-label={isStarred ? 'Remove from favorites' : 'Add to favorites'}
+          >
+            <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
           </button>
         </div>
       </div>

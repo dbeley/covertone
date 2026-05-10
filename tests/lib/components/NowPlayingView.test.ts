@@ -5,6 +5,7 @@ import NowPlayingView from "$lib/components/NowPlayingView.svelte";
 const mockPlayerState = {
   status: "idle" as const,
   currentTrack: null as {
+    id?: string;
     title: string;
     artist: string;
     album?: string;
@@ -59,6 +60,14 @@ vi.mock("$lib/stores/settings", () => ({
       },
     ),
   },
+}));
+
+vi.mock("$lib/api/SubsonicAPI", () => ({
+  SubsonicAPI: vi.fn().mockImplementation(() => ({
+    star: vi.fn(),
+    unstar: vi.fn(),
+  })),
+  getCoverArtUrl: vi.fn(() => ""),
 }));
 
 vi.mock("$lib/stores/router", () => ({

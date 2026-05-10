@@ -31,6 +31,8 @@ describe("NavBar", () => {
     expect(screen.getByText("Home")).toBeTruthy();
     expect(screen.getByText("Albums")).toBeTruthy();
     expect(screen.getByText("Artists")).toBeTruthy();
+    expect(screen.getByText("Playlists")).toBeTruthy();
+    expect(screen.getByText("Favorites")).toBeTruthy();
     expect(screen.getByText("Search")).toBeTruthy();
     expect(screen.getByText("Game")).toBeTruthy();
     expect(screen.getByText("Settings")).toBeTruthy();

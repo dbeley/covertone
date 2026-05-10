@@ -15,6 +15,7 @@
   import AlbumsPage from '$lib/pages/AlbumsPage.svelte';
   import ArtistsPage from '$lib/pages/ArtistsPage.svelte';
   import PlaylistsPage from '$lib/pages/PlaylistsPage.svelte';
+  import FavoritesPage from '$lib/pages/FavoritesPage.svelte';
   import AlbumPage from '$lib/pages/AlbumPage.svelte';
   import ArtistPage from '$lib/pages/ArtistPage.svelte';
   import PlaylistPage from '$lib/pages/PlaylistPage.svelte';
@@ -157,6 +158,8 @@
         <ArtistsPage />
       {:else if route.matches('/playlists')}
         <PlaylistsPage />
+      {:else if route.matches('/favorites')}
+        <FavoritesPage />
       {:else if route.matches('/album/:id')}
         <AlbumPage />
       {:else if route.matches('/artist/:id')}

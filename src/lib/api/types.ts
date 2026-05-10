@@ -116,6 +116,7 @@ export interface AlbumResult {
     created: string;
     year?: number;
     genre?: string;
+    starred?: string;
     song: Song[];
   };
 }

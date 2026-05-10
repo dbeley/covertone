@@ -187,6 +187,21 @@ describe("player store", () => {
     expect(get(player).favorited).toBe(false);
   });
 
+  it("initializes favorited from track.starred on playTrack", () => {
+    const starredSong: Song = {
+      ...mockSong,
+      id: "starred-1",
+      starred: "2024-01-01T00:00:00Z",
+    };
+    player.setStreamBase("https://example.com/rest/stream?id=");
+    player.playTrack(starredSong);
+    expect(get(player).favorited).toBe(true);
+
+    const unstarredSong: Song = { ...mockSong, id: "unstarred-1" };
+    player.playTrack(unstarredSong);
+    expect(get(player).favorited).toBe(false);
+  });
+
   it("reset destroys engine and resets state", () => {
     player.setStreamBase("https://example.com/rest/stream?id=");
     player.playTrack(mockSong);

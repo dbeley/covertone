@@ -187,11 +187,11 @@ export class SubsonicAPI {
     return data["subsonic-response"];
   }
 
-  async getArtist(params: {
-    id: string;
-  }): Promise<{ artist: { id: string; name: string; album: Album[] } }> {
+  async getArtist(params: { id: string }): Promise<{
+    artist: { id: string; name: string; starred?: string; album: Album[] };
+  }> {
     const data = await this.requestCached<{
-      artist: { id: string; name: string; album: Album[] };
+      artist: { id: string; name: string; starred?: string; album: Album[] };
     }>(ENDPOINTS.getArtist, { id: params.id });
     return data["subsonic-response"];
   }

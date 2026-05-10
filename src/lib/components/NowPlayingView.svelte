@@ -3,7 +3,7 @@
   import { queue, queueDrawerOpen } from '$lib/stores/queue';
   import { router } from '$lib/stores/router';
   import { settings } from '$lib/stores/settings';
-  import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
+  import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import LazyImage from '$lib/components/LazyImage.svelte';
 
   let { onClose = () => {} } = $props<{
@@ -76,8 +76,20 @@
     player.setShuffle(!shuffle);
   }
 
-  function toggleFavorite() {
-    player.setFavorited(!favorited);
+  async function toggleFavorite() {
+    const newState = !favorited;
+    player.setFavorited(newState);
+    if (!currentTrack) return;
+    try {
+      const api = new SubsonicAPI({ server: serverUrl, username, password });
+      if (newState) {
+        await api.star({ id: currentTrack.id });
+      } else {
+        await api.unstar({ id: currentTrack.id });
+      }
+    } catch {
+      // fire-and-forget
+    }
   }
 
   let isDesktop = $state(

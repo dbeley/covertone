@@ -159,7 +159,12 @@ function createPlayer() {
         update((s) => ({ ...s, duration, status: "playing" }));
       });
 
-      update((s) => ({ ...s, currentTrack: track, status: "loading" }));
+      update((s) => ({
+        ...s,
+        currentTrack: track,
+        status: "loading",
+        favorited: !!track.starred,
+      }));
 
       if ("mediaSession" in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({

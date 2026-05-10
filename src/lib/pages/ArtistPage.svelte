@@ -24,11 +24,29 @@
   let username = $derived($settings.username);
   let password = $derived($settings.password);
 
+  let isStarred = $state(false);
+
   let coverArtUrl = $derived(
     artist?.coverArt
       ? getCoverArtUrl({ server: serverUrl, username, password, id: artist.coverArt, size: 192 })
       : ''
   );
+
+  async function toggleStar() {
+    const newState = !isStarred;
+    isStarred = newState;
+    if (!artist) return;
+    try {
+      const api = new SubsonicAPI({ server: serverUrl, username, password });
+      if (newState) {
+        await api.star({ id: artist.id });
+      } else {
+        await api.unstar({ id: artist.id });
+      }
+    } catch {
+      // fire-and-forget
+    }
+  }
 
   function formatDuration(seconds: number): string {
     const m = Math.floor(seconds / 60);
@@ -111,7 +129,9 @@
           name: artistData.artist.name,
           coverArt: artistData.artist.album?.[0]?.coverArt,
           albumCount: artistData.artist.album?.length ?? 0,
+          starred: artistData.artist.starred,
         };
+        isStarred = !!artistData.artist.starred;
         const seen: Record<string, true> = {};
         albums = artistData.artist.album.filter(a => {
           if (seen[a.id]) return false;
@@ -162,7 +182,18 @@
       <LazyImage src={coverArtUrl} alt="" loading="lazy" decoding="async" class="w-48 h-48 rounded-full object-cover shadow-xl shadow-black/10 ring-1 ring-border/50" />
       <div class="flex flex-col justify-center gap-1">
         <p class="text-xs text-text-dim uppercase tracking-widest font-medium">Artist</p>
-        <h1 class="text-2xl font-bold tracking-tight">{artist.name}</h1>
+        <div class="flex items-center gap-3">
+          <h1 class="text-2xl font-bold tracking-tight">{artist.name}</h1>
+          <button
+            class="p-2 rounded-xl transition-all duration-150 active:scale-90 {isStarred ? 'text-accent' : 'text-text-dim hover:text-text hover:bg-white/5'}"
+            onclick={toggleStar}
+            aria-label={isStarred ? 'Remove from favorites' : 'Add to favorites'}
+          >
+            <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+          </button>
+        </div>
         {#if artist.albumCount}
           <p class="text-sm text-text-dim">{artist.albumCount} albums</p>
         {/if}
