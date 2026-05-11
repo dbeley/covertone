@@ -56,7 +56,7 @@
     role="presentation"
   >
     <div
-      class="flex items-center flex-1 min-w-0 gap-3 cursor-pointer"
+      class="flex items-center min-w-0 gap-3 cursor-pointer"
       onclick={onExpand}
       onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') onExpand(); }}
       role="button"
@@ -70,9 +70,11 @@
       </div>
     </div>
 
-    <div class="flex items-center gap-1 shrink-0">
+    <div class="flex-1"></div>
+
+    <div class="flex items-center gap-2">
       <button
-        class="p-2 rounded-xl transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
+        class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
         onclick={handlePrev}
         aria-label="Previous"
       >
@@ -83,7 +85,7 @@
       </button>
 
       <button
-        class="p-2 rounded-xl transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
+        class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
         onclick={handleTogglePlay}
         aria-label={status === 'playing' ? 'Pause' : 'Play'}
       >
@@ -100,7 +102,7 @@
       </button>
 
       <button
-        class="p-2 rounded-xl transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
+        class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
         onclick={handleNext}
         aria-label="Next"
       >
@@ -111,7 +113,7 @@
       </button>
 
       <button
-        class="p-2 rounded-xl transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
+        class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
         onclick={(e) => { e.stopPropagation(); queueDrawerOpen.update(v => !v); }}
         aria-label="Queue"
       >
@@ -122,5 +124,7 @@
         </svg>
       </button>
     </div>
+
+    <div class="flex-1"></div>
   </div>
 {/if}
