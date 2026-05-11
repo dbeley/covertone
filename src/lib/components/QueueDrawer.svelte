@@ -240,7 +240,7 @@
       {:else}
         {#each items as item, index (item.key)}
           <div
-            class="flex items-center gap-2.5 sm:gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0 {index === currentIndex ? 'bg-accent/5' : ''} {draggedIndex === index ? 'opacity-60 bg-accent/10' : ''} {dropTargetIndex === index && draggedIndex !== index ? 'ring-1 ring-inset ring-accent/40 bg-accent/10' : ''}"
+            class="flex items-center gap-2.5 sm:gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0 {index === currentIndex ? 'bg-accent/15' : ''} {draggedIndex === index ? 'opacity-60 bg-accent/10' : ''} {dropTargetIndex === index && draggedIndex !== index ? 'ring-1 ring-inset ring-accent/40 bg-accent/10' : ''}"
             draggable="true"
             onclick={() => handleRowClick(item, index)}
             onkeydown={(e) => handleActivationKey(e, () => handleTrackClick(item, index))}
@@ -341,7 +341,7 @@
         {:else}
           {#each items as item, index (item.key)}
             <div
-              class="flex items-center gap-2.5 sm:gap-3 px-5 py-3 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0 {index === currentIndex ? 'bg-accent/5' : ''} {draggedIndex === index ? 'opacity-60 bg-accent/10' : ''} {dropTargetIndex === index && draggedIndex !== index ? 'ring-1 ring-inset ring-accent/40 bg-accent/10' : ''}"
+              class="flex items-center gap-2.5 sm:gap-3 px-5 py-3 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0 {index === currentIndex ? 'bg-accent/15' : ''} {draggedIndex === index ? 'opacity-60 bg-accent/10' : ''} {dropTargetIndex === index && draggedIndex !== index ? 'ring-1 ring-inset ring-accent/40 bg-accent/10' : ''}"
               data-queue-index={index}
               draggable="true"
               onclick={() => handleRowClick(item, index)}
