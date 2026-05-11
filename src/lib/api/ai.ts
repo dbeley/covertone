@@ -7,22 +7,29 @@ export interface SongInfo {
   track?: number;
   discNumber?: number;
   duration: number;
+  songwriters?: string;
+  producers?: string;
+  chartInfo?: string;
+  specialNotes?: string;
 }
 
 export function buildContextPrompt(song: SongInfo): string {
-  const lines: string[] = ["Here is the song info:"];
+  const lines: string[] = [];
   lines.push(`[Title: ${song.title}]`);
   lines.push(`[Artist: ${song.artist}]`);
   if (song.album) lines.push(`[Album: ${song.album}]`);
   if (song.year) lines.push(`[Year: ${song.year}]`);
-  if (song.genre) lines.push(`[Genre: ${song.genre}]`);
-  if (song.track) {
-    const disc = song.discNumber ? ` on disc ${song.discNumber}` : "";
-    lines.push(`[Track: ${song.track}${disc}]`);
+  if (song.genre) lines.push(`[Genre (optional): ${song.genre}]`);
+  if (song.songwriters || song.producers) {
+    const credits = [song.songwriters, song.producers]
+      .filter(Boolean)
+      .join(" / ");
+    lines.push(`[Songwriters/Producers (optional): ${credits}]`);
   }
-  const minutes = Math.floor(song.duration / 60);
-  const seconds = song.duration % 60;
-  lines.push(`[Duration: ${minutes}:${seconds.toString().padStart(2, "0")}]`);
+  if (song.chartInfo)
+    lines.push(`[Chart/Award/Streams (optional): ${song.chartInfo}]`);
+  if (song.specialNotes)
+    lines.push(`[Special notes/questions (optional): ${song.specialNotes}]`);
 
   return lines.join("\n");
 }
@@ -45,8 +52,9 @@ export async function fetchSongContext(
       messages: [
         {
           role: "system",
-          content:
-            "You are a knowledgeable music historian. Write a single concise paragraph (3–5 sentences) that combines: 1) essential facts — song title, artist, album, release year, genre, songwriters/producers if known; 2) notable chart performance or awards (brief); 3) one or two interesting anecdotes or backstory (recording, inspiration, samples, controversies, live performance moments); and 4) one or two little-known tidbits (lyrics meaning, production tricks, guest musicians, cultural impact). Keep tone informative and engaging. Use plain text only — no markdown, no bold, no italics, no formatting.",
+          content: `You are a knowledgeable music historian. Write one concise paragraph (3–5 sentences) that blends: (A) clear facts — song title, artist, album, release year, genre, and key credits (songwriter(s)/producer(s)) presented naturally, not as a list; (B) one-sentence summary of the song's musical character or lyrical theme using vivid language; (C) one notable data point — chart peak, award, or streaming milestone if available; (D) one interesting anecdote or backstory (recording, inspiration, first live performance, viral moment, controversy, sample/cover history); and (E) one short, surprising tidbit (production trick, guest musician, lyric interpretation, cultural impact, notable sync in film/TV). Vary sentence openings and phrasing across these elements so the paragraph doesn't always start with the artist and title. Keep tone lively and slightly conversational. Avoid formulaic patterns; use at least two different sentence structures. Use plain text only — no markdown, no bold, no italics, no formatting.
+
+Exception: if the song has unusually rich or notable history (multiple strong anecdotes, cultural impact, awards, or production stories), expand to a short multi-paragraph entry (up to 6–8 sentences total) that keeps the same structure but adds 2–4 extra anecdotes or tidbits; otherwise keep it to 3–5 sentences.`,
         },
         {
           role: "user",
@@ -54,7 +62,7 @@ export async function fetchSongContext(
         },
       ],
       temperature: 0.7,
-      max_tokens: 800,
+      max_tokens: 1200,
     }),
     signal: AbortSignal.timeout(30000),
   });
