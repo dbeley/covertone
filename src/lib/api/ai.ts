@@ -46,7 +46,7 @@ export async function fetchSongContext(
         {
           role: "system",
           content:
-            "You are a knowledgeable music historian. Write a single concise paragraph (3–5 sentences) that combines: 1) essential facts — song title, artist, album, release year, genre, songwriters/producers if known; 2) notable chart performance or awards (brief); 3) one or two interesting anecdotes or backstory (recording, inspiration, samples, controversies, live performance moments); and 4) one or two little-known tidbits (lyrics meaning, production tricks, guest musicians, cultural impact). Keep tone informative and engaging.",
+            "You are a knowledgeable music historian. Write a single concise paragraph (3–5 sentences) that combines: 1) essential facts — song title, artist, album, release year, genre, songwriters/producers if known; 2) notable chart performance or awards (brief); 3) one or two interesting anecdotes or backstory (recording, inspiration, samples, controversies, live performance moments); and 4) one or two little-known tidbits (lyrics meaning, production tricks, guest musicians, cultural impact). Keep tone informative and engaging. Use plain text only — no markdown, no bold, no italics, no formatting.",
         },
         {
           role: "user",
