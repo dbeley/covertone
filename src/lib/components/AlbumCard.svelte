@@ -14,8 +14,7 @@
     password: string;
   } = $props();
 
-  let optimisticStar = $state<'star' | 'unstar' | null>(null);
-  let isStarred = $derived(optimisticStar === null ? !!album.starred : optimisticStar === 'star');
+  let localStarred = $state(!!album.starred);
 
   function open() {
     router.navigate(`album/${album.id}`);
@@ -49,8 +48,8 @@
 
   async function toggleStar(e: Event) {
     e.stopPropagation();
-    const newStarred = !isStarred;
-    optimisticStar = newStarred ? 'star' : 'unstar';
+    const newStarred = !localStarred;
+    localStarred = newStarred;
     const api = new SubsonicAPI({ server: serverUrl, username, password });
     try {
       if (newStarred) {
@@ -58,9 +57,8 @@
       } else {
         await api.unstar({ id: album.id });
       }
-      optimisticStar = null;
     } catch {
-      optimisticStar = null;
+      localStarred = !!album.starred;
     }
   }
 </script>
@@ -86,6 +84,7 @@
         class="pointer-events-auto w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-accent/80 hover:scale-110 transition-all duration-150 active:scale-95"
         onclick={playAll}
         aria-label="Play all"
+        title="Play all"
       >
         <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current ml-0.5">
           <polygon points="5,3 19,12 5,21" />
@@ -95,6 +94,7 @@
         class="pointer-events-auto w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-accent/80 hover:scale-110 transition-all duration-150 active:scale-95"
         onclick={addToQueue}
         aria-label="Add to queue"
+        title="Add to queue"
       >
         <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current">
           <line x1="4" y1="6" x2="20" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
@@ -105,9 +105,10 @@
       <button
         class="pointer-events-auto w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-accent/80 hover:scale-110 transition-all duration-150 active:scale-95"
         onclick={toggleStar}
-        aria-label={isStarred ? 'Remove from favorites' : 'Add to favorites'}
+        aria-label={localStarred ? 'Remove from favorites' : 'Add to favorites'}
+        title={localStarred ? 'Remove from favorites' : 'Add to favorites'}
       >
-        <svg viewBox="0 0 24 24" class="w-4 h-4 {isStarred ? 'fill-accent text-accent' : 'fill-none'} stroke-current stroke-[1.5] transition-colors duration-150">
+        <svg viewBox="0 0 24 24" class="w-4 h-4 {localStarred ? 'fill-accent text-accent' : 'fill-none'} stroke-current stroke-[1.5] transition-colors duration-150">
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
         </svg>
       </button>
