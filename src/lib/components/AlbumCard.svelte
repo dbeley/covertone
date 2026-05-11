@@ -14,7 +14,8 @@
     password: string;
   } = $props();
 
-  let isStarred = $state(!!album.starred);
+  let optimisticStar = $state<'star' | 'unstar' | null>(null);
+  let isStarred = $derived(optimisticStar === null ? !!album.starred : optimisticStar === 'star');
 
   function open() {
     router.navigate(`album/${album.id}`);
@@ -48,16 +49,18 @@
 
   async function toggleStar(e: Event) {
     e.stopPropagation();
-    isStarred = !isStarred;
+    const newStarred = !isStarred;
+    optimisticStar = newStarred ? 'star' : 'unstar';
     const api = new SubsonicAPI({ server: serverUrl, username, password });
     try {
-      if (isStarred) {
+      if (newStarred) {
         await api.star({ id: album.id });
       } else {
         await api.unstar({ id: album.id });
       }
+      optimisticStar = null;
     } catch {
-      isStarred = !isStarred;
+      optimisticStar = null;
     }
   }
 </script>
