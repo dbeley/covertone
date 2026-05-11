@@ -149,18 +149,10 @@
 
   async function loadAiContext() {
     const track = currentTrack;
-    if (!track) return;
-    if (!aiKey) {
-      aiError = 'No API key configured. Add one in Settings.';
-      return;
-    }
-
-    const songId = track.id;
-    if (songId === lastSongId && aiContext) return;
+    if (!track || !aiKey) return;
 
     aiLoading = true;
     aiError = null;
-    aiContext = null;
 
     try {
       const text = await fetchSongContext(aiEndpoint, aiKey, aiModel, {
@@ -173,29 +165,35 @@
         discNumber: track.discNumber,
         duration: track.duration,
       });
-      if (songId === currentTrack?.id) {
+      if (track.id === currentTrack?.id) {
         aiContext = text;
-        lastSongId = songId;
+        lastSongId = track.id;
       }
     } catch (e) {
-      if (songId === currentTrack?.id) {
+      if (track.id === currentTrack?.id) {
         aiError = e instanceof Error ? e.message : 'Failed to load context';
       }
     } finally {
-      if (songId === currentTrack?.id) {
+      if (track.id === currentTrack?.id) {
         aiLoading = false;
       }
     }
   }
 
   $effect(() => {
-    if (!$discoveryDrawerOpen || activeTab !== 'context') return;
-    if (aiKey) {
-      loadAiContext();
-    } else {
-      aiError = 'No API key configured. Add one in Settings.';
+    const track = currentTrack;
+    if (track && lastSongId !== null && lastSongId !== track.id) {
       aiContext = null;
       lastSongId = null;
+    }
+  });
+
+  $effect(() => {
+    if (!$discoveryDrawerOpen || activeTab !== 'context') return;
+    if (!aiKey) {
+      aiError = 'No API key configured. Add one in Settings.';
+    } else if (!aiContext && currentTrack) {
+      loadAiContext();
     }
   });
 </script>
