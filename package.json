@@ -30,9 +30,9 @@
   "devDependencies": {
     "@eslint/js": "^9.39.4",
     "@sveltejs/vite-plugin-svelte": "^5.1.1",
-    "@tailwindcss/vite": "^4.2.4",
+    "@tailwindcss/vite": "^4.3.0",
     "@testing-library/svelte": "^5.3.1",
-    "@types/node": "^22.19.17",
+    "@types/node": "^22.19.18",
     "eslint": "^9.39.4",
     "eslint-plugin-svelte": "^3.17.1",
     "jsdom": "^26.1.0",
@@ -41,7 +41,7 @@
     "svelte": "^5.55.5",
     "svelte-check": "^4.4.8",
     "svelte-eslint-parser": "^1.6.1",
-    "tailwindcss": "^4.2.4",
+    "tailwindcss": "^4.3.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.59.2",
     "vite": "^6.4.2",
@@ -49,11 +49,11 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@capacitor/android": "^8.3.1",
+    "@capacitor/android": "^8.3.3",
     "@capacitor/app": "^8.1.0",
-    "@capacitor/cli": "^8.3.1",
-    "@capacitor/core": "^8.3.1",
-    "@capacitor/ios": "^8.3.1",
+    "@capacitor/cli": "^8.3.3",
+    "@capacitor/core": "^8.3.3",
+    "@capacitor/ios": "^8.3.3",
     "md5": "^2.3.0"
   }
 }
