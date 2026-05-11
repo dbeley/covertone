@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte';
   import { router } from '$lib/stores/router';
   import { player } from '$lib/stores/player';
   import { queue } from '$lib/stores/queue';
@@ -14,7 +15,7 @@
     password: string;
   } = $props();
 
-  let localStarred = $state(!!album.starred);
+  let localStarred = $state(untrack(() => !!album.starred));
 
   function open() {
     router.navigate(`album/${album.id}`);
