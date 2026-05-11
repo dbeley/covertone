@@ -49,7 +49,7 @@
 
 {#if currentTrack}
   <div
-    class="fixed left-0 right-0 h-16 bg-surface/90 backdrop-blur-xl border-t border-border flex items-center px-4 gap-3 z-50 transition-shadow hover:shadow-lg hover:shadow-black/5"
+    class="fixed left-0 right-0 h-16 bg-surface/90 backdrop-blur-xl border-t border-border grid grid-cols-[1fr_auto_1fr] items-center px-4 gap-3 z-50 transition-shadow hover:shadow-lg hover:shadow-black/5"
     style="bottom: var(--safe-area-inset-bottom, 0px)"
     ontouchstart={handleTouchStart}
     ontouchend={handleTouchEnd}
@@ -64,15 +64,13 @@
       aria-label="Now playing bar"
     >
       <LazyImage src={coverArtUrl} alt="" class="w-10 h-10 rounded-lg object-cover shrink-0 ring-1 ring-border/50" />
-      <div class="flex-1 min-w-0">
+      <div class="min-w-0">
         <div class="text-sm font-medium truncate">{currentTrack.title}</div>
         <div class="text-xs text-text-dim truncate">{currentTrack.artist}</div>
       </div>
     </div>
 
-    <div class="flex-1"></div>
-
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 justify-center">
       <button
         class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
         onclick={handlePrev}
@@ -125,6 +123,6 @@
       </button>
     </div>
 
-    <div class="flex-1"></div>
+    <div></div>
   </div>
 {/if}
