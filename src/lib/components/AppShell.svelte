@@ -177,8 +177,8 @@
         <div class="p-6"><h2 class="text-2xl font-bold">Not Found</h2></div>
       {/if}
     </main>
-    <QueueDrawer />
     <DiscoveryDrawer />
+    <QueueDrawer />
   </div>
 
   <NowPlayingBar
