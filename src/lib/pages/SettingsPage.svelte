@@ -12,10 +12,19 @@
   let connectionStatus = $state<'idle' | 'testing' | 'success' | 'error'>('idle');
   let saveStatus = $state<'idle' | 'saved'>('idle');
 
+  let aiEndpoint = $state('');
+  let aiKey = $state('');
+  let aiModel = $state('');
+  let aiTestStatus = $state<'idle' | 'testing' | 'success' | 'error'>('idle');
+  let aiSaveStatus = $state<'idle' | 'saved'>('idle');
+
   $effect(() => {
     server = $settings.serverUrl;
     username = $settings.username;
     password = $settings.password;
+    aiEndpoint = $settings.aiEndpoint;
+    aiKey = $settings.aiKey;
+    aiModel = $settings.aiModel;
   });
 
   const themes: { label: string; value: Theme }[] = [
@@ -44,6 +53,38 @@
     settings.setServerConfig({ server, username, password });
     saveStatus = 'saved';
     setTimeout(() => { saveStatus = 'idle'; }, 2000);
+  }
+
+  async function testAiConnection() {
+    if (!aiEndpoint || !aiEndpoint.startsWith('http')) {
+      aiTestStatus = 'error';
+      return;
+    }
+    aiTestStatus = 'testing';
+    try {
+      const res = await fetch(`${aiEndpoint.replace(/\/+$/, '')}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${aiKey}`,
+        },
+        body: JSON.stringify({
+          model: aiModel || 'deepseek-chat',
+          messages: [{ role: 'user', content: 'Say "ok" and nothing else.' }],
+          max_tokens: 10,
+        }),
+        signal: new AbortController().signal,
+      });
+      aiTestStatus = res.ok ? 'success' : 'error';
+    } catch {
+      aiTestStatus = 'error';
+    }
+  }
+
+  function saveAiConfig() {
+    settings.setAiConfig({ endpoint: aiEndpoint, key: aiKey, model: aiModel });
+    aiSaveStatus = 'saved';
+    setTimeout(() => { aiSaveStatus = 'idle'; }, 2000);
   }
 </script>
 
@@ -156,6 +197,68 @@
         </div>
       </label>
       <span class="text-sm">Auto-fill queue with similar songs when empty (Auto DJ)</span>
+    </div>
+  </section>
+
+  <section class="mb-8">
+    <h3 class="text-lg font-semibold mb-4 tracking-tight">AI</h3>
+    <p class="text-sm text-text-dim mb-4">Optional AI-powered song context. Uses OpenAI-compatible chat API (works with DeepSeek, OpenAI, Together, Groq, etc.).</p>
+    <div class="space-y-4">
+      <div>
+        <label for="settings-ai-endpoint" class="block text-sm font-medium text-text-dim mb-1.5">Endpoint URL</label>
+        <input
+          id="settings-ai-endpoint"
+          type="text"
+          bind:value={aiEndpoint}
+          placeholder="https://api.deepseek.com"
+          class="w-full px-4 py-2.5 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150"
+        />
+      </div>
+      <div>
+        <label for="settings-ai-key" class="block text-sm font-medium text-text-dim mb-1.5">API Key</label>
+        <input
+          id="settings-ai-key"
+          type="password"
+          bind:value={aiKey}
+          placeholder="sk-..."
+          class="w-full px-4 py-2.5 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150"
+        />
+      </div>
+      <div>
+        <label for="settings-ai-model" class="block text-sm font-medium text-text-dim mb-1.5">Model</label>
+        <input
+          id="settings-ai-model"
+          type="text"
+          bind:value={aiModel}
+          placeholder="deepseek-chat"
+          class="w-full px-4 py-2.5 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150"
+        />
+      </div>
+      <div class="flex items-center gap-3">
+        <button
+          class="px-4 py-2.5 bg-surface border border-border rounded-xl text-sm font-medium hover:border-accent/30 hover:text-text active:scale-[0.98] transition-all duration-150 disabled:opacity-50"
+          onclick={testAiConnection}
+          disabled={aiTestStatus === 'testing'}
+        >
+          {aiTestStatus === 'testing' ? 'Testing...' : 'Test Connection'}
+        </button>
+        {#if aiTestStatus === 'success'}
+          <span class="text-green-500 text-sm">Connected</span>
+        {:else if aiTestStatus === 'error'}
+          <span class="text-red-500 text-sm">Connection failed</span>
+        {/if}
+      </div>
+      <div class="flex items-center gap-3">
+        <button
+          class="px-5 py-2.5 bg-accent text-white rounded-xl text-sm font-medium hover:brightness-110 active:scale-[0.98] transition-all duration-150 shadow-lg shadow-accent/20"
+          onclick={saveAiConfig}
+        >
+          Save
+        </button>
+        {#if aiSaveStatus === 'saved'}
+          <span class="text-green-500 text-sm">Saved</span>
+        {/if}
+      </div>
     </div>
   </section>
 

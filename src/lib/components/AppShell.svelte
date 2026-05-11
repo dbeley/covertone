@@ -3,6 +3,7 @@
   import NowPlayingBar from './NowPlayingBar.svelte';
   import NowPlayingView from './NowPlayingView.svelte';
   import QueueDrawer from './QueueDrawer.svelte';
+  import DiscoveryDrawer from './DiscoveryDrawer.svelte';
   import { router } from '$lib/stores/router';
   import { nowPlayingOpen } from '$lib/stores/ui';
   import { player } from '$lib/stores/player';
@@ -177,6 +178,7 @@
       {/if}
     </main>
     <QueueDrawer />
+    <DiscoveryDrawer />
   </div>
 
   <NowPlayingBar

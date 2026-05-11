@@ -2,6 +2,7 @@
   import { router } from '$lib/stores/router';
   import { tabsStore } from '$lib/stores/tabs';
   import { player } from '$lib/stores/player';
+  import { discoveryDrawerOpen } from '$lib/stores/discovery';
 
   let { mobileOpen = false, onNavigate = () => {}, swipeOffset = 0 }: { mobileOpen?: boolean; onNavigate?: () => void; swipeOffset?: number } = $props();
 
@@ -50,7 +51,17 @@
       {item.label}
     </button>
   {/each}
-  <div class="mt-auto pt-2 border-t border-border">
+  <div class="mt-auto pt-2 border-t border-border space-y-0.5">
+    <button
+      class="w-full text-left px-3 py-2 rounded-xl text-sm font-medium text-text-dim hover:text-text hover:bg-white/5 transition-all duration-150 flex items-center gap-2"
+      onclick={() => discoveryDrawerOpen.set(true)}
+    >
+      <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 6v6l4 2" />
+      </svg>
+      Discover
+    </button>
     <button
       class="w-full text-left px-3 py-2 rounded-xl text-sm font-medium text-text-dim hover:text-text hover:bg-white/5 transition-all duration-150 flex items-center gap-2"
       onclick={() => { if (!atMax) tabsStore.createTab($router.path); }}
