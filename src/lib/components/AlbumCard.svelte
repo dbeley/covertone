@@ -14,10 +14,7 @@
     password: string;
   } = $props();
 
-  let isStarred = $state(false);
-  $effect(() => {
-    isStarred = !!album.starred;
-  });
+  let isStarred = $state(!!album.starred);
 
   function open() {
     router.navigate(`album/${album.id}`);
