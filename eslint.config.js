@@ -44,6 +44,7 @@ export default tseslint.config(
         TouchEvent: 'readonly',
         MediaQueryListEvent: 'readonly',
         NodeJS: 'readonly',
+        AbortController: 'readonly',
       },
     },
   },
