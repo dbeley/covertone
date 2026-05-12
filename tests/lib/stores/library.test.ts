@@ -75,7 +75,7 @@ describe("library store", () => {
     expect(state.albums[0].name).toBe("Album");
     expect(mockApi.getAlbumList).toHaveBeenCalledWith({
       type: "newest",
-      size: 20,
+      size: 50,
       offset: 0,
     });
   });
