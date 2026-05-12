@@ -18,8 +18,6 @@
     "ios:open": "pnpm exec cap open ios",
     "ios:build": "pnpm build && pnpm exec cap sync ios && cd ios && xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' build 2>&1 || echo 'iOS builds require macOS with Xcode'",
     "icons:generate": "pnpm exec cap add android 2>/dev/null; pnpm exec cap sync 2>/dev/null; echo 'Run cap sync to regenerate platform resources'",
-    "docker:build": "docker build -t covertone:latest .",
-    "docker:run": "docker run -p 8080:80 covertone:latest",
     "lint": "prettier --check src/ && eslint src/ && pnpm exec svelte-check",
     "format": "prettier --write src/",
     "typecheck": "pnpm exec svelte-check",

@@ -6,8 +6,14 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+    }:
+    flake-utils.lib.eachDefaultSystem (
+      system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
       in
@@ -63,7 +69,6 @@
             echo "  pnpm typecheck       - Svelte type check"
             echo "  pnpm android:build   - Android debug APK"
             echo "  pnpm android:release - Android release APK"
-            echo "  pnpm docker:build    - Docker image"
           '';
         };
       }
