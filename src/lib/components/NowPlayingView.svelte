@@ -236,7 +236,7 @@
 
         <button
           class="p-2.5 rounded-xl transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
-          onclick={() => { queueDrawerOpen.set(true); if (isDesktop) onClose(); }}
+          onclick={() => { if (isDesktop) { onClose(); } else { queueDrawerOpen.set(true); } }}
           aria-label="Queue"
         >
           <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">

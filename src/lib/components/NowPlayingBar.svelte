@@ -1,6 +1,6 @@
 <script lang="ts">
   import { player } from '$lib/stores/player';
-  import { queue, queueDrawerOpen } from '$lib/stores/queue';
+  import { queue } from '$lib/stores/queue';
   import { settings } from '$lib/stores/settings';
   import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import LazyImage from '$lib/components/LazyImage.svelte';
@@ -110,17 +110,6 @@
         </svg>
       </button>
 
-      <button
-        class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
-        onclick={(e) => { e.stopPropagation(); queueDrawerOpen.update(v => !v); }}
-        aria-label="Queue"
-      >
-        <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
-          <line x1="4" y1="6" x2="20" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-          <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-          <line x1="4" y1="18" x2="20" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-        </svg>
-      </button>
     </div>
 
     <div></div>

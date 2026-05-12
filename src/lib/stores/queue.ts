@@ -36,7 +36,7 @@ function createQueue() {
     hasPrevious: false,
   });
 
-  const { subscribe, set, update } = store;
+  const { subscribe, update } = store;
 
   function recomputeDerived(state: QueueState): QueueState {
     const hasNext = state.shuffle
@@ -156,16 +156,20 @@ function createQueue() {
       });
     },
     clear() {
-      set(
-        recomputeDerived({
-          items: [],
-          currentIndex: -1,
-          autoDJ: false,
-          shuffle: false,
+      update((s) => {
+        const currentItem =
+          s.currentIndex >= 0 && s.currentIndex < s.items.length
+            ? s.items[s.currentIndex]
+            : null;
+        return recomputeDerived({
+          items: currentItem ? [currentItem] : [],
+          currentIndex: currentItem ? 0 : -1,
+          autoDJ: s.autoDJ,
+          shuffle: s.shuffle,
           hasNext: false,
           hasPrevious: false,
-        }),
-      );
+        });
+      });
     },
     setAutoDJ(enabled: boolean) {
       update((s) => recomputeDerived({ ...s, autoDJ: enabled }));
