@@ -6,6 +6,7 @@ const settingsMocks = vi.hoisted(() => ({
   setServerConfig: vi.fn(),
   setTheme: vi.fn(),
   setScrobbleEnabled: vi.fn(),
+  setAiConfig: vi.fn(),
 }));
 
 const initialState = {
@@ -16,6 +17,10 @@ const initialState = {
   password: "",
   isConfigured: false,
   scrobbleEnabled: true,
+  autoDJ: true,
+  aiEndpoint: "https://api.deepseek.com",
+  aiKey: "",
+  aiModel: "deepseek-v4-flash",
 };
 
 vi.mock("$lib/stores/settings", () => ({
@@ -27,6 +32,7 @@ vi.mock("$lib/stores/settings", () => ({
     setServerConfig: settingsMocks.setServerConfig,
     setTheme: settingsMocks.setTheme,
     setScrobbleEnabled: settingsMocks.setScrobbleEnabled,
+    setAiConfig: settingsMocks.setAiConfig,
   },
 }));
 
@@ -64,7 +70,8 @@ describe("SettingsPage", () => {
     await fireEvent.input(screen.getByLabelText("Password"), {
       target: { value: "demo-pass" },
     });
-    await fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    const saveButtons = screen.getAllByRole("button", { name: "Save" });
+    await fireEvent.click(saveButtons[0]);
     expect(settingsMocks.setServerConfig).toHaveBeenCalledWith({
       server: "https://demo.example.com",
       username: "demo-user",

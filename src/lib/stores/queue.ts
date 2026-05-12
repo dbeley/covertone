@@ -36,7 +36,7 @@ function createQueue() {
     hasPrevious: false,
   });
 
-  const { subscribe, update } = store;
+  const { subscribe, set, update } = store;
 
   function recomputeDerived(state: QueueState): QueueState {
     const hasNext = state.shuffle
@@ -170,6 +170,18 @@ function createQueue() {
           hasPrevious: false,
         });
       });
+    },
+    reset() {
+      set(
+        recomputeDerived({
+          items: [],
+          currentIndex: -1,
+          autoDJ: false,
+          shuffle: false,
+          hasNext: false,
+          hasPrevious: false,
+        }),
+      );
     },
     setAutoDJ(enabled: boolean) {
       update((s) => recomputeDerived({ ...s, autoDJ: enabled }));
