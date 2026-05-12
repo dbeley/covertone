@@ -52,7 +52,7 @@ function tracksFrom(state: ReturnType<typeof get<typeof queue>>) {
 describe("queue store", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    queue.clear();
+    queue.reset();
   });
 
   it("has correct initial state", () => {
@@ -223,14 +223,23 @@ describe("queue store", () => {
     expect(new Set(keys).size).toBe(3);
   });
 
-  it("clear empties queue", () => {
+  it("clear preserves the currently playing track", () => {
+    queue.setAutoDJ(true);
     queue.replaceAll([song1, song2]);
+    queue.playIndex(1);
+    queue.clear();
+    const state = get(queue);
+    expect(tracksFrom(state)).toEqual([song2]);
+    expect(state.currentIndex).toBe(0);
+    expect(state.autoDJ).toBe(true);
+    expect(state.hasNext).toBe(false);
+  });
+
+  it("clear returns empty when no current track", () => {
     queue.clear();
     const state = get(queue);
     expect(state.items).toEqual([]);
     expect(state.currentIndex).toBe(-1);
-    expect(state.autoDJ).toBe(false);
-    expect(state.shuffle).toBe(false);
   });
 
   it("setAutoDJ enables/disables autoDJ", () => {

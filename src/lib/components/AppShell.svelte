@@ -3,6 +3,7 @@
   import NowPlayingBar from './NowPlayingBar.svelte';
   import NowPlayingView from './NowPlayingView.svelte';
   import QueueDrawer from './QueueDrawer.svelte';
+  import DiscoveryDrawer from './DiscoveryDrawer.svelte';
   import { router } from '$lib/stores/router';
   import { nowPlayingOpen } from '$lib/stores/ui';
   import { player } from '$lib/stores/player';
@@ -176,6 +177,7 @@
         <div class="p-6"><h2 class="text-2xl font-bold">Not Found</h2></div>
       {/if}
     </main>
+    <DiscoveryDrawer />
     <QueueDrawer />
   </div>
 

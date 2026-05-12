@@ -1,6 +1,6 @@
 <script lang="ts">
   import { player } from '$lib/stores/player';
-  import { queue, queueDrawerOpen } from '$lib/stores/queue';
+  import { queue } from '$lib/stores/queue';
   import { settings } from '$lib/stores/settings';
   import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import LazyImage from '$lib/components/LazyImage.svelte';
@@ -20,6 +20,8 @@
 
   let currentTrack = $derived($player.currentTrack);
   let status = $derived($player.status);
+  let currentTime = $derived($player.currentTime);
+  let duration = $derived($player.duration);
   let serverUrl = $derived($settings.serverUrl);
   let username = $derived($settings.username);
   let password = $derived($settings.password);
@@ -45,6 +47,15 @@
     const next = await queue.getNextAutoDJ();
     if (next) player.playTrack(next);
   }
+
+  function handleSeek(e: MouseEvent) {
+    e.stopPropagation();
+    const bar = e.currentTarget as HTMLElement;
+    const rect = bar.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const pct = Math.max(0, Math.min(1, x / rect.width));
+    player.seek(pct * duration);
+  }
 </script>
 
 {#if currentTrack}
@@ -55,6 +66,20 @@
     ontouchend={handleTouchEnd}
     role="presentation"
   >
+    <button
+      class="absolute top-0 left-0 right-0 h-1 bg-text-dim/15 cursor-pointer group block p-0 border-none"
+      onclick={handleSeek}
+      onkeydown={(e) => { if (e.key === 'ArrowRight') player.seek(Math.min(duration, currentTime + 5)); else if (e.key === 'ArrowLeft') player.seek(Math.max(0, currentTime - 5)); }}
+      aria-label="Seek"
+    >
+      <div
+        class="h-full bg-accent transition-[width] duration-200 ease-linear"
+        style="width: {duration > 0 ? (currentTime / duration) * 100 : 0}%"
+      ></div>
+      <div class="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity -ml-1"
+        style="left: {duration > 0 ? (currentTime / duration) * 100 : 0}%"
+      ></div>
+    </button>
     <div
       class="flex items-center min-w-0 gap-3 cursor-pointer"
       onclick={onExpand}
@@ -110,17 +135,6 @@
         </svg>
       </button>
 
-      <button
-        class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
-        onclick={(e) => { e.stopPropagation(); queueDrawerOpen.update(v => !v); }}
-        aria-label="Queue"
-      >
-        <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
-          <line x1="4" y1="6" x2="20" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-          <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-          <line x1="4" y1="18" x2="20" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-        </svg>
-      </button>
     </div>
 
     <div></div>

@@ -13,6 +13,54 @@ describe("settings store", () => {
     expect(state.theme).toBe("system");
   });
 
+  it("has default AI config values", () => {
+    const state = get(settings);
+    expect(state.aiEndpoint).toBe("https://api.deepseek.com");
+    expect(state.aiKey).toBe("");
+    expect(state.aiModel).toBe("deepseek-v4-flash");
+  });
+
+  it("setAiConfig updates AI settings and persists", () => {
+    settings.setAiConfig({
+      endpoint: "https://custom.api.com",
+      key: "sk-custom-key",
+      model: "custom-model",
+    });
+    const state = get(settings);
+    expect(state.aiEndpoint).toBe("https://custom.api.com");
+    expect(state.aiKey).toBe("sk-custom-key");
+    expect(state.aiModel).toBe("custom-model");
+    expect(localStorage.getItem("covertone-settings")).toContain(
+      '"aiModel":"custom-model"',
+    );
+  });
+
+  it("persists AI config across reload", () => {
+    settings.setAiConfig({
+      endpoint: "https://persist.test",
+      key: "sk-persist",
+      model: "persist-model",
+    });
+    settings.reload();
+    const state = get(settings);
+    expect(state.aiEndpoint).toBe("https://persist.test");
+    expect(state.aiKey).toBe("sk-persist");
+    expect(state.aiModel).toBe("persist-model");
+  });
+
+  it("reset restores AI defaults", () => {
+    settings.setAiConfig({
+      endpoint: "https://custom.api.com",
+      key: "sk-key",
+      model: "custom-model",
+    });
+    settings.reset();
+    const state = get(settings);
+    expect(state.aiEndpoint).toBe("https://api.deepseek.com");
+    expect(state.aiKey).toBe("");
+    expect(state.aiModel).toBe("deepseek-v4-flash");
+  });
+
   it("setTheme updates theme and persists to localStorage", () => {
     settings.setTheme("dark");
     const state = get(settings);

@@ -12,6 +12,9 @@ export interface SettingsState {
   isConfigured: boolean;
   scrobbleEnabled: boolean;
   autoDJ: boolean;
+  aiEndpoint: string;
+  aiKey: string;
+  aiModel: string;
 }
 
 const STORAGE_KEY = "covertone-settings";
@@ -33,6 +36,9 @@ interface RuntimeConfig {
   server?: string;
   username?: string;
   password?: string;
+  aiEndpoint?: string;
+  aiKey?: string;
+  aiModel?: string;
 }
 
 declare global {
@@ -44,14 +50,16 @@ declare global {
 function loadRuntimeConfig(): Partial<SettingsState> {
   const cfg =
     typeof window !== "undefined" ? window.__COVERTONE_CONFIG__ : undefined;
+  const result: Partial<SettingsState> = {};
   if (cfg?.server && cfg?.username) {
-    return {
-      serverUrl: cfg.server,
-      username: cfg.username,
-      password: cfg.password ?? "",
-    };
+    result.serverUrl = cfg.server;
+    result.username = cfg.username;
+    result.password = cfg.password ?? "";
   }
-  return {};
+  if (cfg?.aiEndpoint) result.aiEndpoint = cfg.aiEndpoint;
+  if (cfg?.aiKey) result.aiKey = cfg.aiKey;
+  if (cfg?.aiModel) result.aiModel = cfg.aiModel;
+  return result;
 }
 
 function loadPersisted(): Partial<SettingsState> {
@@ -89,6 +97,9 @@ function createSettings() {
     isConfigured: !!(persisted.serverUrl && persisted.username),
     scrobbleEnabled: persisted.scrobbleEnabled ?? true,
     autoDJ: persisted.autoDJ ?? true,
+    aiEndpoint: persisted.aiEndpoint ?? "https://api.deepseek.com",
+    aiKey: persisted.aiKey ?? "",
+    aiModel: persisted.aiModel ?? "deepseek-v4-flash",
   });
 
   return {
@@ -139,6 +150,22 @@ function createSettings() {
         return next;
       });
     },
+    setAiConfig(config: { endpoint: string; key: string; model: string }) {
+      update((state) => {
+        const next = {
+          ...state,
+          aiEndpoint: config.endpoint,
+          aiKey: config.key,
+          aiModel: config.model,
+        };
+        persist({
+          aiEndpoint: config.endpoint,
+          aiKey: config.key,
+          aiModel: config.model,
+        });
+        return next;
+      });
+    },
     reset() {
       try {
         localStorage.removeItem(STORAGE_KEY);
@@ -154,6 +181,9 @@ function createSettings() {
         isConfigured: false,
         scrobbleEnabled: true,
         autoDJ: true,
+        aiEndpoint: "https://api.deepseek.com",
+        aiKey: "",
+        aiModel: "deepseek-v4-flash",
       });
     },
     reload() {
@@ -168,6 +198,9 @@ function createSettings() {
         isConfigured: !!(persisted.serverUrl && persisted.username),
         scrobbleEnabled: persisted.scrobbleEnabled ?? true,
         autoDJ: persisted.autoDJ ?? true,
+        aiEndpoint: persisted.aiEndpoint ?? "https://api.deepseek.com",
+        aiKey: persisted.aiKey ?? "",
+        aiModel: persisted.aiModel ?? "deepseek-v4-flash",
       });
     },
   };

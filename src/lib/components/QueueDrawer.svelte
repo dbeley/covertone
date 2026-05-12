@@ -33,7 +33,12 @@
 
   function handleRemove(index: number, e: MouseEvent) {
     e.stopPropagation();
+    const wasCurrent = index === currentIndex;
+    const wasLast = items.length === 1;
     queue.removeTrack(index);
+    if (wasCurrent && wasLast) {
+      player.stop();
+    }
   }
 
   function onTouchStart(e: globalThis.TouchEvent) {
@@ -211,16 +216,11 @@
 </script>
 
 <!-- Desktop side panel -->
-<aside
-  class="hidden md:flex flex-col border-l border-border bg-surface overflow-hidden transition-all duration-300 ease-out shrink-0"
-  class:w-80={$queueDrawerOpen}
-  class:w-0={!$queueDrawerOpen}
->
-  {#if $queueDrawerOpen}
+<aside class="hidden md:flex flex-col border-l border-border bg-surface overflow-hidden shrink-0 w-80">
     <div class="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
       <h2 class="text-base font-bold">Queue</h2>
       <div class="flex items-center gap-1">
-        {#if items.length > 0}
+        {#if items.length > 1}
           <button
             class="p-2 rounded-xl hover:bg-white/5 text-text-dim hover:text-red-400 transition-all duration-150 active:scale-90"
             onclick={() => queue.clear()}
@@ -293,7 +293,6 @@
         {/each}
       {/if}
     </div>
-  {/if}
 </aside>
 
 <!-- Mobile bottom sheet -->

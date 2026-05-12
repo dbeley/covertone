@@ -156,6 +156,22 @@ function createQueue() {
       });
     },
     clear() {
+      update((s) => {
+        const currentItem =
+          s.currentIndex >= 0 && s.currentIndex < s.items.length
+            ? s.items[s.currentIndex]
+            : null;
+        return recomputeDerived({
+          items: currentItem ? [currentItem] : [],
+          currentIndex: currentItem ? 0 : -1,
+          autoDJ: s.autoDJ,
+          shuffle: s.shuffle,
+          hasNext: false,
+          hasPrevious: false,
+        });
+      });
+    },
+    reset() {
       set(
         recomputeDerived({
           items: [],
