@@ -202,7 +202,7 @@
 
   <section class="mb-8">
     <h3 class="text-lg font-semibold mb-4 tracking-tight">AI</h3>
-    <p class="text-sm text-text-dim mb-4">Optional AI-powered song context. Uses OpenAI-compatible chat API (works with DeepSeek, OpenAI, Together, Groq, etc.).</p>
+    <p class="text-sm text-text-dim mb-4">Optional AI-powered song context ("Discover" item in nav bar). Uses OpenAI-compatible chat API.</p>
     <div class="space-y-4">
       <div>
         <label for="settings-ai-endpoint" class="block text-sm font-medium text-text-dim mb-1.5">Endpoint URL</label>
@@ -280,7 +280,7 @@
 
   <section>
     <h3 class="text-lg font-semibold mb-4 tracking-tight">About</h3>
-    <p class="text-sm text-text-dim mb-2">Covertone v0.1.10 — A Subsonic/Navidrome music client</p>
+    <p class="text-sm text-text-dim mb-2">Covertone v0.1.11 — A Subsonic/Navidrome music client</p>
     <a
       href="https://github.com/dbeley/covertone"
       target="_blank"
