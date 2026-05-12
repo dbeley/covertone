@@ -70,7 +70,7 @@ function createLibrary() {
       refresh?: boolean;
     }) {
       if (!api) return;
-      const size = params.size ?? 20;
+      const size = params.size ?? 50;
       const offset = params.offset ?? 0;
       if (params.refresh) {
         cacheInvalidate("getAlbumList");

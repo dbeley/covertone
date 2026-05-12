@@ -126,7 +126,7 @@
   >
     <h2 class="text-2xl font-bold mb-6 tracking-tight">Albums</h2>
 
-    <div class="flex flex-wrap gap-2 mb-6 items-center">
+    <div class="flex gap-2 mb-6 items-center overflow-x-auto flex-nowrap">
       {#each tabs as tab (tab.type)}
         <button
           class="whitespace-nowrap px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150 border border-border
