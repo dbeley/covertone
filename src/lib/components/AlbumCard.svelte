@@ -79,7 +79,7 @@
       loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
     />
     <div
-      class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end justify-center pb-3 gap-2 pointer-events-none"
+      class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 touch:opacity-100 transition-opacity duration-200 flex items-end justify-center pb-3 gap-2 pointer-events-none"
     >
       <button
         class="pointer-events-auto w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-accent/80 hover:scale-110 transition-all duration-150 active:scale-95"
