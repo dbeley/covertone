@@ -10,7 +10,14 @@ vi.mock("$lib/player/AutoDJ", () => ({
   AutoDJ: vi.fn().mockImplementation(() => mockAutoDJ),
 }));
 
+vi.mock("$lib/stores/player", () => ({
+  player: {
+    playTrack: vi.fn(),
+  },
+}));
+
 import { queue } from "$lib/stores/queue";
+import { player } from "$lib/stores/player";
 
 const song1: Song = {
   id: "1",
@@ -72,6 +79,20 @@ describe("queue store", () => {
     expect(state.currentIndex).toBe(0);
   });
 
+  it("addToEnd auto-plays when queue is empty", async () => {
+    queue.addToEnd(song1);
+    await vi.waitFor(() => {
+      expect(player.playTrack).toHaveBeenCalledWith(song1);
+    });
+  });
+
+  it("addToEnd does not auto-play when queue is not empty", () => {
+    queue.addToEnd(song1);
+    vi.clearAllMocks();
+    queue.addToEnd(song2);
+    expect(player.playTrack).not.toHaveBeenCalled();
+  });
+
   it("addToEnd preserves currentIndex on non-empty queue", () => {
     queue.replaceAll([song1, song2]);
     queue.playIndex(1);
@@ -89,6 +110,20 @@ describe("queue store", () => {
     expect(state.currentIndex).toBe(0);
   });
 
+  it("addTracksToEnd auto-plays first track when queue is empty", async () => {
+    queue.addTracksToEnd([song1, song2]);
+    await vi.waitFor(() => {
+      expect(player.playTrack).toHaveBeenCalledWith(song1);
+    });
+  });
+
+  it("addTracksToEnd does not auto-play when queue is not empty", () => {
+    queue.replaceAll([song1]);
+    vi.clearAllMocks();
+    queue.addTracksToEnd([song2, song3]);
+    expect(player.playTrack).not.toHaveBeenCalled();
+  });
+
   it("addTracksToEnd preserves currentIndex on non-empty queue", () => {
     queue.replaceAll([song1]);
     queue.addTracksToEnd([song2, song3]);
@@ -102,6 +137,20 @@ describe("queue store", () => {
     queue.addNext(song3);
     const state = get(queue);
     expect(tracksFrom(state)).toEqual([song1, song3, song2]);
+  });
+
+  it("addNext auto-plays when queue is empty", async () => {
+    queue.addNext(song1);
+    await vi.waitFor(() => {
+      expect(player.playTrack).toHaveBeenCalledWith(song1);
+    });
+  });
+
+  it("addNext does not auto-play when queue is not empty", () => {
+    queue.addToEnd(song1);
+    vi.clearAllMocks();
+    queue.addNext(song2);
+    expect(player.playTrack).not.toHaveBeenCalled();
   });
 
   it("addNext appends and sets currentIndex on empty queue", () => {

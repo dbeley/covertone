@@ -52,40 +52,60 @@ function createQueue() {
   return {
     subscribe,
     addToEnd(track: Song) {
+      let wasEmpty = false;
       update((s) => {
+        wasEmpty = s.items.length === 0;
         const newItems = [...s.items, makeItem(track)];
-        const newIndex = s.items.length === 0 ? 0 : s.currentIndex;
+        const newIndex = wasEmpty ? 0 : s.currentIndex;
         return recomputeDerived({
           ...s,
           items: newItems,
           currentIndex: newIndex,
         });
       });
+      if (wasEmpty) {
+        import("$lib/stores/player").then(({ player }) => {
+          player.playTrack(track);
+        });
+      }
     },
     addTracksToEnd(tracks: Song[]) {
+      let wasEmpty = false;
       update((s) => {
+        wasEmpty = s.items.length === 0 && tracks.length > 0;
         const newItems = [...s.items, ...tracks.map((t) => makeItem(t))];
-        const newIndex =
-          s.items.length === 0 && tracks.length > 0 ? 0 : s.currentIndex;
+        const newIndex = wasEmpty ? 0 : s.currentIndex;
         return recomputeDerived({
           ...s,
           items: newItems,
           currentIndex: newIndex,
         });
       });
+      if (wasEmpty) {
+        import("$lib/stores/player").then(({ player }) => {
+          player.playTrack(tracks[0]);
+        });
+      }
     },
     addNext(track: Song) {
+      let wasEmpty = false;
       update((s) => {
+        wasEmpty = s.items.length === 0;
         const idx = s.currentIndex < 0 ? s.items.length : s.currentIndex + 1;
         const newItems = [...s.items];
         newItems.splice(idx, 0, makeItem(track));
-        const newIndex = s.items.length === 0 ? 0 : s.currentIndex;
+        const newIndex = wasEmpty ? 0 : s.currentIndex;
         return recomputeDerived({
           ...s,
           items: newItems,
           currentIndex: newIndex,
         });
       });
+      if (wasEmpty) {
+        import("$lib/stores/player").then(({ player }) => {
+          player.playTrack(track);
+        });
+      }
     },
     replaceAll(tracks: Song[]) {
       update((s) => {
