@@ -16,6 +16,8 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
+import android.widget.RemoteViews;
+
 import androidx.core.app.NotificationCompat;
 import androidx.media.app.NotificationCompat.MediaStyle;
 
@@ -262,6 +264,20 @@ public class PlaybackService extends Service {
             .addAction(android.R.drawable.ic_media_next, "Next", makeActionIntent("next", REQ_NEXT))
             .addAction(android.R.drawable.ic_delete, "Stop", makeActionIntent("stop", REQ_STOP))
             .setLargeIcon(coverBitmap);
+
+        if (coverBitmap != null) {
+            RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notification_media_content);
+            contentView.setImageViewBitmap(R.id.album_art_bg, coverBitmap);
+            contentView.setTextViewText(R.id.title, currentTitle);
+            contentView.setTextViewText(R.id.artist, currentArtist);
+            builder.setCustomContentView(contentView);
+
+            RemoteViews bigContentView = new RemoteViews(getPackageName(), R.layout.notification_media_content);
+            bigContentView.setImageViewBitmap(R.id.album_art_bg, coverBitmap);
+            bigContentView.setTextViewText(R.id.title, currentTitle);
+            bigContentView.setTextViewText(R.id.artist, currentArtist);
+            builder.setCustomBigContentView(bigContentView);
+        }
 
         if (artworkAccentColor != null) {
             builder.setColorized(true).setColor(artworkAccentColor);

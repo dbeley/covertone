@@ -8,6 +8,7 @@
   let { onExpand = () => {} }: { onExpand?: () => void } = $props();
 
   let touchStartY = $state(0);
+  let isAndroid = $state(navigator.userAgent.includes('Android'));
 
   function handleTouchStart(e: TouchEvent) {
     touchStartY = e.touches[0].clientY;
@@ -60,7 +61,9 @@
 
 {#if currentTrack}
   <div
-    class="fixed left-0 right-0 h-16 bg-surface/90 backdrop-blur-xl border-t border-border grid grid-cols-[1fr_auto_1fr] items-center px-4 gap-3 z-50 transition-shadow hover:shadow-lg hover:shadow-black/5"
+    class="fixed left-0 right-0 h-16 bg-surface/90 backdrop-blur-xl border-t border-border grid items-center px-4 gap-3 z-50 transition-shadow hover:shadow-lg hover:shadow-black/5"
+    class:grid-cols-[1fr_auto_1fr]={!isAndroid}
+    class:grid-cols-[1fr_auto_auto]={isAndroid}
     style="bottom: var(--safe-area-inset-bottom, 0px)"
     ontouchstart={handleTouchStart}
     ontouchend={handleTouchEnd}
@@ -95,18 +98,7 @@
       </div>
     </div>
 
-    <div class="flex items-center gap-2 justify-center">
-      <button
-        class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
-        onclick={handlePrev}
-        aria-label="Previous"
-      >
-        <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
-          <polygon points="19,4 7,12 19,20" />
-          <rect x="4" y="4" width="3" height="16" rx="1" />
-        </svg>
-      </button>
-
+    {#if isAndroid}
       <button
         class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
         onclick={handleTogglePlay}
@@ -124,19 +116,72 @@
         {/if}
       </button>
 
-      <button
-        class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
-        onclick={handleNext}
-        aria-label="Next"
-      >
-        <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
-          <polygon points="5,4 17,12 5,20" />
-          <rect x="17" y="4" width="3" height="16" rx="1" />
-        </svg>
-      </button>
+      <div class="flex items-center gap-1">
+        <button
+          class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
+          onclick={handlePrev}
+          aria-label="Previous"
+        >
+          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+            <polygon points="19,4 7,12 19,20" />
+            <rect x="4" y="4" width="3" height="16" rx="1" />
+          </svg>
+        </button>
 
-    </div>
+        <button
+          class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
+          onclick={handleNext}
+          aria-label="Next"
+        >
+          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+            <polygon points="5,4 17,12 5,20" />
+            <rect x="17" y="4" width="3" height="16" rx="1" />
+          </svg>
+        </button>
+      </div>
+    {:else}
+      <div class="flex items-center gap-2 justify-center">
+        <button
+          class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
+          onclick={handlePrev}
+          aria-label="Previous"
+        >
+          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+            <polygon points="19,4 7,12 19,20" />
+            <rect x="4" y="4" width="3" height="16" rx="1" />
+          </svg>
+        </button>
 
-    <div></div>
+        <button
+          class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
+          onclick={handleTogglePlay}
+          aria-label={status === 'playing' ? 'Pause' : 'Play'}
+        >
+          {#if status === 'playing'}
+            <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+              <rect x="6" y="4" width="4" height="16" rx="1" />
+              <rect x="14" y="4" width="4" height="16" rx="1" />
+            </svg>
+          {:else}
+            <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+              <polygon points="6,4 20,12 6,20" />
+            </svg>
+          {/if}
+        </button>
+
+        <button
+          class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
+          onclick={handleNext}
+          aria-label="Next"
+        >
+          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+            <polygon points="5,4 17,12 5,20" />
+            <rect x="17" y="4" width="3" height="16" rx="1" />
+          </svg>
+        </button>
+      </div>
+
+      <div></div>
+    {/if}
   </div>
 {/if}
