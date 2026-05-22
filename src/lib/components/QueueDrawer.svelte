@@ -321,7 +321,7 @@
       onclick={() => queueDrawerOpen.set(false)}
     ></button>
     <div
-      class="relative w-full max-w-lg bg-surface border border-border border-b-0 rounded-t-2xl max-h-[70vh] flex flex-col animate-slide-up shadow-2xl shadow-black/20"
+      class="relative w-full max-w-lg bg-surface border border-border border-b-0 rounded-t-2xl max-h-[55vh] flex flex-col animate-slide-up shadow-2xl shadow-black/20"
       style="padding-bottom: {drawerBottomPadding}; transform: translateY({dragY}px); transition: {dragging ? 'none' : 'transform 0.3s ease-out'}"
       onclick={(e) => e.stopPropagation()}
       ontouchstart={onTouchStart}
