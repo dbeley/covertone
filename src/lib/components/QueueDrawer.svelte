@@ -216,7 +216,12 @@
 </script>
 
 <!-- Desktop side panel -->
-<aside class="hidden md:flex flex-col border-l border-border bg-surface overflow-hidden shrink-0 w-80">
+<aside class="hidden md:flex flex-col bg-surface overflow-hidden shrink-0 transition-all duration-300 ease-out"
+       class:border-l={$queueDrawerOpen}
+       class:border-border={$queueDrawerOpen}
+       class:w-80={$queueDrawerOpen}
+       class:w-0={!$queueDrawerOpen}>
+  {#if $queueDrawerOpen}
     <div class="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
       <h2 class="text-base font-bold">Queue</h2>
       <div class="flex items-center gap-1">
@@ -232,6 +237,16 @@
             </svg>
           </button>
         {/if}
+        <button
+          class="p-2 rounded-xl hover:bg-white/5 text-text-dim hover:text-text transition-all duration-150 active:scale-90"
+          onclick={() => queueDrawerOpen.set(false)}
+          aria-label="Close queue"
+        >
+          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+            <line x1="6" y1="6" x2="18" y2="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <line x1="18" y1="6" x2="6" y2="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
       </div>
     </div>
     <div class="overflow-y-auto flex-1 min-w-0 pb-16">
@@ -293,6 +308,7 @@
         {/each}
       {/if}
     </div>
+  {/if}
 </aside>
 
 <!-- Mobile bottom sheet -->
