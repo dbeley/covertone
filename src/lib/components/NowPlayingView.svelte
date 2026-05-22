@@ -93,13 +93,14 @@
   }
 </script>
 
-<!-- Desktop full-screen overlay -->
+<!-- Full-screen overlay -->
   <div
     class="fixed inset-0 z-50 flex flex-col bg-bg/95 backdrop-blur-xl"
     style="transform: translateY({dragY}px); transition: {dragging ? 'none' : 'transform 0.3s ease-out'}"
     ontouchstart={onTouchStart}
     ontouchmove={onTouchMove}
     ontouchend={onTouchEnd}
+    onkeydown={(e) => { if (e.key === 'Escape') onClose(); }}
     role="dialog"
     aria-label="Now Playing"
     tabindex="-1"
@@ -222,7 +223,7 @@
 
           <button
             class="p-2.5 rounded-xl transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
-            onclick={() => { queueDrawerOpen.set(true); }}
+            onclick={() => queueDrawerOpen.set(true)}
             aria-label="Queue"
           >
             <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
