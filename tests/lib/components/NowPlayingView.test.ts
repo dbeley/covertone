@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/svelte";
 import NowPlayingView from "$lib/components/NowPlayingView.svelte";
 import { player } from "$lib/stores/player";
+import { queueDrawerOpen } from "$lib/stores/queue";
 
 const mockPlayerState = {
   status: "idle" as const,
@@ -96,6 +97,7 @@ describe("NowPlayingView", () => {
     mockPlayerState.favorited = false;
     apiMock.star.mockClear();
     apiMock.unstar.mockClear();
+    queueDrawerOpen.set.mockClear();
   });
 
   it("renders title and artist when playing", () => {
@@ -237,6 +239,7 @@ describe("NowPlayingView", () => {
     render(NowPlayingView, { onClose });
     const queueButton = screen.getByLabelText("Queue");
     await fireEvent.click(queueButton);
+    expect(queueDrawerOpen.set).toHaveBeenCalledWith(true);
     expect(onClose).not.toHaveBeenCalled();
   });
 });
