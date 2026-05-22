@@ -43,6 +43,10 @@ vi.mock("$lib/stores/queue", () => ({
     getPrevious: vi.fn(() => null),
     getNextAutoDJ: vi.fn(() => Promise.resolve(null)),
   },
+  queueDrawerOpen: {
+    subscribe: vi.fn(() => vi.fn()),
+    set: vi.fn(),
+  },
 }));
 
 vi.mock("$lib/stores/settings", () => ({
@@ -217,5 +221,22 @@ describe("NowPlayingView", () => {
     const albumButton = screen.getByText("Test Album");
     albumButton.click();
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("queue button opens queue without closing now playing", async () => {
+    const onClose = vi.fn();
+    mockPlayerState.status = "playing";
+    mockPlayerState.currentTrack = {
+      title: "Test Song",
+      artist: "Test Artist",
+      album: "Test Album",
+      coverArt: "123",
+      artistId: "art1",
+      albumId: "alb1",
+    };
+    render(NowPlayingView, { onClose });
+    const queueButton = screen.getByLabelText("Queue");
+    await fireEvent.click(queueButton);
+    expect(onClose).not.toHaveBeenCalled();
   });
 });
