@@ -17,6 +17,7 @@
   let similarAlbums = $state<Album[]>([]);
   let genreAlbums = $state<Album[]>([]);
   let discoverLoading = $state(false);
+  let refreshLoading = $state(false);
 
   let aiContext = $state<string | null>(null);
   let aiLoading = $state(false);
@@ -68,25 +69,20 @@
     }
   });
 
-  $effect(() => {
+  async function fetchDiscoveries() {
     const track = currentTrack;
-    if (!track || !$discoveryDrawerOpen || activeTab !== 'discover') return;
+    if (!track) return;
 
     const api = new SubsonicAPI({ server: serverUrl, username, password });
-    let cancelled = false;
-    discoverLoading = true;
+    refreshLoading = true;
 
     const promises: Promise<void>[] = [];
 
     if (track.artistId) {
       promises.push(
         fetchSimilarArtistAlbums(api, track.artistId)
-          .then((albums) => {
-            if (!cancelled) similarAlbums = albums;
-          })
-          .catch(() => {
-            if (!cancelled) similarAlbums = [];
-          })
+          .then((albums) => { similarAlbums = albums; })
+          .catch(() => { similarAlbums = []; })
       );
     } else {
       similarAlbums = [];
@@ -95,24 +91,26 @@
     if (track.genre) {
       promises.push(
         fetchGenreAlbums(api, track.genre, track.albumId)
-          .then((albums) => {
-            if (!cancelled) genreAlbums = albums;
-          })
-          .catch(() => {
-            if (!cancelled) genreAlbums = [];
-          })
+          .then((albums) => { genreAlbums = albums; })
+          .catch(() => { genreAlbums = []; })
       );
     } else {
       genreAlbums = [];
     }
 
     Promise.all(promises).finally(() => {
-      if (!cancelled) discoverLoading = false;
+      refreshLoading = false;
     });
+  }
 
-    return () => {
-      cancelled = true;
-    };
+  $effect(() => {
+    const track = currentTrack;
+    if (!track || !$discoveryDrawerOpen || activeTab !== 'discover') return;
+
+    discoverLoading = true;
+    fetchDiscoveries().finally(() => {
+      discoverLoading = false;
+    });
   });
 
   async function fetchSimilarArtistAlbums(api: SubsonicAPI, artistId: string): Promise<Album[]> {
@@ -251,6 +249,20 @@
           <p class="text-sm text-text-dim text-center py-8">No song playing</p>
         {:else if activeTab === 'discover'}
           <div class="px-5 py-4 space-y-6">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-semibold text-text">Discover</h3>
+              <button
+                class="p-1.5 rounded-lg hover:bg-white/5 text-text-dim hover:text-text transition-all duration-150 active:scale-90 disabled:opacity-50"
+                onclick={fetchDiscoveries}
+                disabled={refreshLoading || !currentTrack}
+                aria-label="Refresh recommendations"
+              >
+                <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current {refreshLoading ? 'animate-spin' : ''}">
+                  <path d="M1 4v6h6M23 20v-6h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M20.49 8.49A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15.51" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+            </div>
             {#if discoverLoading}
               <div class="grid grid-cols-2 gap-2">
               {#each [0, 1, 2] as _i (_i)}
@@ -380,6 +392,20 @@
         <p class="text-sm text-text-dim text-center py-8">No song playing</p>
       {:else if activeTab === 'discover'}
         <div class="px-4 py-4 space-y-6">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-text">Discover</h3>
+            <button
+              class="p-1.5 rounded-lg hover:bg-white/5 text-text-dim hover:text-text transition-all duration-150 active:scale-90 disabled:opacity-50"
+              onclick={fetchDiscoveries}
+              disabled={refreshLoading || !currentTrack}
+              aria-label="Refresh recommendations"
+            >
+              <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current {refreshLoading ? 'animate-spin' : ''}">
+                <path d="M1 4v6h6M23 20v-6h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M20.49 8.49A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15.51" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </div>
           {#if discoverLoading}
             <div class="grid grid-cols-2 gap-2">
               {#each [0, 1, 2] as _i (_i)}

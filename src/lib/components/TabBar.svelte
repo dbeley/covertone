@@ -31,8 +31,12 @@
         <span class="truncate">{tab.title}</span>
         <span
           data-tab-close
-          class="flex items-center justify-center w-4 h-4 rounded hover:bg-white/10"
+          role="button"
+          tabindex="0"
+          class="flex items-center justify-center w-4 h-4 rounded hover:bg-white/10 cursor-pointer"
           aria-label="Close tab"
+          onclick={(e) => { e.stopPropagation(); tabsStore.closeTab(tab.id); }}
+          onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); tabsStore.closeTab(tab.id); } }}
         >
           <svg viewBox="0 0 16 16" class="w-3 h-3">
             <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" fill="none" />

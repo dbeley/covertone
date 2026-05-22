@@ -114,9 +114,11 @@
     <div class="flex flex-wrap items-center gap-2 mb-6">
       {#each tabs as tab (tab.key)}
         <button
+          tabindex="0"
           class="whitespace-nowrap px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150 border border-border
                  {activeTab === tab.key ? 'bg-accent text-white border-accent shadow-sm shadow-accent/20' : 'text-text-dim hover:text-text hover:border-accent/30'}"
           onclick={() => switchTab(tab.key)}
+          onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); switchTab(tab.key); } }}
         >
           {tab.label}
         </button>

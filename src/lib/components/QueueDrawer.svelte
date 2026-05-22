@@ -267,13 +267,7 @@
             tabindex="0"
             aria-label={`Play ${item.track.title} by ${item.track.artist}`}
           >
-            <span class="w-5 text-center text-xs text-text-dim shrink-0">
-              {#if index === currentIndex}
-                ▶
-              {:else}
-                {index + 1}
-              {/if}
-            </span>
+            <span class="w-5 text-center text-xs text-text-dim shrink-0">{index + 1}</span>
             <span
               aria-hidden="true"
               data-queue-drag-handle="true"
@@ -370,13 +364,7 @@
               tabindex="0"
               aria-label={`Play ${item.track.title} by ${item.track.artist}`}
             >
-              <span class="w-5 text-center text-xs text-text-dim shrink-0">
-                {#if index === currentIndex}
-                  ▶
-                {:else}
-                  {index + 1}
-                {/if}
-              </span>
+              <span class="w-5 text-center text-xs text-text-dim shrink-0">{index + 1}</span>
               <span
                 aria-hidden="true"
                 data-queue-drag-handle="true"
