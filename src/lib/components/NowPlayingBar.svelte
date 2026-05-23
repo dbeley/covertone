@@ -61,13 +61,15 @@
 
 {#if currentTrack}
   <div
-    class="fixed left-0 right-0 h-16 bg-surface/90 backdrop-blur-xl border-t border-border grid items-center px-4 gap-3 z-50 transition-shadow hover:shadow-lg hover:shadow-black/5"
-    class:grid-cols-[1fr_auto_1fr]={!isAndroid}
-    class:grid-cols-[1fr_auto_auto]={isAndroid}
+    class="fixed left-0 right-0 h-16 bg-surface/90 backdrop-blur-xl border-t border-border grid grid-cols-[1fr_auto_1fr] items-center px-4 gap-3 z-50 transition-shadow hover:shadow-lg hover:shadow-black/5 cursor-pointer"
     style="bottom: var(--safe-area-inset-bottom, 0px)"
     ontouchstart={handleTouchStart}
     ontouchend={handleTouchEnd}
-    role="presentation"
+    onclick={onExpand}
+    onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') onExpand(); }}
+    role="button"
+    tabindex="0"
+    aria-label="Now playing bar - click to expand"
   >
     <button
       class="absolute top-0 left-0 right-0 h-1 bg-text-dim/15 cursor-pointer group block p-0 border-none"
@@ -84,12 +86,7 @@
       ></div>
     </button>
     <div
-      class="flex items-center min-w-0 gap-3 cursor-pointer"
-      onclick={onExpand}
-      onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') onExpand(); }}
-      role="button"
-      tabindex="0"
-      aria-label="Now playing bar"
+      class="flex items-center min-w-0 gap-3"
     >
       <LazyImage src={coverArtUrl} alt="" class="w-10 h-10 rounded-lg object-cover shrink-0 ring-1 ring-border/50" />
       <div class="min-w-0">
@@ -99,24 +96,7 @@
     </div>
 
     {#if isAndroid}
-      <button
-        class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
-        onclick={handleTogglePlay}
-        aria-label={status === 'playing' ? 'Pause' : 'Play'}
-      >
-        {#if status === 'playing'}
-          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
-            <rect x="6" y="4" width="4" height="16" rx="1" />
-            <rect x="14" y="4" width="4" height="16" rx="1" />
-          </svg>
-        {:else}
-          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
-            <polygon points="6,4 20,12 6,20" />
-          </svg>
-        {/if}
-      </button>
-
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-2 justify-center">
         <button
           class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
           onclick={handlePrev}
@@ -130,12 +110,43 @@
 
         <button
           class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
+          onclick={handleTogglePlay}
+          aria-label={status === 'playing' ? 'Pause' : 'Play'}
+        >
+          {#if status === 'playing'}
+            <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+              <rect x="6" y="4" width="4" height="16" rx="1" />
+              <rect x="14" y="4" width="4" height="16" rx="1" />
+            </svg>
+          {:else}
+            <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+              <polygon points="6,4 20,12 6,20" />
+            </svg>
+          {/if}
+        </button>
+
+        <button
+          class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
           onclick={handleNext}
           aria-label="Next"
         >
           <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
             <polygon points="5,4 17,12 5,20" />
             <rect x="17" y="4" width="3" height="16" rx="1" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="flex items-center justify-end">
+        <button
+          class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
+          onclick={(e) => { e.stopPropagation(); queueDrawerOpen.update(v => !v); }}
+          aria-label="Toggle queue"
+        >
+          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+            <rect x="4" y="5" width="16" height="2" rx="1" />
+            <rect x="4" y="11" width="16" height="2" rx="1" />
+            <rect x="4" y="17" width="16" height="2" rx="1" />
           </svg>
         </button>
       </div>

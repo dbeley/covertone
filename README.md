@@ -16,11 +16,84 @@ A modern Subsonic/Navidrome music streaming client for Web / Android tailored to
 ## Features
 
 - **Tabbed browsing** - Switch between up to 10 tabs, each allowing you to navigate to a different part of the library
-- **Discovery panel** - Side panel with music recommendations (similar artists, same genre) and AI-generated context for the currently playing song
+- **Discovery panel** - Side panel with music recommendations (albums from similar artists and same genre) and AI-generated context for the currently playing song
 - **Auto DJ** - When the queue ends, automatically fetches similar songs
 - **Guess the Artist** - Trivia game that plays a song and challenges you to pick the right artist
 - **Random album discovery** - Album views default to random sorting to help you discover music
 - **Cross-platform** - Installable PWA, Android app (via Capacitor), or Docker image
+
+## Keyboard Shortcuts
+
+Covertone can be fully controlled from the keyboard with vim-inspired bindings. The entire UI is keyboard-compatible — all interactive elements (album cards, track rows, tabs, sort controls, and tab close buttons) are part of the `h`/`j`/`k`/`l` navigation grid, so you never need to reach for the mouse.
+
+### Playback
+
+| Key | Action |
+|---|---|
+| `Space` | Play / Pause |
+| `Shift+.` (`>`) | Next track |
+| `Shift+,` (`<`) | Previous track |
+| `s` | Toggle shuffle |
+| `r` | Toggle repeat |
+| `Shift+F` | Toggle favorite |
+| `m` | Mute / Unmute |
+
+### Seeking
+
+| Key | Action |
+|---|---|
+| `b` | Seek backward 10s |
+| `f` | Seek forward 10s |
+
+### History Navigation
+
+| Key | Action |
+|---|---|
+| `Shift+H` | Go back in browser history |
+| `Shift+L` | Go forward in browser history |
+
+### Volume
+
+| Key | Action |
+|---|---|
+| `+` / `=` | Volume up (5%) |
+| `-` | Volume down (5%) |
+
+### Page Navigation
+
+| Key | Action |
+|---|---|
+| `1` | Home |
+| `2` | Albums |
+| `3` | Artists |
+| `4` | Playlists |
+| `5` | Favorites |
+| `7` | Search |
+| `8` | Game |
+| `9` | Settings |
+| `/` | Search (quick) |
+
+### Views
+
+| Key | Action |
+|---|---|
+| `v` | Open now playing view |
+| `q` | Toggle queue |
+| `Escape` | Close overlays / clear selection |
+
+### Vim Movement (h/j/k/l)
+
+Navigate between albums, tracks, and other interactive elements in the current view:
+
+| Key | Action |
+|---|---|
+| `h` | Move left |
+| `l` | Move right |
+| `j` | Move down (next row in grid) |
+| `k` | Move up (previous row in grid) |
+| `Enter` | Activate selected element (open album, play track) |
+
+Grid-aware: `j`/`k` skip by the number of columns in the current layout, so movement works correctly on album grids and track lists alike.
 
 ## Quick start
 

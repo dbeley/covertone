@@ -225,7 +225,7 @@ describe("NowPlayingView", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it("queue button opens queue without closing now playing", async () => {
+  it("queue button closes now playing and opens queue", async () => {
     const onClose = vi.fn();
     mockPlayerState.status = "playing";
     mockPlayerState.currentTrack = {
@@ -240,6 +240,6 @@ describe("NowPlayingView", () => {
     const queueButton = screen.getByLabelText("Queue");
     await fireEvent.click(queueButton);
     expect(queueDrawerOpen.set).toHaveBeenCalledWith(true);
-    expect(onClose).not.toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

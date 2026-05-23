@@ -1,7 +1,6 @@
 <script lang="ts">
   import { settings } from '$lib/stores/settings';
   import { SubsonicAPI } from '$lib/api/SubsonicAPI';
-  import { isNativeAvailable } from '$lib/player/NativeMedia';
   import type { Theme } from '$lib/stores/settings';
 
   let theme = $derived($settings.theme);
@@ -261,22 +260,6 @@
       </div>
     </div>
   </section>
-
-  {#if !isNativeAvailable()}
-  <section class="mb-8">
-    <h3 class="text-lg font-semibold mb-4 tracking-tight">Keyboard Shortcuts</h3>
-    <div class="space-y-2 text-sm">
-      <div class="flex justify-between items-center">
-        <span class="text-text-dim">Play / Pause</span>
-        <kbd class="px-2 py-0.5 bg-surface border border-border rounded-md text-xs font-mono text-text">Space</kbd>
-      </div>
-      <div class="flex justify-between items-center">
-        <span class="text-text-dim">Search</span>
-        <kbd class="px-2 py-0.5 bg-surface border border-border rounded-md text-xs font-mono text-text">Ctrl / ⌘ K</kbd>
-      </div>
-    </div>
-  </section>
-  {/if}
 
   <section>
     <h3 class="text-lg font-semibold mb-4 tracking-tight">About</h3>
