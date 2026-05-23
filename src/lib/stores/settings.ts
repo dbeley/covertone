@@ -15,6 +15,7 @@ export interface SettingsState {
   aiEndpoint: string;
   aiKey: string;
   aiModel: string;
+  accentColor: string;
 }
 
 const STORAGE_KEY = "covertone-settings";
@@ -84,6 +85,29 @@ function persist(state: Partial<SettingsState>): void {
   }
 }
 
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function applyAccentColor(hex: string): void {
+  if (
+    typeof document === "undefined" ||
+    !hex ||
+    !/^#[0-9a-fA-F]{6}$/.test(hex)
+  ) {
+    if (typeof document !== "undefined") {
+      document.documentElement.style.removeProperty("--accent");
+      document.documentElement.style.removeProperty("--ring");
+    }
+    return;
+  }
+  document.documentElement.style.setProperty("--accent", hex);
+  document.documentElement.style.setProperty("--ring", hexToRgba(hex, 0.2));
+}
+
 function createSettings() {
   const persisted = loadPersisted();
   const theme = (persisted.theme as Theme) ?? "system";
@@ -100,7 +124,12 @@ function createSettings() {
     aiEndpoint: persisted.aiEndpoint ?? "https://api.deepseek.com",
     aiKey: persisted.aiKey ?? "",
     aiModel: persisted.aiModel ?? "deepseek-v4-flash",
+    accentColor: persisted.accentColor ?? "",
   });
+
+  if (persisted.accentColor) {
+    applyAccentColor(persisted.accentColor);
+  }
 
   return {
     subscribe,
@@ -166,6 +195,14 @@ function createSettings() {
         return next;
       });
     },
+    setAccentColor(color: string) {
+      update((state) => {
+        const next = { ...state, accentColor: color };
+        persist({ accentColor: color });
+        applyAccentColor(color);
+        return next;
+      });
+    },
     reset() {
       try {
         localStorage.removeItem(STORAGE_KEY);
@@ -184,6 +221,7 @@ function createSettings() {
         aiEndpoint: "https://api.deepseek.com",
         aiKey: "",
         aiModel: "deepseek-v4-flash",
+        accentColor: "",
       });
     },
     reload() {
@@ -201,6 +239,7 @@ function createSettings() {
         aiEndpoint: persisted.aiEndpoint ?? "https://api.deepseek.com",
         aiKey: persisted.aiKey ?? "",
         aiModel: persisted.aiModel ?? "deepseek-v4-flash",
+        accentColor: persisted.accentColor ?? "",
       });
     },
   };

@@ -3,6 +3,7 @@
   import { tabsStore } from '$lib/stores/tabs';
   import { player } from '$lib/stores/player';
   import { discoveryDrawerOpen } from '$lib/stores/discovery';
+  import { shortcutsModalOpen } from '$lib/stores/ui';
 
   let { mobileOpen = false, onNavigate = () => {}, swipeOffset = 0 }: { mobileOpen?: boolean; onNavigate?: () => void; swipeOffset?: number } = $props();
 
@@ -52,6 +53,16 @@
     </button>
   {/each}
   <div class="mt-auto pt-2 border-t border-border space-y-0.5">
+    <button
+      class="w-full text-left px-3 py-2 rounded-xl text-sm font-medium text-text-dim hover:text-text hover:bg-white/5 transition-all duration-150 flex items-center gap-2"
+      onclick={() => shortcutsModalOpen.update(v => !v)}
+    >
+      <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="4" width="20" height="16" rx="2" />
+        <path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M6 16h12" />
+      </svg>
+      Shortcuts
+    </button>
     <button
       class="w-full text-left px-3 py-2 rounded-xl text-sm font-medium text-text-dim hover:text-text hover:bg-white/5 transition-all duration-150 flex items-center gap-2"
       onclick={() => discoveryDrawerOpen.update(v => !v)}

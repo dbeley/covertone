@@ -18,9 +18,11 @@ A modern Subsonic/Navidrome music streaming client for Web / Android tailored to
 - **Tabbed browsing** - Switch between up to 10 tabs, each allowing you to navigate to a different part of the library
 - **Discovery panel** - Side panel with music recommendations (albums from similar artists and same genre) and AI-generated context for the currently playing song
 - **Auto DJ** - When the queue ends, automatically fetches similar songs
-- **Guess the Artist** - Trivia game that plays a song and challenges you to pick the right artist
+- **Full keyboard navigation** - Vim-style bindings (`h`/`j`/`k`/`l`) and numerous shortcuts let you browse, play, and manage the entire UI without touching a mouse
 - **Random album discovery** - Album views default to random sorting to help you discover music
+- **Guess the Artist** - Trivia game with 3 difficulty levels (Easy/Medium/Hard) that plays a song and challenges you to pick the right artist
 - **Cross-platform** - Installable PWA, Android app (via Capacitor), or Docker image
+- **Custom accent color** - Personalize the UI with preset swatches or custom hex color
 
 ## Keyboard Shortcuts
 
@@ -79,6 +81,7 @@ Covertone can be fully controlled from the keyboard with vim-inspired bindings. 
 |---|---|
 | `v` | Open now playing view |
 | `q` | Toggle queue |
+| `?` | Keyboard shortcuts reference |
 | `Escape` | Close overlays / clear selection |
 
 ### Vim Movement (h/j/k/l)

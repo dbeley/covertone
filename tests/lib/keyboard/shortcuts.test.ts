@@ -31,6 +31,10 @@ vi.mock("$lib/stores/ui", () => ({
     set: vi.fn(),
     subscribe: vi.fn((cb: (v: boolean) => void) => { cb(false); return () => {}; }),
   },
+  shortcutsModalOpen: {
+    update: vi.fn(),
+    subscribe: vi.fn((cb: (v: boolean) => void) => { cb(false); return () => {}; }),
+  },
 }));
 
 vi.mock("$lib/stores/queue", () => ({
@@ -188,6 +192,13 @@ describe("keyboard shortcuts", () => {
     focusedIndex.set(2);
     dispatch("Escape");
     expect(get(focusedIndex)).toBe(-1);
+  });
+
+  it("toggles shortcuts modal on ?", async () => {
+    cleanup = initKeyboardShortcuts();
+    dispatch("?");
+    const { shortcutsModalOpen } = await import("$lib/stores/ui");
+    expect(vi.mocked(shortcutsModalOpen.update)).toHaveBeenCalledTimes(1);
   });
 });
 

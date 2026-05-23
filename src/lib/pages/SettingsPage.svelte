@@ -26,6 +26,26 @@
     aiModel = $settings.aiModel;
   });
 
+  let accentColor = $derived.by(() => $settings.accentColor);
+  let customHex = $state('');
+
+  $effect(() => {
+    if (accentColor && /^#[0-9a-fA-F]{6}$/.test(accentColor)) {
+      customHex = accentColor;
+    }
+  });
+
+  const presetColors = [
+    { label: 'Indigo',  value: '#6366f1' },
+    { label: 'Blue',    value: '#3b82f6' },
+    { label: 'Cyan',    value: '#06b6d4' },
+    { label: 'Emerald', value: '#10b981' },
+    { label: 'Amber',   value: '#f59e0b' },
+    { label: 'Rose',    value: '#f43f5e' },
+    { label: 'Violet',  value: '#8b5cf6' },
+    { label: 'Pink',    value: '#ec4899' },
+  ];
+
   const themes: { label: string; value: Theme }[] = [
     { label: 'System', value: 'system' },
     { label: 'Light', value: 'light' },
@@ -170,6 +190,66 @@
   </section>
 
   <section class="mb-8">
+    <h3 class="text-lg font-semibold mb-4 tracking-tight">Accent Color</h3>
+
+    <div class="flex flex-wrap gap-2 mb-4">
+      {#each presetColors as preset (preset.value)}
+        <button
+          class="w-8 h-8 rounded-full border-2 transition-all duration-150 hover:scale-110 active:scale-95
+                 {accentColor === preset.value ? 'border-white ring-2 ring-accent/40' : 'border-border'}"
+          style="background-color: {preset.value}"
+          onclick={() => settings.setAccentColor(preset.value)}
+          aria-label={preset.label}
+          title={preset.label}
+        ></button>
+      {/each}
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="flex-1">
+        <label for="settings-accent-hex" class="block text-sm font-medium text-text-dim mb-1.5">Custom Hex</label>
+        <input
+          id="settings-accent-hex"
+          type="text"
+          bind:value={customHex}
+          placeholder="#6366f1"
+          class="w-full px-4 py-2.5 bg-surface border border-border rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150"
+        />
+      </div>
+      <div class="flex items-end">
+        <button
+          class="px-4 py-2.5 bg-surface border border-border rounded-xl text-sm font-medium hover:border-accent/30 hover:text-text active:scale-[0.98] transition-all duration-150"
+          onclick={() => {
+            if (/^#[0-9a-fA-F]{6}$/.test(customHex)) {
+              settings.setAccentColor(customHex);
+              accentColor = customHex;
+            }
+          }}
+        >
+          Apply
+        </button>
+      </div>
+    </div>
+
+    {#if accentColor}
+      <div class="mt-3 flex items-center gap-2">
+        <span class="text-xs text-text-dim">Current:</span>
+        <span
+          class="inline-block w-4 h-4 rounded-full border border-border"
+          style="background-color: {accentColor}"
+        ></span>
+        <span class="text-xs font-mono">{accentColor}</span>
+        <button
+          class="text-xs text-text-dim hover:text-red-400 transition-colors ml-2"
+          onclick={() => { settings.setAccentColor(''); accentColor = ''; customHex = ''; }}
+        >
+          Reset to default
+        </button>
+      </div>
+    {/if}
+  </section>
+
+  <section class="mb-8">
     <h3 class="text-lg font-semibold mb-4 tracking-tight">Playback</h3>
     <div class="flex items-center gap-3">
       <label class="relative inline-flex items-center cursor-pointer">
@@ -179,7 +259,7 @@
           onchange={(e) => settings.setScrobbleEnabled((e.target as HTMLInputElement).checked)}
           class="sr-only peer"
         />
-        <div class="w-10 h-5 bg-surface border border-border rounded-full peer-checked:bg-accent peer-checked:border-accent transition-all duration-150 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full {!$settings.scrobbleEnabled ? 'opacity-60' : ''}">
+        <div class="w-10 h-5 rounded-full peer-checked:bg-accent peer-checked:border-accent bg-white/5 border border-text-dim/30 transition-all duration-150 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full">
         </div>
       </label>
       <span class="text-sm">Report plays to Navidrome (scrobbling)</span>
@@ -192,7 +272,7 @@
           onchange={(e) => settings.setAutoDJ((e.target as HTMLInputElement).checked)}
           class="sr-only peer"
         />
-        <div class="w-10 h-5 bg-surface border border-border rounded-full peer-checked:bg-accent peer-checked:border-accent transition-all duration-150 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full {!$settings.autoDJ ? 'opacity-60' : ''}">
+        <div class="w-10 h-5 rounded-full peer-checked:bg-accent peer-checked:border-accent bg-white/5 border border-text-dim/30 transition-all duration-150 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full">
         </div>
       </label>
       <span class="text-sm">Auto-fill queue with similar songs when empty (Auto DJ)</span>

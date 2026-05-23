@@ -1,7 +1,7 @@
 import { writable, get } from "svelte/store";
 import { player } from "$lib/stores/player";
 import { router } from "$lib/stores/router";
-import { nowPlayingOpen } from "$lib/stores/ui";
+import { nowPlayingOpen, shortcutsModalOpen } from "$lib/stores/ui";
 import { queueDrawerOpen } from "$lib/stores/queue";
 import { SubsonicAPI } from "$lib/api/SubsonicAPI";
 import { settings } from "$lib/stores/settings";
@@ -198,6 +198,10 @@ function handleKeyDown(e: KeyboardEvent) {
     case "/":
       e.preventDefault();
       router.navigate("/search");
+      break;
+    case "?":
+      e.preventDefault();
+      shortcutsModalOpen.update((v) => !v);
       break;
     case "Escape":
       if (get(nowPlayingOpen)) {

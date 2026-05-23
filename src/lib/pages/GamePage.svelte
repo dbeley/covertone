@@ -24,6 +24,25 @@
   let allSongData = $state<Song[]>([]);
   let guessedArtist = $state('');
 
+  type Difficulty = 'easy' | 'medium' | 'hard';
+
+  interface DifficultyConfig {
+    label: string;
+    description: string;
+    optionCount: number;
+    songFetchCount: number;
+    showCover: boolean;
+    points: number;
+  }
+
+  const difficultyConfigs: Record<Difficulty, DifficultyConfig> = {
+    easy:   { label: 'Easy',   description: '4 options, cover art shown',    optionCount: 4, songFetchCount: 6,  showCover: true,  points: 10 },
+    medium: { label: 'Medium', description: '6 options, cover art shown',    optionCount: 6, songFetchCount: 10, showCover: true,  points: 15 },
+    hard:   { label: 'Hard',   description: '6 options, no cover art hint',  optionCount: 6, songFetchCount: 10, showCover: false, points: 25 },
+  };
+
+  let difficulty = $state<Difficulty>('easy');
+
   function coverUrl(song: Song): string {
     if (!song.coverArt) return '';
     return getCoverArtUrl({ server: serverUrl, username, password, id: song.coverArt, size: 192 });
@@ -43,9 +62,11 @@
     loading = true;
     error = '';
 
+    const config = difficultyConfigs[difficulty];
+
     try {
       const api = new SubsonicAPI({ server: serverUrl, username, password }, 10000);
-      const result = await api.getRandomSongs({ size: 4 });
+      const result = await api.getRandomSongs({ size: config.songFetchCount });
 
       if (!result.randomSongs?.song || result.randomSongs.song.length < 2) {
         error = 'Not enough songs found. Try again.';
@@ -60,14 +81,14 @@
       const artistOptions: string[] = [];
       artistOptions.push(correctArtist);
 
-      for (let i = 1; i < allSongData.length && artistOptions.length < 4; i++) {
+      for (let i = 1; i < allSongData.length && artistOptions.length < config.optionCount; i++) {
         if (!artistOptions.includes(allSongData[i].artist)) {
           artistOptions.push(allSongData[i].artist);
         }
       }
 
       const fallbacks = ['Radiohead', 'The Beatles', 'Miles Davis', 'John Coltrane', 'Aphex Twin', 'Kraftwerk', 'Bjork', 'Pink Floyd'];
-      while (artistOptions.length < 4) {
+      while (artistOptions.length < config.optionCount) {
         const fb = fallbacks.find(f => !artistOptions.includes(f));
         if (fb) artistOptions.push(fb);
         else break;
@@ -96,7 +117,7 @@
 
     if (artist === correctArtist) {
       correctGuess = true;
-      score += 10;
+      score += difficultyConfigs[difficulty].points;
     }
   }
 
@@ -116,8 +137,24 @@
   {#if !configured}
     <p class="text-text-dim">Configure server in Settings to play</p>
   {:else if !gameStarted}
-    <div class="text-center py-20">
+    <div class="text-center py-12">
       <p class="text-lg mb-8 text-text-dim">Guess the artist from a random song</p>
+
+      <div class="space-y-3 mb-8 max-w-xs mx-auto">
+        {#each Object.entries(difficultyConfigs) as [key, config] (key)}
+          <button
+            class="w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150 border text-left
+                   {difficulty === key
+                     ? 'bg-accent/10 border-accent/30 text-accent ring-1 ring-accent/20'
+                     : 'bg-surface border-border text-text-dim hover:text-text hover:border-accent/30'}"
+            onclick={() => difficulty = key as Difficulty}
+          >
+            <span class="font-semibold">{config.label}</span>
+            <span class="block text-xs mt-0.5 opacity-70">{config.description} · +{config.points} pts</span>
+          </button>
+        {/each}
+      </div>
+
       <button
         class="px-6 py-3 bg-accent text-white rounded-xl text-sm font-medium hover:brightness-110 active:scale-[0.98] transition-all duration-150 shadow-lg shadow-accent/20"
         onclick={startGame}
@@ -137,12 +174,12 @@
     </button>
   {:else if currentSong}
     <div class="text-center mb-4">
-      <p class="text-xs text-text-dim uppercase tracking-widest font-medium">Round {round}</p>
+      <p class="text-xs text-text-dim uppercase tracking-widest font-medium">Round {round} · {difficultyConfigs[difficulty].label}</p>
       <p class="text-lg font-bold mt-1">Score: {score}</p>
     </div>
 
     <div class="flex flex-col items-center gap-4 mb-6">
-      {#if currentSong.coverArt}
+      {#if difficultyConfigs[difficulty].showCover && currentSong.coverArt}
         <LazyImage
           src={coverUrl(currentSong)}
           alt=""
@@ -174,7 +211,7 @@
     {#if guessed}
       <div class="text-center mb-6">
         {#if correctGuess}
-          <p class="text-green-500 font-bold text-lg">Correct! +10</p>
+          <p class="text-green-500 font-bold text-lg">Correct! +{difficultyConfigs[difficulty].points}</p>
         {:else}
           <p class="text-red-500 font-bold">
             Wrong! The answer was <span class="text-accent">{correctArtist}</span>

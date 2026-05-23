@@ -19,7 +19,7 @@ CI runs: `lint:eslint` → `lint:format` → `lint:svelte` → `test` → `build
 
 ## Architecture
 
-- **No SvelteKit.** Plain Svelte 5 with `mount()` in `src/main.ts`. Hash-based routing in `src/lib/stores/router.ts` — links use `#/path` format. Routes defined in `src/lib/components/AppShell.svelte`: `/`, `/albums`, `/artists`, `/playlists`, `/album/:id`, `/artist/:id`, `/playlist/:id`, `/search`, `/game`, `/settings`.
+- **No SvelteKit.** Plain Svelte 5 with `mount()` in `src/main.ts`. Hash-based routing in `src/lib/stores/router.ts` — links use `#/path` format. Routes defined in `src/lib/components/AppShell.svelte`: `/`, `/albums`, `/artists`, `/playlists`, `/favorites`, `/album/:id`, `/artist/:id`, `/playlist/:id`, `/search`, `/game`, `/settings`.
 - **`$lib`** path alias → `src/lib/`. Tests use `$lib` too (vitest config mirrors vite config alias).
 - **All tests** in `tests/` mirror `src/lib/` structure. Pattern: `tests/**/*.test.ts`. Vitest uses jsdom + `passWithNoTests: true`.
 - **`src/lib/api/SubsonicAPI.ts`** — Subsonic REST client. Auth: `md5(password + salt)` token. `globalThis.fetch` is mocked in tests via `vi.fn()`.
