@@ -68,9 +68,9 @@ Covertone can be fully controlled from the keyboard with vim-inspired bindings. 
 | `3` | Artists |
 | `4` | Playlists |
 | `5` | Favorites |
-| `7` | Search |
-| `8` | Game |
-| `9` | Settings |
+| `6` | Search |
+| `7` | Game |
+| `8` | Settings |
 | `/` | Search (quick) |
 
 ### Views

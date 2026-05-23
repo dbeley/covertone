@@ -229,15 +229,15 @@ function handleKeyDown(e: KeyboardEvent) {
       e.preventDefault();
       router.navigate("/favorites");
       break;
-    case "7":
+    case "6":
       e.preventDefault();
       router.navigate("/search");
       break;
-    case "8":
+    case "7":
       e.preventDefault();
       router.navigate("/game");
       break;
-    case "9":
+    case "8":
       e.preventDefault();
       router.navigate("/settings");
       break;
