@@ -2,7 +2,7 @@
   import { player } from '$lib/stores/player';
   import { queue, queueDrawerOpen } from '$lib/stores/queue';
   import { settings } from '$lib/stores/settings';
-  import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
+  import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import LazyImage from '$lib/components/LazyImage.svelte';
 
   let { onExpand = () => {} }: { onExpand?: () => void } = $props();
@@ -26,11 +26,29 @@
   let serverUrl = $derived($settings.serverUrl);
   let username = $derived($settings.username);
   let password = $derived($settings.password);
+  let favorited = $derived($player.favorited);
   let coverArtUrl = $derived(
     currentTrack?.coverArt
       ? getCoverArtUrl({ server: serverUrl, username, password, id: currentTrack.coverArt, size: 80 })
       : ''
   );
+
+  async function toggleFavorite(e: MouseEvent) {
+    e.stopPropagation();
+    const newState = !favorited;
+    player.setFavorited(newState);
+    if (!currentTrack) return;
+    try {
+      const api = new SubsonicAPI({ server: serverUrl, username, password });
+      if (newState) {
+        await api.star({ id: currentTrack.id });
+      } else {
+        await api.unstar({ id: currentTrack.id });
+      }
+    } catch {
+      // fire-and-forget
+    }
+  }
 
   function handlePrev(e: MouseEvent) {
     e.stopPropagation();
@@ -153,7 +171,16 @@
         </button>
       </div>
 
-      <div class="flex items-center justify-end">
+      <div class="flex items-center justify-end gap-1">
+        <button
+          class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 {favorited ? 'text-accent' : 'text-text-dim hover:text-text hover:bg-white/5'}"
+          onclick={toggleFavorite}
+          aria-label="Favorite"
+        >
+          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+          </svg>
+        </button>
         <button
           class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
           onclick={(e) => { e.stopPropagation(); queueDrawerOpen.update(v => !v); }}
@@ -208,7 +235,16 @@
         </button>
       </div>
 
-      <div class="flex items-center justify-end">
+      <div class="flex items-center justify-end gap-1">
+        <button
+          class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 {favorited ? 'text-accent' : 'text-text-dim hover:text-text hover:bg-white/5'}"
+          onclick={toggleFavorite}
+          aria-label="Favorite"
+        >
+          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+          </svg>
+        </button>
         <button
           class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
           onclick={(e) => { e.stopPropagation(); queueDrawerOpen.update(v => !v); }}
