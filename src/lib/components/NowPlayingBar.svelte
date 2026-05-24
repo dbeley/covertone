@@ -49,11 +49,20 @@
     if (next) player.playTrack(next);
   }
 
-  function handleSeek(e: MouseEvent) {
+  function handleSeek(e: MouseEvent | TouchEvent) {
     e.stopPropagation();
     const bar = e.currentTarget as HTMLElement;
     const rect = bar.getBoundingClientRect();
-    const x = e.clientX - rect.left;
+    const x = (e instanceof MouseEvent ? e.clientX : e.touches[0].clientX) - rect.left;
+    const pct = Math.max(0, Math.min(1, x / rect.width));
+    player.seek(pct * duration);
+  }
+
+  function handleSeekMove(e: MouseEvent | TouchEvent) {
+    e.preventDefault();
+    const bar = e.currentTarget as HTMLElement;
+    const rect = bar.getBoundingClientRect();
+    const x = (e instanceof MouseEvent ? e.clientX : e.touches[0].clientX) - rect.left;
     const pct = Math.max(0, Math.min(1, x / rect.width));
     player.seek(pct * duration);
   }
@@ -72,16 +81,23 @@
     aria-label="Now playing bar - click to expand"
   >
     <button
-      class="absolute top-0 left-0 right-0 h-1 bg-text-dim/15 cursor-pointer group block p-0 border-none"
+      class="absolute top-0 left-0 right-0 h-4 cursor-pointer group block p-0 border-none bg-transparent"
       onclick={handleSeek}
+      ontouchstart={handleSeek}
+      ontouchmove={handleSeekMove}
       onkeydown={(e) => { if (e.key === 'ArrowRight') player.seek(Math.min(duration, currentTime + 5)); else if (e.key === 'ArrowLeft') player.seek(Math.max(0, currentTime - 5)); }}
       aria-label="Seek"
+      style="touch-action: none"
     >
-      <div
-        class="h-full bg-accent transition-[width] duration-200 ease-linear"
-        style="width: {duration > 0 ? (currentTime / duration) * 100 : 0}%"
-      ></div>
-      <div class="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity -ml-1"
+      <div class="h-full flex items-center">
+        <div class="w-full h-1 bg-text-dim/15 rounded-full overflow-hidden">
+          <div
+            class="h-full bg-accent transition-[width] duration-200 ease-linear"
+            style="width: {duration > 0 ? (currentTime / duration) * 100 : 0}%"
+          ></div>
+        </div>
+      </div>
+      <div class="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity -ml-1.5"
         style="left: {duration > 0 ? (currentTime / duration) * 100 : 0}%"
       ></div>
     </button>
