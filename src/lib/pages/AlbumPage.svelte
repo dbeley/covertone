@@ -6,6 +6,7 @@
   import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import LazyImage from '$lib/components/LazyImage.svelte';
   import TrackList from '$lib/components/TrackList.svelte';
+  import BackButton from '$lib/components/BackButton.svelte';
   import type { Song, Album } from '$lib/api/types';
 
   let albumId = $derived($router.extractParams('/album/:id').id);
@@ -88,7 +89,8 @@
   {:else if error}
     <p class="text-red-500">{error}</p>
   {:else if album && songs.length > 0}
-    <div class="flex flex-col sm:flex-row items-start gap-6 mb-8">
+    <BackButton />
+    <div class="flex flex-col sm:flex-row items-start gap-6 mb-8 mt-4">
       <LazyImage src={coverArtUrl} alt="" loading="lazy" decoding="async" class="w-48 h-48 rounded-2xl object-cover shadow-xl shadow-black/10 ring-1 ring-border/50" />
       <div class="flex flex-col justify-center gap-2">
         <p class="text-xs text-text-dim uppercase tracking-widest font-medium">Album</p>
