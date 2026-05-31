@@ -8,6 +8,7 @@ const mockEngine = {
   load: vi.fn(),
   play: vi.fn().mockImplementation(() => {
     mockPaused = false;
+    return Promise.resolve();
   }),
   pause: vi.fn().mockImplementation(() => {
     mockPaused = true;

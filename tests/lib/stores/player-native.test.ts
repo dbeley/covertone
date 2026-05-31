@@ -15,7 +15,7 @@ Object.defineProperty(window, "NativeMedia", {
 
 const mockEngine = {
   load: vi.fn(),
-  play: vi.fn(),
+  play: vi.fn().mockResolvedValue(undefined),
   pause: vi.fn(),
   destroy: vi.fn(),
   onTimeUpdate: vi.fn(),
