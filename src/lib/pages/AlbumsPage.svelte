@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { get } from 'svelte/store';
   import { library } from '$lib/stores/library';
   import { settings } from '$lib/stores/settings';
   import AlbumGrid from '$lib/components/AlbumGrid.svelte';
@@ -31,8 +32,9 @@
   }
 
   function loadMore() {
-    if (loading || !hasMore) return;
-    library.fetchAlbums({ type: activeTab, offset: albums.length });
+    const state = get(library);
+    if (state.loading || !state.hasMore) return;
+    library.fetchAlbums({ type: activeTab, offset: state.albums.length });
   }
 
   // Auto-load more if the sentinel is still visible after a fetch completes

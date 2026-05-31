@@ -44,13 +44,14 @@ function createTabsStore() {
         if (state.tabs.length >= MAX_TABS) return state;
         const newTabs = [...state.tabs];
         if (state.tabs.length === 0 && currentRoute) {
-          const firstId = `tab-${nextId++}`;
+          const id = `tab-${nextId++}`;
           newTabs.push({
-            id: firstId,
+            id,
             route: currentRoute,
             title: routeToTitle(currentRoute),
             scrollY: 0,
           });
+          return { tabs: newTabs, activeTabId: id };
         }
         const id = `tab-${nextId++}`;
         newTabs.push({ id, route: "/", title: "Home", scrollY: 0 });

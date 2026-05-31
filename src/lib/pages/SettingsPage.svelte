@@ -92,7 +92,7 @@
           messages: [{ role: 'user', content: 'Say "ok" and nothing else.' }],
           max_tokens: 10,
         }),
-        signal: new AbortController().signal,
+        signal: AbortSignal.timeout(30000),
       });
       aiTestStatus = res.ok ? 'success' : 'error';
     } catch {
