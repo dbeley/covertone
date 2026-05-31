@@ -292,7 +292,6 @@ export class SubsonicAPI {
       time: params.time,
       submission: (params.submission ?? true) ? 1 : 0,
     });
-    this.invalidateCache();
   }
 
   async getPlaylists(): Promise<{ playlists: { playlist: Playlist[] } }> {
@@ -322,7 +321,8 @@ export class SubsonicAPI {
     artistId?: string;
   }): Promise<void> {
     await this.request(ENDPOINTS.star, params);
-    this.invalidateCache();
+    cacheInvalidate("getStarred");
+    cacheInvalidate("getAlbumList");
   }
 
   async unstar(params: {
@@ -331,7 +331,8 @@ export class SubsonicAPI {
     artistId?: string;
   }): Promise<void> {
     await this.request(ENDPOINTS.unstar, params);
-    this.invalidateCache();
+    cacheInvalidate("getStarred");
+    cacheInvalidate("getAlbumList");
   }
 }
 
