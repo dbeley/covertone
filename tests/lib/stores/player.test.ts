@@ -86,9 +86,9 @@ describe("player store", () => {
     player.setStreamBase("https://example.com/rest/stream?id=");
     player.playTrack(mockSong);
 
-    expect(mockEngine.onTimeUpdate).toHaveBeenCalledWith(expect.any(Function));
-    expect(mockEngine.onEnded).toHaveBeenCalledWith(expect.any(Function));
-    expect(mockEngine.onLoaded).toHaveBeenCalledWith(expect.any(Function));
+    expect(mockEngine.onTimeUpdate).toHaveBeenCalledWith(expect.anything());
+    expect(mockEngine.onEnded).toHaveBeenCalledWith(expect.anything());
+    expect(mockEngine.onLoaded).toHaveBeenCalledWith(expect.anything());
   });
 
   it("playTrack destroys previous engine before creating new one", () => {
@@ -221,8 +221,8 @@ describe("player store", () => {
   it("engine timeupdate callback updates store", () => {
     player.setStreamBase("https://example.com/rest/stream?id=");
 
-    let timeCb: Function | null = null;
-    mockEngine.onTimeUpdate.mockImplementation((cb: Function) => {
+    let timeCb: ((...args: unknown[]) => void) | null = null;
+    mockEngine.onTimeUpdate.mockImplementation((cb: (...args: unknown[]) => void) => {
       timeCb = cb;
     });
 
@@ -236,8 +236,8 @@ describe("player store", () => {
   it("engine onLoaded callback updates store", () => {
     player.setStreamBase("https://example.com/rest/stream?id=");
 
-    let loadedCb: Function | null = null;
-    mockEngine.onLoaded.mockImplementation((cb: Function) => {
+    let loadedCb: ((...args: unknown[]) => void) | null = null;
+    mockEngine.onLoaded.mockImplementation((cb: (...args: unknown[]) => void) => {
       loadedCb = cb;
     });
 
@@ -249,8 +249,8 @@ describe("player store", () => {
   it("engine onEnded callback sets status to ended/idle", () => {
     player.setStreamBase("https://example.com/rest/stream?id=");
 
-    let endedCb: Function | null = null;
-    mockEngine.onEnded.mockImplementation((cb: Function) => {
+    let endedCb: ((...args: unknown[]) => void) | null = null;
+    mockEngine.onEnded.mockImplementation((cb: (...args: unknown[]) => void) => {
       endedCb = cb;
     });
 

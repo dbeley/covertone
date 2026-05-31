@@ -7,7 +7,7 @@
   import LazyImage from '$lib/components/LazyImage.svelte';
   import type { Album } from '$lib/api/types';
 
-  let { album, coverArtUrl, serverUrl, username, password }: {
+  let { album, coverArtUrl }: {
     album: Album;
     coverArtUrl: string;
     serverUrl: string;

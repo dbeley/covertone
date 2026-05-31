@@ -5,7 +5,6 @@ import { nowPlayingOpen, shortcutsModalOpen } from "$lib/stores/ui";
 import { queueDrawerOpen } from "$lib/stores/queue";
 import { discoveryDrawerOpen } from "$lib/stores/discovery";
 import { library } from "$lib/stores/library";
-import { settings } from "$lib/stores/settings";
 
 export const focusedIndex = writable(-1);
 

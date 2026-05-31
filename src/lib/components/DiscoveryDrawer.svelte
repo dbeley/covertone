@@ -131,7 +131,7 @@
 
     const artists = await Promise.all(similarArtists.map((a) => api.getArtist({ id: a.id })));
 
-    const seen = new Set<string>();
+    const seen = new Set<string>(); // eslint-disable-line svelte/prefer-svelte-reactivity
     const albums: Album[] = [];
     for (const a of artists) {
       for (const album of a.artist.album ?? []) {

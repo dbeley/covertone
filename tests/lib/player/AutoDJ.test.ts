@@ -3,8 +3,8 @@ import { AutoDJ } from "$lib/player/AutoDJ";
 import type { Song } from "$lib/api/types";
 
 function createMockApi(
-  getSimilarSongsImpl?: Function,
-  getRandomSongsImpl?: Function,
+  getSimilarSongsImpl?: (...args: unknown[]) => unknown,
+  getRandomSongsImpl?: (...args: unknown[]) => unknown,
 ) {
   return {
     getSimilarSongs: vi.fn(

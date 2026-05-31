@@ -45,6 +45,7 @@ export default tseslint.config(
         MediaQueryListEvent: 'readonly',
         NodeJS: 'readonly',
         AbortController: 'readonly',
+        AbortSignal: 'readonly',
       },
     },
   },
