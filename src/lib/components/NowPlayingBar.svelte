@@ -53,8 +53,7 @@
 
   function handlePrev(e: MouseEvent) {
     e.stopPropagation();
-    const prev = queue.getPrevious();
-    if (prev) player.playTrack(prev);
+    player.handlePreviousTrack();
   }
 
   function handleTogglePlay(e: MouseEvent) {

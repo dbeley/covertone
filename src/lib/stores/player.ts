@@ -53,11 +53,18 @@ function createPlayer() {
   }
 
   let lastTrack: Song | null = null;
+  let lastPrevTapTime = 0;
   let nativeMediaCleanup: (() => void) | null = null;
   const coverUrl = (track: Song | null): string | undefined => {
     if (!track?.coverArt) return undefined;
     const s = get(settings);
-    return getCoverArtUrl({ server: s.serverUrl, username: s.username, password: s.password, id: track.coverArt, size: 512 });
+    return getCoverArtUrl({
+      server: s.serverUrl,
+      username: s.username,
+      password: s.password,
+      id: track.coverArt,
+      size: 512,
+    });
   };
 
   nativeMediaCleanup = NativeMedia.listen({
@@ -99,10 +106,8 @@ function createPlayer() {
       const next = await queue.getNextAutoDJ();
       if (next) player.playTrack(next);
     },
-    onPrev: async () => {
-      const { queue } = await import("$lib/stores/queue");
-      const prev = queue.getPrevious();
-      if (prev) player.playTrack(prev);
+    onPrev: () => {
+      player.handlePreviousTrack();
     },
   });
 
@@ -142,7 +147,10 @@ function createPlayer() {
 
       const currentEngine = engine;
       engine.onTimeUpdate(() => {
-        update((s) => ({ ...s, currentTime: currentEngine?.getCurrentTime() ?? 0 }));
+        update((s) => ({
+          ...s,
+          currentTime: currentEngine?.getCurrentTime() ?? 0,
+        }));
       });
       engine.onEnded(async () => {
         update((s) => {
@@ -252,6 +260,20 @@ function createPlayer() {
     },
     seek(time: number) {
       if (engine) engine.seek(time);
+    },
+    handlePreviousTrack() {
+      const now = Date.now();
+      const state = get(store);
+      if (state.currentTime > 3 && now - lastPrevTapTime > 3000) {
+        lastPrevTapTime = now;
+        this.seek(0);
+        return;
+      }
+      lastPrevTapTime = now;
+      import("$lib/stores/queue").then(({ queue }) => {
+        const prev = queue.getPrevious();
+        if (prev) this.playTrack(prev);
+      });
     },
     setVolume(volume: number) {
       if (engine) engine.setVolume(volume);

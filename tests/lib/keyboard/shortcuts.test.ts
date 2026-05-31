@@ -13,6 +13,7 @@ vi.mock("$lib/stores/player", () => ({
     setFavorited: vi.fn(),
     setVolume: vi.fn(),
     seek: vi.fn(),
+    handlePreviousTrack: vi.fn(),
     subscribe: vi.fn((cb: (s: any) => void) => {
       cb({ shuffle: false, repeating: false, favorited: false, volume: 1, currentTime: 0, duration: 100, currentTrack: { id: "t1" } });
       return () => {};

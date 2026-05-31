@@ -115,10 +115,7 @@ function handleKeyDown(e: KeyboardEvent) {
       case ",":
       case "<":
         e.preventDefault();
-        import("$lib/stores/queue").then(({ queue }) => {
-          const prev = queue.getPrevious();
-          if (prev) player.playTrack(prev);
-        });
+        player.handlePreviousTrack();
         break;
       case ".":
       case ">":

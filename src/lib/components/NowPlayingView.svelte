@@ -64,8 +64,7 @@
   }
 
   function handlePrev() {
-    const prev = queue.getPrevious();
-    if (prev) player.playTrack(prev);
+    player.handlePreviousTrack();
   }
 
   async function handleNext() {
