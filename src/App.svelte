@@ -5,7 +5,8 @@
   import { settings } from '$lib/stores/settings';
   import { player } from '$lib/stores/player';
   import { queue, queueDrawerOpen } from '$lib/stores/queue';
-  import { nowPlayingOpen } from '$lib/stores/ui';
+  import { nowPlayingOpen, shortcutsModalOpen } from '$lib/stores/ui';
+  import { discoveryDrawerOpen } from '$lib/stores/discovery';
   import { getStreamBaseUrl } from '$lib/api/SubsonicAPI';
   import { SubsonicAPI } from '$lib/api/SubsonicAPI';
   import { AutoDJ } from '$lib/player/AutoDJ';
@@ -28,15 +29,19 @@
             canGoBack,
             isQueueDrawerOpen: get(queueDrawerOpen),
             isNowPlayingOpen: get(nowPlayingOpen),
+            isDiscoveryDrawerOpen: get(discoveryDrawerOpen),
+            isShortcutsModalOpen: get(shortcutsModalOpen),
             closeQueueDrawer: () => queueDrawerOpen.set(false),
             closeNowPlaying: () => nowPlayingOpen.set(false),
+            closeDiscoveryDrawer: () => discoveryDrawerOpen.set(false),
+            closeShortcutsModal: () => shortcutsModalOpen.set(false),
             goBack: () => window.history.back(),
             exitApp: () => App.exitApp(),
           });
         }).then((handle) => {
           removeBackListener = () => handle.remove();
         });
-      });
+      }).catch(() => {});
     }
 
     return () => {
@@ -58,28 +63,26 @@
     }
   });
 
-  $effect(() => {
-    if ($settings.isConfigured) {
-      const baseUrl = getStreamBaseUrl({
-        server: $settings.serverUrl,
-        username: $settings.username,
-        password: $settings.password,
-      });
-      player.setStreamBase(baseUrl);
-      player.setApiConfig({
-        server: $settings.serverUrl,
-        username: $settings.username,
-        password: $settings.password,
-      });
+  let configServerUrl = $derived($settings.serverUrl);
+  let configUsername = $derived($settings.username);
+  let configPassword = $derived($settings.password);
+  let configAutoDJ = $derived($settings.autoDJ);
+  let configIsConfigured = $derived($settings.isConfigured);
 
-      const api = new SubsonicAPI({
-        server: $settings.serverUrl,
-        username: $settings.username,
-        password: $settings.password,
-      });
-      queue.setAutoDJInstance(new AutoDJ(api));
-      queue.setAutoDJ($settings.autoDJ);
-    }
+  $effect(() => {
+    const srv = configServerUrl;
+    const usr = configUsername;
+    const pwd = configPassword;
+    const autoDJEnabled = configAutoDJ;
+    if (!configIsConfigured) return;
+
+    const baseUrl = getStreamBaseUrl({ server: srv, username: usr, password: pwd });
+    player.setStreamBase(baseUrl);
+    player.setApiConfig({ server: srv, username: usr, password: pwd });
+
+    const api = new SubsonicAPI({ server: srv, username: usr, password: pwd });
+    queue.setAutoDJInstance(new AutoDJ(api));
+    queue.setAutoDJ(autoDJEnabled);
   });
 </script>
 

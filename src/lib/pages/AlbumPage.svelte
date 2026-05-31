@@ -7,6 +7,7 @@
   import LazyImage from '$lib/components/LazyImage.svelte';
   import TrackList from '$lib/components/TrackList.svelte';
   import BackButton from '$lib/components/BackButton.svelte';
+  import { formatDuration } from '$lib/utils/format';
   import type { Song, Album } from '$lib/api/types';
 
   let albumId = $derived($router.extractParams('/album/:id').id);
@@ -42,12 +43,6 @@
     } catch {
       // fire-and-forget
     }
-  }
-
-  function formatDuration(seconds: number): string {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
   }
 
   $effect(() => {

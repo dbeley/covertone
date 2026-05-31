@@ -26,7 +26,6 @@ describe("router store", () => {
     router.reset();
     const route = get(router);
     expect(route.path).toBe("/");
-    expect(route.params).toEqual({});
   });
 
   it("parses path from hash", () => {
@@ -34,7 +33,6 @@ describe("router store", () => {
     router.reset();
     const route = get(router);
     expect(route.path).toBe("/albums");
-    expect(route.params).toEqual({});
   });
 
   it("navigate updates hash", () => {

@@ -1,7 +1,7 @@
 import { writable, get } from "svelte/store";
 import type { Writable } from "svelte/store";
 import { AudioEngine } from "$lib/player/AudioEngine";
-import { scrobbleTrack } from "$lib/api/SubsonicAPI";
+import { scrobbleTrack, getCoverArtUrl } from "$lib/api/SubsonicAPI";
 import { settings } from "$lib/stores/settings";
 import * as NativeMedia from "$lib/player/NativeMedia";
 import type { Song } from "$lib/api/types";
@@ -53,13 +53,21 @@ function createPlayer() {
   }
 
   let lastTrack: Song | null = null;
-  const getCoverArtUrl = (track: Song | null): string | undefined => {
+  let lastPrevTapTime = 0;
+  let nativeMediaCleanup: (() => void) | null = null;
+  const coverUrl = (track: Song | null): string | undefined => {
     if (!track?.coverArt) return undefined;
     const s = get(settings);
-    return `${s.serverUrl.replace(/\/$/, "")}/rest/getCoverArt?id=${track.coverArt}&size=512`;
+    return getCoverArtUrl({
+      server: s.serverUrl,
+      username: s.username,
+      password: s.password,
+      id: track.coverArt,
+      size: 512,
+    });
   };
 
-  NativeMedia.listen({
+  nativeMediaCleanup = NativeMedia.listen({
     onPlay: () => {
       if (lastTrack && streamBase) {
         if (engine) {
@@ -70,7 +78,7 @@ function createPlayer() {
             NativeMedia.showPlaying(
               s.currentTrack.title,
               s.currentTrack.artist,
-              getCoverArtUrl(s.currentTrack),
+              coverUrl(s.currentTrack),
             );
         } else {
           player.playTrack(lastTrack);
@@ -85,7 +93,7 @@ function createPlayer() {
         NativeMedia.showPaused(
           s.currentTrack.title,
           s.currentTrack.artist,
-          getCoverArtUrl(s.currentTrack),
+          coverUrl(s.currentTrack),
         );
     },
     onStop: () => {
@@ -99,10 +107,7 @@ function createPlayer() {
       if (next) player.playTrack(next);
     },
     onPrev: () => {
-      import("$lib/stores/queue").then(({ queue }) => {
-        const prev = queue.getPrevious();
-        if (prev) player.playTrack(prev);
-      });
+      player.handlePreviousTrack();
     },
   });
 
@@ -126,19 +131,26 @@ function createPlayer() {
       const currentState = get(store);
 
       if (currentState.currentTrack && !scrobbled) {
-        fireScrobble(
-          currentState.currentTrack.id,
-          true,
-          Math.floor(currentState.currentTime),
-        );
+        const minScrobbleTime = Math.min(30, currentState.duration / 2);
+        if (currentState.currentTime >= minScrobbleTime) {
+          fireScrobble(
+            currentState.currentTrack.id,
+            true,
+            Math.floor(currentState.currentTime),
+          );
+        }
       }
 
       if (engine) engine.destroy();
       engine = new AudioEngine();
       scrobbled = false;
 
+      const currentEngine = engine;
       engine.onTimeUpdate(() => {
-        update((s) => ({ ...s, currentTime: engine!.getCurrentTime() }));
+        update((s) => ({
+          ...s,
+          currentTime: currentEngine?.getCurrentTime() ?? 0,
+        }));
       });
       engine.onEnded(async () => {
         update((s) => {
@@ -186,9 +198,11 @@ function createPlayer() {
       }
 
       engine.load(`${streamBase}${track.id}`);
-      engine.play();
+      engine.play().catch(() => {
+        update((s) => ({ ...s, status: "paused" }));
+      });
 
-      const artUrl = getCoverArtUrl(track);
+      const artUrl = coverUrl(track);
       NativeMedia.showPlaying(track.title, track.artist, artUrl);
       fireScrobble(track.id, false);
     },
@@ -201,7 +215,7 @@ function createPlayer() {
           NativeMedia.showPaused(
             s.currentTrack.title,
             s.currentTrack.artist,
-            getCoverArtUrl(s.currentTrack),
+            coverUrl(s.currentTrack),
           );
       }
     },
@@ -214,7 +228,7 @@ function createPlayer() {
           NativeMedia.showPlaying(
             s.currentTrack.title,
             s.currentTrack.artist,
-            getCoverArtUrl(s.currentTrack),
+            coverUrl(s.currentTrack),
           );
       }
     },
@@ -247,6 +261,20 @@ function createPlayer() {
     seek(time: number) {
       if (engine) engine.seek(time);
     },
+    handlePreviousTrack() {
+      const now = Date.now();
+      const state = get(store);
+      if (state.currentTime > 3 && now - lastPrevTapTime > 3000) {
+        lastPrevTapTime = now;
+        this.seek(0);
+        return;
+      }
+      lastPrevTapTime = now;
+      import("$lib/stores/queue").then(({ queue }) => {
+        const prev = queue.getPrevious();
+        if (prev) this.playTrack(prev);
+      });
+    },
     setVolume(volume: number) {
       if (engine) engine.setVolume(volume);
       update((s) => ({ ...s, volume }));
@@ -265,6 +293,10 @@ function createPlayer() {
     },
     reset() {
       lastTrack = null;
+      if (nativeMediaCleanup) {
+        nativeMediaCleanup();
+        nativeMediaCleanup = null;
+      }
       import("$lib/stores/queue").then(({ queue }) => {
         queue.syncCurrentTrack(null);
       });

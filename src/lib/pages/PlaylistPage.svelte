@@ -7,6 +7,7 @@
   import LazyImage from '$lib/components/LazyImage.svelte';
   import TrackList from '$lib/components/TrackList.svelte';
   import BackButton from '$lib/components/BackButton.svelte';
+  import { formatDuration, shuffle } from '$lib/utils/format';
   import type { Song, Playlist } from '$lib/api/types';
 
   let playlistId = $derived($router.extractParams('/playlist/:id').id);
@@ -25,14 +26,6 @@
       ? getCoverArtUrl({ server: serverUrl, username, password, id: playlist.coverArt, size: 192 })
       : ''
   );
-
-  function formatDuration(seconds: number): string {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = Math.floor(seconds % 60).toString().padStart(2, '0');
-    if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s}`;
-    return `${m}:${s}`;
-  }
 
   $effect(() => {
     if (!$settings.isConfigured) { loading = false; return; }
@@ -119,7 +112,7 @@
           <button
             class="px-5 py-2.5 bg-surface border border-border rounded-xl text-sm font-medium hover:border-accent/30 active:scale-[0.98] transition-all duration-150"
             onclick={() => {
-              const shuffled = [...songs].sort(() => Math.random() - 0.5);
+              const shuffled = shuffle(songs);
               queue.replaceAll(shuffled);
               player.playTrack(shuffled[0]);
             }}

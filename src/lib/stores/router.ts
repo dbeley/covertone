@@ -2,7 +2,6 @@ import { writable } from "svelte/store";
 
 export interface Route {
   path: string;
-  params: Record<string, string>;
   matches: (pattern: string) => boolean;
   extractParams: (pattern: string) => Record<string, string>;
 }
@@ -37,9 +36,6 @@ function parseRoute(hash: string): Route {
 
   return {
     path,
-    get params(): Record<string, string> {
-      return {};
-    },
     matches(pattern: string): boolean {
       return doMatch(pattern).matched;
     },

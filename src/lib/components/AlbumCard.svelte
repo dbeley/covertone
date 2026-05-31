@@ -3,11 +3,11 @@
   import { router } from '$lib/stores/router';
   import { player } from '$lib/stores/player';
   import { queue } from '$lib/stores/queue';
-  import { SubsonicAPI } from '$lib/api/SubsonicAPI';
+  import { library } from '$lib/stores/library';
   import LazyImage from '$lib/components/LazyImage.svelte';
   import type { Album } from '$lib/api/types';
 
-  let { album, coverArtUrl, serverUrl, username, password }: {
+  let { album, coverArtUrl }: {
     album: Album;
     coverArtUrl: string;
     serverUrl: string;
@@ -30,7 +30,8 @@
 
   async function playAll(e: Event) {
     e.stopPropagation();
-    const api = new SubsonicAPI({ server: serverUrl, username, password });
+    const api = library.getApi();
+    if (!api) return;
     try {
       const data = await api.getAlbum({ id: album.id });
       queue.replaceAll(data.album.song);
@@ -40,7 +41,8 @@
 
   async function addToQueue(e: Event) {
     e.stopPropagation();
-    const api = new SubsonicAPI({ server: serverUrl, username, password });
+    const api = library.getApi();
+    if (!api) return;
     try {
       const data = await api.getAlbum({ id: album.id });
       queue.addTracksToEnd(data.album.song);
@@ -51,7 +53,8 @@
     e.stopPropagation();
     const newStarred = !localStarred;
     localStarred = newStarred;
-    const api = new SubsonicAPI({ server: serverUrl, username, password });
+    const api = library.getApi();
+    if (!api) { localStarred = !!album.starred; return; }
     try {
       if (newStarred) {
         await api.star({ id: album.id });

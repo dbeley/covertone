@@ -3,7 +3,7 @@
   import { settings } from '$lib/stores/settings';
   import { discoveryDrawerOpen } from '$lib/stores/discovery';
   import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
-  import { SvelteSet } from 'svelte/reactivity';
+
   import { fetchSongContext } from '$lib/api/ai';
   import { router } from '$lib/stores/router';
   import AlbumCard from '$lib/components/AlbumCard.svelte';
@@ -69,6 +69,17 @@
     }
   });
 
+  let previousPath = $state($router.path);
+  $effect(() => {
+    const path = $router.path;
+    if (path !== previousPath) {
+      previousPath = path;
+      if (window.innerWidth < 768) {
+        close();
+      }
+    }
+  });
+
   async function fetchDiscoveries() {
     const track = currentTrack;
     if (!track) return;
@@ -98,7 +109,7 @@
       genreAlbums = [];
     }
 
-    Promise.all(promises).finally(() => {
+    await Promise.all(promises).finally(() => {
       refreshLoading = false;
     });
   }
@@ -120,7 +131,7 @@
 
     const artists = await Promise.all(similarArtists.map((a) => api.getArtist({ id: a.id })));
 
-    const seen = new SvelteSet<string>();
+    const seen = new Set<string>(); // eslint-disable-line svelte/prefer-svelte-reactivity
     const albums: Album[] = [];
     for (const a of artists) {
       for (const album of a.artist.album ?? []) {
