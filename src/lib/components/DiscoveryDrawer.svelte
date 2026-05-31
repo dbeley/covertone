@@ -69,6 +69,17 @@
     }
   });
 
+  let previousPath = $state($router.path);
+  $effect(() => {
+    const path = $router.path;
+    if (path !== previousPath) {
+      previousPath = path;
+      if (window.innerWidth < 768) {
+        close();
+      }
+    }
+  });
+
   async function fetchDiscoveries() {
     const track = currentTrack;
     if (!track) return;
