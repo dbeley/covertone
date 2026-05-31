@@ -113,9 +113,8 @@
     aria-label="Now playing bar - click to expand"
   >
     <button
-      class="absolute top-0 left-0 right-0 h-4 cursor-pointer group block p-0 border-none bg-transparent"
-      onclick={handleSeek}
-      ontouchstart={handleSeek}
+      class="absolute top-0 left-0 right-0 h-2 cursor-pointer group block p-0 border-none bg-transparent"
+      onclick={(e) => { if (e.detail > 0) handleSeek(e); }}
       ontouchmove={handleSeekMove}
       onkeydown={handleSeekKeydown}
       aria-label="Seek"
