@@ -129,7 +129,12 @@ function createLibrary() {
       if (api) return api;
       const s = get(settings);
       if (s.isConfigured) {
-        return new SubsonicAPI({ server: s.serverUrl, username: s.username, password: s.password, clientName: "covertone" });
+        return new SubsonicAPI({
+          server: s.serverUrl,
+          username: s.username,
+          password: s.password,
+          clientName: "covertone",
+        });
       }
       return null;
     },
