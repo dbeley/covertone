@@ -5,6 +5,7 @@
   import { settings } from '$lib/stores/settings';
   import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import LazyImage from '$lib/components/LazyImage.svelte';
+  import { formatDuration } from '$lib/utils/format';
   import type { Artist, Album, Song } from '$lib/api/types';
   import { onMount } from 'svelte';
 
@@ -30,12 +31,6 @@
   function coverUrl(id: string, size: number): string {
     if (!id) return '';
     return getCoverArtUrl({ server: serverUrl, username, password, id, size });
-  }
-
-  function formatDuration(seconds: number): string {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
   }
 
   function handleInput(e: Event) {

@@ -3,6 +3,7 @@
   import { settings } from '$lib/stores/settings';
   import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import LazyImage from '$lib/components/LazyImage.svelte';
+  import { shuffle } from '$lib/utils/format';
   import type { Song } from '$lib/api/types';
 
   let serverUrl = $derived($settings.serverUrl);
@@ -94,7 +95,7 @@
         else break;
       }
 
-      options = artistOptions.sort(() => Math.random() - 0.5);
+      options = shuffle(artistOptions);
       round++;
 
       if (currentSong) {

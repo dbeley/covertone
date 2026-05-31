@@ -7,6 +7,7 @@
   import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import AlbumGrid from '$lib/components/AlbumGrid.svelte';
   import LazyImage from '$lib/components/LazyImage.svelte';
+  import { formatDuration, shuffle } from '$lib/utils/format';
   import type { Artist, Album, Song } from '$lib/api/types';
 
   type Tab = 'albums' | 'artists' | 'songs';
@@ -76,7 +77,7 @@
       case 'z-a':
         return sorted.sort((a, b) => getName(b).localeCompare(getName(a)));
       case 'random':
-        return sorted.sort(() => Math.random() - 0.5);
+        return shuffle(sorted);
     }
   }
 
@@ -96,11 +97,6 @@
     return '';
   }
 
-  function formatDuration(seconds: number): string {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
-  }
 </script>
 
 <div class="p-6">

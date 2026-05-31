@@ -4,6 +4,7 @@
   import { settings } from '$lib/stores/settings';
   import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import { handleActivationKey } from '$lib/utils/keyboard';
+  import { formatDuration } from '$lib/utils/format';
   import LazyImage from '$lib/components/LazyImage.svelte';
   import type { Playlist } from '$lib/api/types';
 
@@ -19,13 +20,6 @@
   function coverUrl(playlist: Playlist): string {
     if (!playlist.coverArt) return '';
     return getCoverArtUrl({ server: serverUrl, username, password, id: playlist.coverArt, size: 256 });
-  }
-
-  function formatDuration(seconds: number): string {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    if (h > 0) return `${h}h ${m}m`;
-    return `${m}m`;
   }
 
   onMount(async () => {

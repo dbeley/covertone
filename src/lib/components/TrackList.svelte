@@ -2,18 +2,13 @@
   import { player } from '$lib/stores/player';
   import { queue } from '$lib/stores/queue';
   import { router } from '$lib/stores/router';
+  import { formatDuration } from '$lib/utils/format';
   import type { Song } from '$lib/api/types';
 
   let { songs, onPlay, showArtistLink = true, showPlaylistIndex = false }: { songs: Song[]; onPlay?: (song: Song, index: number) => void; showArtistLink?: boolean; showPlaylistIndex?: boolean } = $props();
 
   let contextMenuIndex = $state<number | null>(null);
   let longPressTimer = $state<ReturnType<typeof setTimeout> | null>(null);
-
-  function formatDuration(seconds: number): string {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
-  }
 
   function handleRowClick(song: Song, index: number) {
     if (onPlay) {
