@@ -3,7 +3,8 @@
   import { queue, queueDrawerOpen } from '$lib/stores/queue';
   import { router } from '$lib/stores/router';
   import { settings } from '$lib/stores/settings';
-  import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
+  import { library } from '$lib/stores/library';
+  import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import LazyImage from '$lib/components/LazyImage.svelte';
 
   let { onClose = () => {} } = $props<{
@@ -62,7 +63,7 @@
     player.seek(time);
   }
 
-  async function handlePrev() {
+  function handlePrev() {
     const prev = queue.getPrevious();
     if (prev) player.playTrack(prev);
   }
@@ -81,7 +82,8 @@
     player.setFavorited(newState);
     if (!currentTrack) return;
     try {
-      const api = new SubsonicAPI({ server: serverUrl, username, password });
+      const api = library.getApi();
+      if (!api) return;
       if (newState) {
         await api.star({ id: currentTrack.id });
       } else {

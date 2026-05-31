@@ -3,7 +3,8 @@ import { player } from "$lib/stores/player";
 import { router } from "$lib/stores/router";
 import { nowPlayingOpen, shortcutsModalOpen } from "$lib/stores/ui";
 import { queueDrawerOpen } from "$lib/stores/queue";
-import { SubsonicAPI } from "$lib/api/SubsonicAPI";
+import { discoveryDrawerOpen } from "$lib/stores/discovery";
+import { library } from "$lib/stores/library";
 import { settings } from "$lib/stores/settings";
 
 export const focusedIndex = writable(-1);
@@ -89,12 +90,8 @@ function toggleFavorite() {
   if (!ps.currentTrack) return;
   const next = !ps.favorited;
   player.setFavorited(next);
-  const s = get(settings);
-  const api = new SubsonicAPI({
-    server: s.serverUrl,
-    username: s.username,
-    password: s.password,
-  });
+  const api = library.getApi();
+  if (!api) return;
   if (next) api.star({ id: ps.currentTrack.id });
   else api.unstar({ id: ps.currentTrack.id });
 }
@@ -208,6 +205,10 @@ function handleKeyDown(e: KeyboardEvent) {
         nowPlayingOpen.set(false);
       } else if (get(queueDrawerOpen)) {
         queueDrawerOpen.set(false);
+      } else if (get(discoveryDrawerOpen)) {
+        discoveryDrawerOpen.set(false);
+      } else if (get(shortcutsModalOpen)) {
+        shortcutsModalOpen.set(false);
       } else {
         focusedIndex.set(-1);
         (document.activeElement as HTMLElement)?.blur();

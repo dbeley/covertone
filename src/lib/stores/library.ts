@@ -1,6 +1,7 @@
-import { writable } from "svelte/store";
+import { writable, get } from "svelte/store";
 import { SubsonicAPI } from "$lib/api/SubsonicAPI";
 import { cacheInvalidate } from "$lib/stores/apiCache";
+import { settings } from "$lib/stores/settings";
 import type { Album, Artist } from "$lib/api/types";
 
 export type AlbumListType =
@@ -123,6 +124,14 @@ function createLibrary() {
       } catch {
         update((s) => ({ ...s, loading: false }));
       }
+    },
+    getApi(): SubsonicAPI | null {
+      if (api) return api;
+      const s = get(settings);
+      if (s.isConfigured) {
+        return new SubsonicAPI({ server: s.serverUrl, username: s.username, password: s.password, clientName: "covertone" });
+      }
+      return null;
     },
     reset() {
       api = null;
