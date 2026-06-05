@@ -190,3 +190,20 @@ On NixOS, `aapt2` is patched automatically via `scripts/patch-aapt2.sh`.
 | Testing   | Vitest + Testing Library           |
 | Linting   | ESLint 9 + Prettier + svelte-check |
 | Dev env   | Nix flake                          |
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request or open an issue for bugs, features, or documentation improvements.
+
+### Development Setup
+
+1. Clone the repository
+2. Run `direnv allow` or `nix develop` to enter the dev shell
+3. Run `pnpm install` to install dependencies
+4. Run `pnpm dev` to start the development server
+
+### Code Style
+
+- Follow the existing ESLint and Prettier configuration
+- Run `pnpm lint` before committing
+- Run `pnpm format` to auto-format code
