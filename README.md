@@ -207,3 +207,7 @@ Contributions are welcome! Please feel free to submit a Pull Request or open an 
 - Follow the existing ESLint and Prettier configuration
 - Run `pnpm lint` before committing
 - Run `pnpm format` to auto-format code
+
+## License
+
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
