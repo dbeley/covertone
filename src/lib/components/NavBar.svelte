@@ -36,17 +36,20 @@
 </script>
 
 <nav
-  class="h-full flex flex-col gap-0.5 p-3 bg-surface border-r border-border w-48
+  class="h-full flex flex-col gap-0.5 p-3 w-48
          fixed md:relative inset-y-0 left-0 z-40
          transition-transform duration-300 ease-in-out
          {mobileOpen && !swipeOffset ? 'translate-x-0' : (!mobileOpen && !swipeOffset ? '-translate-x-full md:translate-x-0' : '')}"
-  style="padding-top: calc(0.75rem + var(--safe-area-inset-top)); padding-bottom: {navBottomPad}; {swipeOffset ? `transform: translateX(${swipeOffset - 192}px)` : ''}"
+  style="padding-top: calc(0.75rem + var(--safe-area-inset-top)); padding-bottom: {navBottomPad}; {swipeOffset ? `transform: translateX(${swipeOffset - 192}px)` : ''};
+         background: rgba(255,255,255,0.04); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+         border-right: 1px solid var(--border-color);"
 >
-  <h1 class="text-lg font-bold px-3 py-2.5 mb-4 text-accent tracking-tight">Covertone</h1>
+  <h1 class="text-lg font-bold px-3 py-2.5 mb-4 font-display tracking-tight" style="background: linear-gradient(135deg, var(--accent), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Covertone</h1>
   {#each navItems as item (item.path)}
     <button
       class="w-full text-left px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150
-             {currentPath === item.path ? 'bg-accent/10 text-accent ring-1 ring-accent/20' : 'text-text-dim hover:text-text hover:bg-white/5'}"
+             {currentPath === item.path ? 'text-accent font-semibold' : 'text-text-dim hover:text-text'}"
+      style={currentPath === item.path ? `background: color-mix(in srgb, var(--accent) 12%, transparent);` : ''}
       onclick={() => handleClick(item.path)}
     >
       {item.label}

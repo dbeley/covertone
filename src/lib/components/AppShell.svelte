@@ -140,6 +140,17 @@
       class="flex-1 overflow-y-auto pt-12 md:pt-0"
       style:padding-bottom={mainBottomPadding}
     >
+      <!-- Ambient gradient backdrop -->
+      <div class="fixed inset-0 pointer-events-none overflow-hidden">
+        <div
+          class="absolute"
+          style="top: -150px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, var(--accent-highlight) 0%, transparent 70%); opacity: 0.08;"
+        ></div>
+        <div
+          class="absolute"
+          style="bottom: -100px; left: -80px; width: 350px; height: 350px; background: radial-gradient(circle, var(--accent-secondary) 0%, transparent 70%); opacity: 0.06;"
+        ></div>
+      </div>
       <button
         class="md:hidden fixed left-3 z-30 p-2.5 rounded-xl bg-surface/90 backdrop-blur border border-border shadow-lg hover:border-accent/30 transition-all duration-150 active:scale-95"
         style="top: calc(0.75rem + {hasTabs ? '2.5rem' : '0rem'} + var(--safe-area-inset-top))"
