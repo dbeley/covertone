@@ -72,38 +72,15 @@
     queueDrawerOpen.update(v => !v);
   }
 
-  function handleSeek(e: MouseEvent | TouchEvent) {
-    e.stopPropagation();
-    const bar = e.currentTarget as HTMLElement;
-    const rect = bar.getBoundingClientRect();
-    const x = (e instanceof MouseEvent ? e.clientX : e.touches[0].clientX) - rect.left;
-    const pct = Math.max(0, Math.min(1, x / rect.width));
-    player.seek(pct * duration);
-  }
-
   function handleBarKeydown(e: KeyboardEvent) {
     if (e.key === 'Enter' || e.key === ' ') onExpand();
-  }
-
-  function handleSeekKeydown(e: KeyboardEvent) {
-    if (e.key === 'ArrowRight') player.seek(Math.min(duration, currentTime + 5));
-    else if (e.key === 'ArrowLeft') player.seek(Math.max(0, currentTime - 5));
-  }
-
-  function handleSeekMove(e: MouseEvent | TouchEvent) {
-    e.preventDefault();
-    const bar = e.currentTarget as HTMLElement;
-    const rect = bar.getBoundingClientRect();
-    const x = (e instanceof MouseEvent ? e.clientX : e.touches[0].clientX) - rect.left;
-    const pct = Math.max(0, Math.min(1, x / rect.width));
-    player.seek(pct * duration);
   }
 </script>
 
 {#if currentTrack}
   <div
-    class="fixed left-0 right-0 h-16 bg-surface/90 backdrop-blur-xl border-t border-border grid grid-cols-[1fr_auto_1fr] items-center px-4 gap-3 z-50 transition-shadow hover:shadow-lg hover:shadow-black/5 cursor-pointer"
-    style="bottom: var(--safe-area-inset-bottom, 0px)"
+    class="fixed left-2 right-2 bottom-0 z-50 cursor-pointer"
+    style="bottom: calc(0.5rem + var(--safe-area-inset-bottom, 0px))"
     ontouchstart={handleTouchStart}
     ontouchend={handleTouchEnd}
     onclick={onExpand}
@@ -112,98 +89,83 @@
     tabindex="0"
     aria-label="Now playing bar - click to expand"
   >
-    <button
-      class="absolute top-0 left-0 right-0 h-2 cursor-pointer group block p-0 border-none bg-transparent"
-      onclick={(e) => { if (e.detail > 0) handleSeek(e); }}
-      ontouchmove={handleSeekMove}
-      onkeydown={handleSeekKeydown}
-      aria-label="Seek"
-      style="touch-action: none"
-    >
-      <div class="h-full flex items-center">
-        <div class="w-full h-1 bg-text-dim/15 rounded-full overflow-hidden">
-          <div
-            class="h-full bg-accent transition-[width] duration-200 ease-linear"
-            style="width: {duration > 0 ? (currentTime / duration) * 100 : 0}%"
-          ></div>
+    <div class="glass rounded-2xl overflow-hidden transition-shadow duration-200 hover:shadow-lg hover:shadow-black/10">
+      <!-- Color-matched seek bar -->
+      <div
+        class="h-0.5 transition-[width] duration-200 ease-linear"
+        style="width: {duration > 0 ? (currentTime / duration) * 100 : 0}%; background: linear-gradient(90deg, var(--accent), var(--accent-secondary))"
+      ></div>
+      <div class="flex items-center gap-3 px-3 py-2.5">
+        <LazyImage
+          src={coverArtUrl}
+          alt=""
+          class="w-11 h-11 rounded-xl object-cover shrink-0 ring-1 ring-border/50"
+        />
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-semibold truncate font-display">{currentTrack.title}</div>
+          <div class="text-xs text-text-dim truncate">{currentTrack.artist}</div>
+        </div>
+        <div class="flex items-center gap-1">
+          <button
+            class="p-2 rounded-xl transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
+            onclick={handlePrev}
+            aria-label="Previous"
+          >
+            <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current">
+              <polygon points="19,4 7,12 19,20" />
+              <rect x="4" y="4" width="3" height="16" rx="1" />
+            </svg>
+          </button>
+          <button
+            class="p-2 rounded-xl transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
+            onclick={handleTogglePlay}
+            aria-label={status === 'playing' ? 'Pause' : 'Play'}
+          >
+            {#if status === 'playing'}
+              <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current">
+                <rect x="6" y="4" width="4" height="16" rx="1" />
+                <rect x="14" y="4" width="4" height="16" rx="1" />
+              </svg>
+            {:else}
+              <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current">
+                <polygon points="6,4 20,12 6,20" />
+              </svg>
+            {/if}
+          </button>
+          <button
+            class="p-2 rounded-xl transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
+            onclick={handleNext}
+            aria-label="Next"
+          >
+            <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current">
+              <polygon points="5,4 17,12 5,20" />
+              <rect x="17" y="4" width="3" height="16" rx="1" />
+            </svg>
+          </button>
+        </div>
+        <div class="flex items-center gap-1">
+          <button
+            class="p-2 rounded-xl transition-all duration-150 active:scale-90 {favorited ? 'text-accent' : 'text-text-dim hover:text-text hover:bg-white/5'}"
+            onclick={toggleFavorite}
+            aria-label="Favorite"
+          >
+            <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+          </button>
+          <button
+            class="p-2 rounded-xl transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
+            onclick={handleToggleQueue}
+            aria-label="Toggle queue"
+          >
+            <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current">
+              <rect x="4" y="5" width="16" height="2" rx="1" />
+              <rect x="4" y="11" width="16" height="2" rx="1" />
+              <rect x="4" y="17" width="16" height="2" rx="1" />
+            </svg>
+          </button>
         </div>
       </div>
-      <div class="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity -ml-1.5"
-        style="left: {duration > 0 ? (currentTime / duration) * 100 : 0}%"
-      ></div>
-    </button>
-    <div
-      class="flex items-center min-w-0 gap-3"
-    >
-      <LazyImage src={coverArtUrl} alt="" class="w-10 h-10 rounded-lg object-cover shrink-0 ring-1 ring-border/50" />
-      <div class="min-w-0">
-        <div class="text-sm font-medium truncate">{currentTrack.title}</div>
-        <div class="text-xs text-text-dim truncate">{currentTrack.artist}</div>
-      </div>
-    </div>
-
-    <div class="flex items-center gap-2 justify-center">
-      <button
-        class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
-        onclick={handlePrev}
-        aria-label="Previous"
-      >
-        <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
-          <polygon points="19,4 7,12 19,20" />
-          <rect x="4" y="4" width="3" height="16" rx="1" />
-        </svg>
-      </button>
-
-      <button
-        class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
-        onclick={handleTogglePlay}
-        aria-label={status === 'playing' ? 'Pause' : 'Play'}
-      >
-        {#if status === 'playing'}
-          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
-            <rect x="6" y="4" width="4" height="16" rx="1" />
-            <rect x="14" y="4" width="4" height="16" rx="1" />
-          </svg>
-        {:else}
-          <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
-            <polygon points="6,4 20,12 6,20" />
-          </svg>
-        {/if}
-      </button>
-
-      <button
-        class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
-        onclick={handleNext}
-        aria-label="Next"
-      >
-        <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
-          <polygon points="5,4 17,12 5,20" />
-          <rect x="17" y="4" width="3" height="16" rx="1" />
-        </svg>
-      </button>
-    </div>
-
-    <div class="flex items-center justify-end gap-1">
-      <button
-        class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 {favorited ? 'text-accent' : 'text-text-dim hover:text-text hover:bg-white/5'}"
-        onclick={toggleFavorite}
-        aria-label="Favorite"
-      >
-        <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
-          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-        </svg>
-      </button>
-      <button
-        class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
-        onclick={handleToggleQueue}
-        aria-label="Toggle queue"
-      >
-        <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
-          <rect x="4" y="5" width="16" height="2" rx="1" />
-          <rect x="4" y="11" width="16" height="2" rx="1" />
-          <rect x="4" y="17" width="16" height="2" rx="1" />
-        </svg>
-      </button>
     </div>
   </div>
 {/if}
