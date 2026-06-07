@@ -16,7 +16,7 @@ function rgbToHex(r: number, g: number, b: number): string {
   return "#" + [r, g, b].map((c) => c.toString(16).padStart(2, "0")).join("");
 }
 
-function quantize(pixels: number[]): Map<string, number> {
+function collectFrequencies(pixels: number[]): Map<string, number> {
   const colorMap = new Map<string, number>();
   for (let i = 0; i < pixels.length; i += 4) {
     const r = pixels[i],
@@ -48,7 +48,7 @@ function brightness(hex: string): number {
 }
 
 export function extractPaletteFromPixels(pixels: number[]): ColorPalette {
-  const colorMap = quantize(pixels);
+  const colorMap = collectFrequencies(pixels);
   const dominant = dominantColors(colorMap, 10);
 
   if (dominant.length === 0) return { ...DEFAULT_PALETTE };
