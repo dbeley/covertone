@@ -11,6 +11,9 @@
   --color-accent: var(--accent);
   --color-border: var(--border-color);
   --color-ring: var(--ring);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-accent-tertiary: var(--accent-tertiary);
+  --color-accent-highlight: var(--accent-highlight);
 }
 
 :root {
@@ -21,6 +24,9 @@
   --accent: #6366f1;
   --border-color: rgba(0, 0, 0, 0.06);
   --ring: rgba(99, 102, 241, 0.2);
+  --accent-secondary: var(--accent);
+  --accent-tertiary: var(--accent);
+  --accent-highlight: var(--accent);
   --safe-area-inset-top: max(env(safe-area-inset-top, 0px), 1.5rem);
   --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -33,6 +39,9 @@
   --accent: #818cf8;
   --border-color: rgba(255, 255, 255, 0.06);
   --ring: rgba(129, 140, 248, 0.2);
+  --accent-secondary: var(--accent);
+  --accent-tertiary: var(--accent);
+  --accent-highlight: var(--accent);
 }
 
 .amoled {
@@ -43,6 +52,9 @@
   --accent: #818cf8;
   --border-color: rgba(255, 255, 255, 0.04);
   --ring: rgba(129, 140, 248, 0.15);
+  --accent-secondary: var(--accent);
+  --accent-tertiary: var(--accent);
+  --accent-highlight: var(--accent);
 }
 
 .light {
@@ -53,6 +65,9 @@
   --accent: #6366f1;
   --border-color: rgba(0, 0, 0, 0.06);
   --ring: rgba(99, 102, 241, 0.2);
+  --accent-secondary: var(--accent);
+  --accent-tertiary: var(--accent);
+  --accent-highlight: var(--accent);
 }
 
 body {

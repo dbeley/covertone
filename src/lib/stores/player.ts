@@ -125,6 +125,19 @@ function createPlayer() {
     },
     playTrack(track: Song) {
       lastTrack = track;
+      import("$lib/stores/colors").then(({ colors }) => {
+        const s = get(settings);
+        if (track.coverArt) {
+          const url = getCoverArtUrl({
+            server: s.serverUrl,
+            username: s.username,
+            password: s.password,
+            id: track.coverArt,
+            size: 256,
+          });
+          colors.extractFromCover(url, track.coverArt);
+        }
+      });
       import("$lib/stores/queue").then(({ queue }) => {
         queue.syncCurrentTrack(track);
       });
@@ -313,6 +326,9 @@ function createPlayer() {
         repeating: false,
         shuffle: false,
         favorited: false,
+      });
+      import("$lib/stores/colors").then(({ colors }) => {
+        colors.resetToDefault();
       });
     },
   };
