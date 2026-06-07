@@ -7,6 +7,8 @@
 
   let { songs, onPlay, showArtistLink = true, showPlaylistIndex = false }: { songs: Song[]; onPlay?: (song: Song, index: number) => void; showArtistLink?: boolean; showPlaylistIndex?: boolean } = $props();
 
+  let currentTrackId = $derived($player.currentTrack?.id ?? null);
+
   let contextMenuIndex = $state<number | null>(null);
   let longPressTimer = $state<ReturnType<typeof setTimeout> | null>(null);
 
@@ -69,7 +71,7 @@
 <div class="w-full border border-border rounded-xl overflow-hidden bg-surface/50">
   {#each songs as song, index (song.id + '-' + index)}
     <div
-      class="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors group relative border-b border-border/50 last:border-b-0"
+      class={"flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors group relative border-b border-border/50 last:border-b-0" + (song.id === currentTrackId ? ' bg-accent/[0.03]' : '')}
       onclick={() => handleRowClick(song, index)}
       onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleRowClick(song, index); }}
       ontouchstart={() => startLongPress(index)}
@@ -78,6 +80,9 @@
       role="button"
       tabindex="0"
     >
+      {#if song.id === currentTrackId}
+        <div class="absolute left-0 top-1 bottom-1 w-0.5 bg-accent rounded-r-full"></div>
+      {/if}
       <span class="w-6 text-center text-xs text-text-dim group-hover:hidden">
         {showPlaylistIndex ? index + 1 : (song.track ?? index + 1)}
       </span>
@@ -96,7 +101,7 @@
           <div class="text-xs text-text-dim truncate">{song.artist}</div>
         {/if}
       </div>
-      <span class="text-xs text-text-dim w-10 text-right">{formatDuration(song.duration)}</span>
+      <span class="text-xs text-text-dim w-10 text-right font-mono" style="font-variant-numeric: tabular-nums;">{formatDuration(song.duration)}</span>
       <button
         type="button"
         class="p-1 transition-opacity hover:text-accent relative text-text-dim"
