@@ -9,6 +9,7 @@
   let { onExpand = () => {} }: { onExpand?: () => void } = $props();
 
   let touchStartY = $state(0);
+  let justFavorited = $state(false);
 
   function handleTouchStart(e: TouchEvent) {
     touchStartY = e.touches[0].clientY;
@@ -37,6 +38,8 @@
     e.stopPropagation();
     const newState = !favorited;
     player.setFavorited(newState);
+    justFavorited = true;
+    setTimeout(() => justFavorited = false, 300);
     if (!currentTrack) return;
     try {
       const api = library.getApi();
@@ -146,6 +149,7 @@
         <div class="flex items-center gap-1">
           <button
             class="p-2 rounded-xl transition-all duration-150 active:scale-90 {favorited ? 'text-accent' : 'text-text-dim hover:text-text hover:bg-white/5'}"
+            class:animate-heart-bounce={justFavorited}
             onclick={toggleFavorite}
             aria-label="Favorite"
           >

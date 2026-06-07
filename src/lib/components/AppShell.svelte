@@ -12,6 +12,7 @@
   import { tabsStore } from '$lib/stores/tabs';
   import { get } from 'svelte/store';
   import { tick } from 'svelte';
+  import { pageIn } from '$lib/animations/transitions';
 
   import Home from '$lib/pages/Home.svelte';
   import AlbumsPage from '$lib/pages/AlbumsPage.svelte';
@@ -163,31 +164,35 @@
           <rect y="18" width="24" height="2" rx="1" />
         </svg>
       </button>
-      {#if route.matches('/')}
-        <Home />
-      {:else if route.matches('/albums')}
-        <AlbumsPage />
-      {:else if route.matches('/artists')}
-        <ArtistsPage />
-      {:else if route.matches('/playlists')}
-        <PlaylistsPage />
-      {:else if route.matches('/favorites')}
-        <FavoritesPage />
-      {:else if route.matches('/album/:id')}
-        <AlbumPage />
-      {:else if route.matches('/artist/:id')}
-        <ArtistPage />
-      {:else if route.matches('/playlist/:id')}
-        <PlaylistPage />
-      {:else if route.matches('/search')}
-        <SearchPage />
-      {:else if route.matches('/game')}
-        <GamePage />
-      {:else if route.matches('/settings')}
-        <SettingsPage />
-      {:else}
-        <div class="p-6"><h2 class="text-2xl font-bold">Not Found</h2></div>
-      {/if}
+      {#key route.path}
+        <div transition:pageIn>
+          {#if route.matches('/')}
+            <Home />
+          {:else if route.matches('/albums')}
+            <AlbumsPage />
+          {:else if route.matches('/artists')}
+            <ArtistsPage />
+          {:else if route.matches('/playlists')}
+            <PlaylistsPage />
+          {:else if route.matches('/favorites')}
+            <FavoritesPage />
+          {:else if route.matches('/album/:id')}
+            <AlbumPage />
+          {:else if route.matches('/artist/:id')}
+            <ArtistPage />
+          {:else if route.matches('/playlist/:id')}
+            <PlaylistPage />
+          {:else if route.matches('/search')}
+            <SearchPage />
+          {:else if route.matches('/game')}
+            <GamePage />
+          {:else if route.matches('/settings')}
+            <SettingsPage />
+          {:else}
+            <div class="p-6"><h2 class="text-2xl font-bold">Not Found</h2></div>
+          {/if}
+        </div>
+      {/key}
     </main>
     <DiscoveryDrawer />
     <QueueDrawer />

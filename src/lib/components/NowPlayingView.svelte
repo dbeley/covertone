@@ -35,6 +35,7 @@
   let dragY = $state(0);
   let dragging = $state(false);
   let startY = $state(0);
+  let justFavorited = $state(false);
 
   function onTouchStart(e: TouchEvent) {
     dragging = true;
@@ -79,6 +80,8 @@
   async function toggleFavorite() {
     const newState = !favorited;
     player.setFavorited(newState);
+    justFavorited = true;
+    setTimeout(() => justFavorited = false, 300);
     if (!currentTrack) return;
     try {
       const api = library.getApi();
@@ -144,7 +147,7 @@
         </div>
 
         <div class="w-full max-w-md flex flex-col gap-1.5">
-          <div class="relative h-1.5" role="slider" tabindex="0" aria-label="Seek" aria-valuenow={currentTime} aria-valuemin="0" aria-valuemax={duration}>
+          <div class="relative h-1.5 group" role="slider" tabindex="0" aria-label="Seek" aria-valuenow={currentTime} aria-valuemin="0" aria-valuemax={duration}>
             <div class="absolute inset-0 rounded-full bg-text-dim/15"></div>
             <div
               class="absolute inset-y-0 left-0 rounded-full transition-[width] duration-200 ease-linear"
@@ -224,6 +227,7 @@
           </button>
           <button
             class="p-2 rounded-xl transition-all duration-150 active:scale-90 {favorited ? 'text-accent' : 'text-text-dim hover:text-text'}"
+            class:animate-heart-bounce={justFavorited}
             onclick={toggleFavorite}
             aria-label="Favorite"
           >
