@@ -216,7 +216,7 @@
 </script>
 
 <!-- Desktop side panel -->
-<aside class="hidden md:flex flex-col bg-surface overflow-hidden shrink-0 transition-all duration-300 ease-out"
+<aside class="hidden md:flex flex-col glass overflow-hidden shrink-0 transition-all duration-300 ease-out"
        class:border-l={$queueDrawerOpen}
        class:border-border={$queueDrawerOpen}
        class:w-80={$queueDrawerOpen}
@@ -255,7 +255,7 @@
       {:else}
         {#each items as item, index (item.key)}
           <div
-            class="flex items-center gap-2.5 sm:gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0 {index === currentIndex ? 'bg-accent/15' : ''} {draggedIndex === index ? 'opacity-60 bg-accent/10' : ''} {dropTargetIndex === index && draggedIndex !== index ? 'ring-1 ring-inset ring-accent/40 bg-accent/10' : ''}"
+            class="flex items-center gap-2.5 sm:gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0 {index === currentIndex ? 'bg-accent/15 border-l-2 border-l-accent' : ''} {draggedIndex === index ? 'opacity-60 bg-accent/10' : ''} {dropTargetIndex === index && draggedIndex !== index ? 'ring-1 ring-inset ring-accent/40 bg-accent/10' : ''}"
             draggable="true"
             onclick={() => handleRowClick(item, index)}
             onkeydown={(e) => handleActivationKey(e, () => handleTrackClick(item, index))}
@@ -315,7 +315,7 @@
       onclick={() => queueDrawerOpen.set(false)}
     ></button>
     <div
-      class="relative w-full max-w-lg bg-surface border border-border border-b-0 rounded-t-2xl max-h-[55vh] flex flex-col animate-slide-up shadow-2xl shadow-black/20"
+      class="relative w-full max-w-lg glass border border-border border-b-0 rounded-t-2xl max-h-[55vh] flex flex-col animate-slide-up shadow-2xl shadow-black/20"
       style="padding-bottom: {drawerBottomPadding}; transform: translateY({dragY}px); transition: {dragging ? 'none' : 'transform 0.3s ease-out'}"
       onclick={(e) => e.stopPropagation()}
       ontouchstart={onTouchStart}
@@ -350,7 +350,7 @@
         {:else}
           {#each items as item, index (item.key)}
             <div
-              class="flex items-center gap-2.5 sm:gap-3 px-5 py-3 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0 {index === currentIndex ? 'bg-accent/15' : ''} {draggedIndex === index ? 'opacity-60 bg-accent/10' : ''} {dropTargetIndex === index && draggedIndex !== index ? 'ring-1 ring-inset ring-accent/40 bg-accent/10' : ''}"
+              class="flex items-center gap-2.5 sm:gap-3 px-5 py-3 cursor-pointer hover:bg-accent/[0.04] transition-colors border-b border-border/50 last:border-b-0 {index === currentIndex ? 'bg-accent/15 border-l-2 border-l-accent' : ''} {draggedIndex === index ? 'opacity-60 bg-accent/10' : ''} {dropTargetIndex === index && draggedIndex !== index ? 'ring-1 ring-inset ring-accent/40 bg-accent/10' : ''}"
               data-queue-index={index}
               draggable="true"
               onclick={() => handleRowClick(item, index)}

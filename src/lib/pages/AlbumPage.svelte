@@ -99,13 +99,14 @@
         </p>
         <div class="flex gap-2 mt-2">
           <button
-            class="px-5 py-2.5 bg-accent text-white rounded-xl text-sm font-medium hover:brightness-110 active:scale-[0.98] transition-all duration-150 shadow-lg shadow-accent/20"
+            class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-150 active:scale-95 shadow-lg shadow-accent/20"
+            style="background: linear-gradient(135deg, var(--accent), var(--accent-secondary));"
             onclick={() => { queue.replaceAll(songs); player.playTrack(songs[0]); }}
           >
             Play All
           </button>
           <button
-            class="px-5 py-2.5 bg-surface border border-border rounded-xl text-sm font-medium hover:border-accent/30 active:scale-[0.98] transition-all duration-150"
+            class="px-5 py-2.5 glass rounded-xl text-sm font-medium hover:border-accent/30 active:scale-95 transition-all duration-150"
             onclick={() => queue.addTracksToEnd(songs)}
           >
             Add to Queue

@@ -217,7 +217,7 @@
       onclick={close}
     ></button>
     <div
-      class="relative w-full max-w-lg bg-surface border border-border border-b-0 rounded-t-2xl max-h-[80vh] flex flex-col animate-slide-up shadow-2xl shadow-black/20"
+      class="relative w-full max-w-lg glass border border-border border-b-0 rounded-t-2xl max-h-[80vh] flex flex-col animate-slide-up shadow-2xl shadow-black/20"
       style="padding-bottom: {drawerBottomPadding}; transform: translateY({dragY}px); transition: {dragging ? 'none' : 'transform 0.3s ease-out'}"
       onclick={(e) => e.stopPropagation()}
       ontouchstart={onTouchStart}
@@ -366,7 +366,7 @@
 
 <!-- Desktop side panel -->
 <aside
-  class="hidden md:flex flex-col border-l border-border bg-surface overflow-hidden transition-all duration-300 ease-out shrink-0"
+  class="hidden md:flex flex-col border-l border-border glass overflow-hidden transition-all duration-300 ease-out shrink-0"
   class:w-96={$discoveryDrawerOpen}
   class:w-0={!$discoveryDrawerOpen}
 >
