@@ -86,4 +86,14 @@
   });
 </script>
 
-<AppShell />
+<div class="relative">
+  <div
+    class="glass-ambient"
+    style="top: -20vh; right: -20vw; width: 60vw; height: 60vh; background: radial-gradient(circle at center, var(--accent-glow), transparent 70%); border-radius: 50%;"
+  ></div>
+  <div
+    class="glass-ambient"
+    style="bottom: 10vh; left: -30vw; width: 70vw; height: 50vh; background: radial-gradient(circle at center, var(--accent-glow), transparent 70%); border-radius: 50%;"
+  ></div>
+  <AppShell />
+</div>

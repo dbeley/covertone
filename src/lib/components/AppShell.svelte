@@ -1,5 +1,6 @@
 <script lang="ts">
   import NavBar from './NavBar.svelte';
+  import MobileNav from './MobileNav.svelte';
   import NowPlayingBar from './NowPlayingBar.svelte';
   import NowPlayingView from './NowPlayingView.svelte';
   import QueueDrawer from './QueueDrawer.svelte';
@@ -72,8 +73,6 @@
   let activeTabId = $derived(tabsState.activeTabId);
   let hasTabs = $derived(tabsState.tabs.length > 0);
 
-  let mainBottomPadding = $derived($player.currentTrack ? '4rem' : '0px');
-
   let prevActiveTabId: string | null = null;
   let isTabSwitch = false;
 
@@ -127,7 +126,7 @@
     role="presentation"
   >
     <div
-      class="fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 md:hidden"
+      class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity duration-300 md:hidden"
       class:opacity-0={!menuOpen && !swiping}
       class:pointer-events-none={!menuOpen}
       class:opacity-100={menuOpen}
@@ -138,10 +137,10 @@
     <NavBar mobileOpen={menuOpen} onNavigate={closeMenu} swipeOffset={swipeX} />
     <main
       class="flex-1 overflow-y-auto pt-12 md:pt-0"
-      style:padding-bottom={mainBottomPadding}
     >
+      <div class="pb-14 md:pb-0">
       <button
-        class="md:hidden fixed left-3 z-30 p-2.5 rounded-xl bg-surface/90 backdrop-blur border border-border shadow-lg hover:border-accent/30 transition-all duration-150 active:scale-95"
+        class="md:hidden fixed left-3 z-30 p-2.5 rounded-xl glass hover:border-accent/30 transition-all duration-150 active:scale-95"
         style="top: calc(0.75rem + {hasTabs ? '2.5rem' : '0rem'} + var(--safe-area-inset-top))"
         onclick={() => { menuOpen = !menuOpen; }}
         aria-label="Toggle menu"
@@ -175,12 +174,18 @@
       {:else if route.matches('/settings')}
         <SettingsPage />
       {:else}
-        <div class="p-6"><h2 class="text-2xl font-bold">Not Found</h2></div>
+        <div class="p-4"><h2 class="text-2xl font-bold">Not Found</h2></div>
       {/if}
+      {#if $player.currentTrack}
+        <div class="h-16"></div>
+      {/if}
+      </div>
     </main>
     <DiscoveryDrawer />
     <QueueDrawer />
   </div>
+
+  <MobileNav />
 
   <NowPlayingBar
     onExpand={openNowPlaying}

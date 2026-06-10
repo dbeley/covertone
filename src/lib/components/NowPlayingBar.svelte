@@ -102,7 +102,7 @@
 
 {#if currentTrack}
   <div
-    class="fixed left-0 right-0 h-16 bg-surface/90 backdrop-blur-xl border-t border-border grid grid-cols-[1fr_auto_1fr] items-center px-4 gap-3 z-50 transition-shadow hover:shadow-lg hover:shadow-black/5 cursor-pointer"
+    class="fixed left-0 right-0 h-16 bg-surface/90 backdrop-blur-xl border-t border-surface grid grid-cols-[1fr_auto_1fr] items-center px-4 gap-3 z-50 cursor-pointer"
     style="bottom: var(--safe-area-inset-bottom, 0px)"
     ontouchstart={handleTouchStart}
     ontouchend={handleTouchEnd}

@@ -17,15 +17,15 @@
 
 {#if tabs.length > 0}
   <div
-    class="flex items-center gap-0.5 h-10 px-2 bg-surface border-b border-border overflow-x-auto"
+    class="flex items-center gap-0.5 h-10 px-2 bg-nav backdrop-blur-xl border-b border-surface overflow-x-auto"
     style="scrollbar-width: none;"
   >
     {#each tabs as tab (tab.id)}
       <button
         class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm whitespace-nowrap transition-all duration-150 shrink-0 max-w-[140px]
                {tab.id === activeTabId
-                 ? "bg-accent/10 text-accent ring-1 ring-accent/20 font-medium"
-                 : "text-text-dim hover:text-text hover:bg-white/5"}"
+                 ? "bg-accent/10 text-accent border border-accent/10 font-medium"
+                 : "text-text-dim hover:text-text hover:bg-white/[0.03]"}"
         onclick={(e) => handleTabAction(e, tab.id)}
       >
         <span class="truncate">{tab.title}</span>
@@ -33,7 +33,7 @@
           data-tab-close
           role="button"
           tabindex="0"
-          class="flex items-center justify-center w-4 h-4 rounded hover:bg-white/10 cursor-pointer"
+          class="flex items-center justify-center w-4 h-4 rounded hover:bg-white/[0.06] cursor-pointer"
           aria-label="Close tab"
           onclick={(e) => { e.stopPropagation(); tabsStore.closeTab(tab.id); }}
           onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); tabsStore.closeTab(tab.id); } }}
