@@ -132,16 +132,16 @@
   }
 </script>
 
-<div class="p-6">
+<div class="p-4">
   <h2 class="text-2xl font-bold mb-6 tracking-tight">Game</h2>
 
   {#if !configured}
     <p class="text-text-dim">Configure server in Settings to play</p>
   {:else if !gameStarted}
     <div class="text-center py-12">
-      <p class="text-lg mb-8 text-text-dim">Guess the artist from a random song</p>
+      <p class="text-lg mb-6 text-text-dim">Guess the artist from a random song</p>
 
-      <div class="space-y-3 mb-8 max-w-xs mx-auto">
+      <div class="space-y-3 mb-6 max-w-xs mx-auto">
         {#each Object.entries(difficultyConfigs) as [key, config] (key)}
           <button
             class="w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150 border text-left

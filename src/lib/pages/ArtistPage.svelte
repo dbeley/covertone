@@ -126,14 +126,14 @@
   });
 </script>
 
-<div class="p-6">
+<div class="p-4">
   {#if loading}
     <p class="text-text-dim">Loading...</p>
   {:else if error && !artist}
     <p class="text-red-500">{error}</p>
   {:else if artist}
     <BackButton />
-    <div class="flex flex-col sm:flex-row items-start gap-6 mb-8 mt-4">
+    <div class="flex flex-col sm:flex-row items-start gap-4 mb-6 mt-4">
       <LazyImage src={coverArtUrl} alt="" loading="lazy" decoding="async" class="w-48 h-48 rounded-full object-cover shadow-xl shadow-black/10 ring-1 ring-border/50" />
       <div class="flex flex-col justify-center gap-1">
         <p class="text-xs text-text-dim uppercase tracking-widest font-medium">Artist</p>
@@ -156,21 +156,21 @@
     </div>
 
     {#if albums.length > 0}
-      <div class="mb-8">
+      <div class="mb-6">
         <h2 class="text-lg font-semibold mb-3 tracking-tight">Albums</h2>
         <AlbumGrid {albums} {serverUrl} {username} {password} />
       </div>
     {/if}
 
     {#if topSongs.length > 0}
-      <div class="mb-8">
+      <div class="mb-6">
         <h2 class="text-lg font-semibold mb-3 tracking-tight">Top Tracks</h2>
         <TrackList songs={topSongs} onPlay={playFromTopTracks} showArtistLink={false} />
       </div>
     {/if}
 
     {#if biography}
-      <div class="mb-8">
+      <div class="mb-6">
         <h2 class="text-lg font-semibold mb-3 tracking-tight">Biography</h2>
         <p class="text-sm text-text-dim leading-relaxed whitespace-pre-line bg-surface/50 border border-border rounded-xl p-4">
           {biography.slice(0, 1000)}{biography.length > 1000 ? '...' : ''}
@@ -179,7 +179,7 @@
     {/if}
 
     {#if similarArtists.length > 0}
-      <div class="mb-8">
+      <div class="mb-6">
         <h2 class="text-lg font-semibold mb-3 tracking-tight">Similar Artists</h2>
         <div class="flex gap-4 overflow-x-auto pb-2">
           {#each similarArtists as sArtist, i (sArtist.id + i)}

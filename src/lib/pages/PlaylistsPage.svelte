@@ -37,7 +37,7 @@
   });
 </script>
 
-<div class="p-6">
+<div class="p-4">
   <h2 class="text-2xl font-bold mb-6 tracking-tight">Playlists</h2>
 
   {#if loading}
