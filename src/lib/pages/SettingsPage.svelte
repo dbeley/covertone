@@ -343,7 +343,7 @@
 
   <section>
     <h3 class="text-lg font-semibold mb-4 tracking-tight">About</h3>
-    <p class="text-sm text-text-dim mb-2">Covertone v0.1.16 - A Subsonic/Navidrome music client</p>
+    <p class="text-sm text-text-dim mb-2">Covertone v0.2.0 - A Subsonic/Navidrome music client</p>
     <a
       href="https://github.com/dbeley/covertone"
       target="_blank"
