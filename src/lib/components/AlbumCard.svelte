@@ -88,7 +88,7 @@
       <p class="text-[10px] text-white/60 truncate drop-shadow-sm">{album.artist}</p>
     </div>
     <div
-      class="absolute inset-0 flex items-end justify-center pb-10 gap-2 opacity-0 group-hover:opacity-100 touch:opacity-100 transition-opacity duration-200"
+      class="absolute inset-0 flex items-end justify-center pb-3 gap-2 opacity-0 group-hover:opacity-100 touch:opacity-100 transition-opacity duration-200"
     >
       <button
         class="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-black hover:scale-110 transition-all duration-200 active:scale-95 shadow-lg"
