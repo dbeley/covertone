@@ -66,10 +66,10 @@
   ></div>
 {/if}
 
-<div class="w-full border border-border rounded-xl overflow-hidden bg-surface/50">
+<div class="w-full glass rounded-xl overflow-hidden">
   {#each songs as song, index (song.id + '-' + index)}
     <div
-      class="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent/[0.04] transition-colors group relative border-b border-border/50 last:border-b-0"
+      class="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-white/[0.02] transition-colors group relative border-b border-border/30 last:border-b-0"
       onclick={() => handleRowClick(song, index)}
       onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleRowClick(song, index); }}
       ontouchstart={() => startLongPress(index)}
@@ -112,7 +112,7 @@
 
       {#if contextMenuIndex === index}
         <div
-          class="absolute right-2 top-full mt-1 bg-surface border border-border rounded-xl shadow-xl shadow-black/10 z-50 py-1 min-w-36 animate-scale-in"
+          class="absolute right-2 top-full mt-1 glass-raised rounded-xl z-50 py-1 min-w-36 animate-scale-in"
           onclick={(e) => e.stopPropagation()}
           ontouchstart={(e) => e.stopPropagation()}
           ontouchend={(e) => e.stopPropagation()}
@@ -121,13 +121,13 @@
           tabindex="-1"
         >
           <button
-            class="w-full text-left px-3 py-2 text-sm hover:bg-accent/5 transition-colors rounded-lg"
+            class="w-full text-left px-3 py-2 text-sm hover:bg-white/[0.03] transition-colors rounded-lg"
             onclick={() => handlePlayAfter(song)}
           >
             Play After
           </button>
           <button
-            class="w-full text-left px-3 py-2 text-sm hover:bg-accent/5 transition-colors rounded-lg"
+            class="w-full text-left px-3 py-2 text-sm hover:bg-white/[0.03] transition-colors rounded-lg"
             onclick={() => handleAddToQueue(song)}
           >
             Add to Queue

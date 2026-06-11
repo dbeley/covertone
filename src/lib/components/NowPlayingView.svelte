@@ -123,11 +123,13 @@
 
     <div class="flex-1 flex flex-col items-center justify-center px-6 gap-6 overflow-y-auto">
       {#if currentTrack}
-        <LazyImage
+        <div class="glass rounded-2xl p-1 shadow-2xl shadow-black/20">
+          <LazyImage
           src={coverArtUrl}
           alt={currentTrack.title}
-          class="w-48 h-48 md:w-64 md:h-64 rounded-2xl object-cover shadow-2xl shadow-black/20 ring-1 ring-border/50"
+          class="w-48 h-48 md:w-64 md:h-64 rounded-2xl object-cover"
         />
+        </div>
 
         <div class="text-center">
           <h1 class="text-xl font-bold">{currentTrack.title}</h1>
@@ -168,7 +170,7 @@
           </button>
 
           <button
-            class="p-4 bg-text text-bg rounded-full hover:scale-105 active:scale-95 transition-all duration-150 shadow-lg shadow-black/10"
+            class="p-4 bg-accent text-white rounded-full hover:scale-105 active:scale-95 transition-all duration-150 shadow-lg shadow-accent/25"
             onclick={() => player.togglePlay()}
             aria-label={status === 'playing' ? 'Pause' : 'Play'}
           >

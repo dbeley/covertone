@@ -1,30 +1,24 @@
 <script lang="ts">
   import { settings } from '$lib/stores/settings';
+  import { get } from 'svelte/store';
   import { SubsonicAPI } from '$lib/api/SubsonicAPI';
   import type { Theme } from '$lib/stores/settings';
 
-  let theme = $derived($settings.theme);
+  const saved = get(settings);
 
-  let server = $state('');
-  let username = $state('');
-  let password = $state('');
+  let server = $state(saved.serverUrl ?? '');
+  let username = $state(saved.username ?? '');
+  let password = $state(saved.password ?? '');
   let connectionStatus = $state<'idle' | 'testing' | 'success' | 'error'>('idle');
   let saveStatus = $state<'idle' | 'saved'>('idle');
 
-  let aiEndpoint = $state('');
-  let aiKey = $state('');
-  let aiModel = $state('');
+  let aiEndpoint = $state(saved.aiEndpoint ?? '');
+  let aiKey = $state(saved.aiKey ?? '');
+  let aiModel = $state(saved.aiModel ?? '');
   let aiTestStatus = $state<'idle' | 'testing' | 'success' | 'error'>('idle');
   let aiSaveStatus = $state<'idle' | 'saved'>('idle');
 
-  $effect(() => {
-    server = $settings.serverUrl;
-    username = $settings.username;
-    password = $settings.password;
-    aiEndpoint = $settings.aiEndpoint;
-    aiKey = $settings.aiKey;
-    aiModel = $settings.aiModel;
-  });
+  let theme = $derived($settings.theme);
 
   let accentColor = $derived.by(() => $settings.accentColor);
   let customHex = $state('');
@@ -53,14 +47,24 @@
     { label: 'AMOLED', value: 'amoled' },
   ];
 
+  function readInput(id: string, fallback: string): string {
+    const el = document.getElementById(id) as HTMLInputElement | null;
+    return el?.value ?? fallback;
+  }
+
   async function testConnection() {
-    if (!server || !server.startsWith('http')) {
+    const srv = readInput('settings-server-url', server);
+    if (!srv || !srv.startsWith('http')) {
       connectionStatus = 'error';
       return;
     }
     connectionStatus = 'testing';
     try {
-      const api = new SubsonicAPI({ server, username, password });
+      const api = new SubsonicAPI({
+        server: srv,
+        username: readInput('settings-username', username),
+        password: readInput('settings-password', password),
+      });
       const ok = await api.ping();
       connectionStatus = ok ? 'success' : 'error';
     } catch {
@@ -69,26 +73,31 @@
   }
 
   function saveConfig() {
-    settings.setServerConfig({ server, username, password });
+    settings.setServerConfig({
+      server: readInput('settings-server-url', server),
+      username: readInput('settings-username', username),
+      password: readInput('settings-password', password),
+    });
     saveStatus = 'saved';
     setTimeout(() => { saveStatus = 'idle'; }, 2000);
   }
 
   async function testAiConnection() {
-    if (!aiEndpoint || !aiEndpoint.startsWith('http')) {
+    const endpoint = readInput('settings-ai-endpoint', aiEndpoint);
+    if (!endpoint || !endpoint.startsWith('http')) {
       aiTestStatus = 'error';
       return;
     }
     aiTestStatus = 'testing';
     try {
-      const res = await fetch(`${aiEndpoint.replace(/\/+$/, '')}/chat/completions`, {
+      const res = await fetch(`${endpoint.replace(/\/+$/, '')}/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${aiKey}`,
+          'Authorization': `Bearer ${readInput('settings-ai-key', aiKey)}`,
         },
         body: JSON.stringify({
-          model: aiModel || 'deepseek-chat',
+          model: readInput('settings-ai-model', aiModel) || 'deepseek-chat',
           messages: [{ role: 'user', content: 'Say "ok" and nothing else.' }],
           max_tokens: 10,
         }),
@@ -101,16 +110,20 @@
   }
 
   function saveAiConfig() {
-    settings.setAiConfig({ endpoint: aiEndpoint, key: aiKey, model: aiModel });
+    settings.setAiConfig({
+      endpoint: readInput('settings-ai-endpoint', aiEndpoint),
+      key: readInput('settings-ai-key', aiKey),
+      model: readInput('settings-ai-model', aiModel),
+    });
     aiSaveStatus = 'saved';
     setTimeout(() => { aiSaveStatus = 'idle'; }, 2000);
   }
 </script>
 
-<div class="p-6 max-w-lg">
-  <h2 class="text-2xl font-bold mb-8 tracking-tight">Settings</h2>
+<div class="p-4 max-w-lg">
+  <h2 class="text-2xl font-bold mb-6 tracking-tight">Settings</h2>
 
-  <section class="mb-8">
+  <section class="mb-6">
     <h3 class="text-lg font-semibold mb-4 tracking-tight">Server</h3>
 
     <div class="space-y-4">
@@ -174,7 +187,7 @@
     </div>
   </section>
 
-  <section class="mb-8">
+  <section class="mb-6">
     <h3 class="text-lg font-semibold mb-4 tracking-tight">Theme</h3>
     <div class="flex gap-2">
       {#each themes as t (t.value)}
@@ -189,7 +202,7 @@
     </div>
   </section>
 
-  <section class="mb-8">
+  <section class="mb-6">
     <h3 class="text-lg font-semibold mb-4 tracking-tight">Accent Color</h3>
 
     <div class="flex flex-wrap gap-2 mb-4">
@@ -249,7 +262,7 @@
     {/if}
   </section>
 
-  <section class="mb-8">
+  <section class="mb-6">
     <h3 class="text-lg font-semibold mb-4 tracking-tight">Playback</h3>
     <div class="flex items-center gap-3">
       <label class="relative inline-flex items-center cursor-pointer">
@@ -279,7 +292,7 @@
     </div>
   </section>
 
-  <section class="mb-8">
+  <section class="mb-6">
     <h3 class="text-lg font-semibold mb-4 tracking-tight">AI</h3>
     <p class="text-sm text-text-dim mb-4">Optional AI-powered song context ("Discover" item in nav bar). Uses OpenAI-compatible chat API.</p>
     <div class="space-y-4">
@@ -343,7 +356,7 @@
 
   <section>
     <h3 class="text-lg font-semibold mb-4 tracking-tight">About</h3>
-    <p class="text-sm text-text-dim mb-2">Covertone v0.1.16 - A Subsonic/Navidrome music client</p>
+    <p class="text-sm text-text-dim mb-2">Covertone v0.1.17 - A Subsonic/Navidrome music client</p>
     <a
       href="https://github.com/dbeley/covertone"
       target="_blank"

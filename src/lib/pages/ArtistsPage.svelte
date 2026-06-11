@@ -124,7 +124,7 @@
   });
 </script>
 
-<div class="p-6 h-full flex flex-col">
+<div class="p-4 h-full flex flex-col">
   <h2 class="text-2xl font-bold mb-4 tracking-tight shrink-0">Artists</h2>
 
   <input
@@ -141,7 +141,7 @@
     <div class="flex-1 flex min-h-0">
       <div class="flex-1 overflow-y-auto pr-2" id="artist-scroll-container">
         {#each visibleSections as group (group.letter)}
-          <div id="letter-{group.letter}" class="mb-8" style="content-visibility: auto; contain-intrinsic-size: auto 320px">
+          <div id="letter-{group.letter}" class="mb-6" style="content-visibility: auto; contain-intrinsic-size: auto 320px">
             <h3 class="text-lg font-semibold mb-3 tracking-tight text-accent sticky top-0 bg-surface/95 backdrop-blur-sm py-1 z-10">{group.letter}</h3>
             <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
               {#each group.artists as artist (artist.id)}

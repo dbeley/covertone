@@ -96,17 +96,17 @@
     ></div>
 
     <div
-      class="relative w-full max-w-2xl max-h-[85vh] mx-4 bg-surface border border-border rounded-2xl shadow-2xl shadow-black/30 flex flex-col animate-scale-in overflow-hidden"
+      class="relative w-full max-w-2xl max-h-[85vh] mx-4 glass-raised rounded-2xl flex flex-col animate-scale-in overflow-hidden"
       onclick={(e) => e.stopPropagation()}
       onkeydown={(e) => { if (e.key === 'Escape') close(); }}
       role="dialog"
       aria-label="Keyboard shortcuts"
       tabindex="-1"
     >
-      <div class="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-surface shrink-0">
         <h2 class="text-xl font-bold tracking-tight">Keyboard Shortcuts</h2>
         <button
-          class="p-2 rounded-xl hover:bg-white/5 text-text-dim hover:text-text transition-all duration-150 active:scale-90"
+          class="p-2 rounded-xl hover:bg-white/[0.03] text-text-dim hover:text-text transition-all duration-150 active:scale-90"
           onclick={close}
           aria-label="Close"
         >

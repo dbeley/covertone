@@ -65,11 +65,11 @@
   });
 </script>
 
-<div class="p-6">
+<div class="p-4">
   {#if !configured}
     <div class="text-center py-20">
       <h1 class="text-3xl font-bold mb-4 tracking-tight">Welcome to Covertone</h1>
-      <p class="text-text-dim mb-8">Connect to your Subsonic server to get started</p>
+      <p class="text-text-dim mb-6">Connect to your Subsonic server to get started</p>
       <button
         class="px-6 py-3 bg-accent text-white rounded-xl text-sm font-medium hover:brightness-110 active:scale-[0.98] transition-all duration-150 shadow-lg shadow-accent/20"
         onclick={() => router.navigate('/settings')}

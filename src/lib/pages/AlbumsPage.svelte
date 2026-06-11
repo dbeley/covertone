@@ -69,7 +69,7 @@
   });
 </script>
 
-<div class="p-6">
+<div class="p-4">
     <h2 class="text-2xl font-bold mb-6 tracking-tight">Albums</h2>
 
     <div class="tabs-container flex gap-2 mb-6 items-center overflow-x-auto flex-nowrap" style="scrollbar-width: none;">

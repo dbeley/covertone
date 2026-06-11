@@ -36,7 +36,7 @@
 </script>
 
 <nav
-  class="h-full flex flex-col gap-0.5 p-3 bg-surface border-r border-border w-48
+  class="h-full flex flex-col gap-0.5 p-3 bg-nav backdrop-blur-xl border-r border-surface w-48
          fixed md:relative inset-y-0 left-0 z-40
          transition-transform duration-300 ease-in-out
          {mobileOpen && !swipeOffset ? 'translate-x-0' : (!mobileOpen && !swipeOffset ? '-translate-x-full md:translate-x-0' : '')}"
@@ -46,15 +46,15 @@
   {#each navItems as item (item.path)}
     <button
       class="w-full text-left px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150
-             {currentPath === item.path ? 'bg-accent/10 text-accent ring-1 ring-accent/20' : 'text-text-dim hover:text-text hover:bg-white/5'}"
+             {currentPath === item.path ? 'bg-accent/10 text-accent border border-accent/10' : 'text-text-dim hover:text-text hover:bg-white/[0.03]'}"
       onclick={() => handleClick(item.path)}
     >
       {item.label}
     </button>
   {/each}
-  <div class="mt-auto pt-2 border-t border-border space-y-0.5">
+  <div class="mt-auto pt-2 border-t border-surface space-y-0.5">
     <button
-      class="w-full text-left px-3 py-2 rounded-xl text-sm font-medium text-text-dim hover:text-text hover:bg-white/5 transition-all duration-150 flex items-center gap-2"
+      class="w-full text-left px-3 py-2 rounded-xl text-sm font-medium text-text-dim hover:text-text hover:bg-white/[0.03] transition-all duration-150 flex items-center gap-2"
       onclick={() => shortcutsModalOpen.update(v => !v)}
     >
       <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -64,7 +64,7 @@
       Shortcuts
     </button>
     <button
-      class="w-full text-left px-3 py-2 rounded-xl text-sm font-medium text-text-dim hover:text-text hover:bg-white/5 transition-all duration-150 flex items-center gap-2"
+      class="w-full text-left px-3 py-2 rounded-xl text-sm font-medium text-text-dim hover:text-text hover:bg-white/[0.03] transition-all duration-150 flex items-center gap-2"
       onclick={() => discoveryDrawerOpen.update(v => !v)}
     >
       <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -74,7 +74,7 @@
       Discover
     </button>
     <button
-      class="w-full text-left px-3 py-2 rounded-xl text-sm font-medium text-text-dim hover:text-text hover:bg-white/5 transition-all duration-150 flex items-center gap-2"
+      class="w-full text-left px-3 py-2 rounded-xl text-sm font-medium text-text-dim hover:text-text hover:bg-white/[0.03] transition-all duration-150 flex items-center gap-2"
       onclick={() => { if (!atMax) tabsStore.createTab($router.path); }}
       title={atMax ? 'Maximum 10 tabs' : ''}
     >
