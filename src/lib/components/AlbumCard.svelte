@@ -81,9 +81,9 @@
       alt={album.name}
       loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
     />
-    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-transparent"></div>
-    <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-    <div class="absolute bottom-0 left-0 right-0 p-2.5">
+    <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/5 to-transparent"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+    <div class="absolute top-0 left-0 right-0 p-2.5">
       <p class="text-[11px] font-semibold truncate text-white drop-shadow-md">{album.name}</p>
       <p class="text-[10px] text-white/60 truncate drop-shadow-sm">{album.artist}</p>
     </div>
