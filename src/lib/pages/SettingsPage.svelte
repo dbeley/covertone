@@ -107,10 +107,10 @@
   }
 </script>
 
-<div class="p-6 max-w-lg">
-  <h2 class="text-2xl font-bold mb-8 tracking-tight">Settings</h2>
+<div class="p-4 max-w-lg">
+  <h2 class="text-2xl font-bold mb-6 tracking-tight">Settings</h2>
 
-  <section class="mb-8">
+  <section class="mb-6">
     <h3 class="text-lg font-semibold mb-4 tracking-tight">Server</h3>
 
     <div class="space-y-4">
@@ -174,7 +174,7 @@
     </div>
   </section>
 
-  <section class="mb-8">
+  <section class="mb-6">
     <h3 class="text-lg font-semibold mb-4 tracking-tight">Theme</h3>
     <div class="flex gap-2">
       {#each themes as t (t.value)}
@@ -189,7 +189,7 @@
     </div>
   </section>
 
-  <section class="mb-8">
+  <section class="mb-6">
     <h3 class="text-lg font-semibold mb-4 tracking-tight">Accent Color</h3>
 
     <div class="flex flex-wrap gap-2 mb-4">
@@ -249,7 +249,7 @@
     {/if}
   </section>
 
-  <section class="mb-8">
+  <section class="mb-6">
     <h3 class="text-lg font-semibold mb-4 tracking-tight">Playback</h3>
     <div class="flex items-center gap-3">
       <label class="relative inline-flex items-center cursor-pointer">
@@ -279,7 +279,7 @@
     </div>
   </section>
 
-  <section class="mb-8">
+  <section class="mb-6">
     <h3 class="text-lg font-semibold mb-4 tracking-tight">AI</h3>
     <p class="text-sm text-text-dim mb-4">Optional AI-powered song context ("Discover" item in nav bar). Uses OpenAI-compatible chat API.</p>
     <div class="space-y-4">
@@ -343,7 +343,7 @@
 
   <section>
     <h3 class="text-lg font-semibold mb-4 tracking-tight">About</h3>
-    <p class="text-sm text-text-dim mb-2">Covertone v0.1.16 - A Subsonic/Navidrome music client</p>
+    <p class="text-sm text-text-dim mb-2">Covertone v0.2.0 - A Subsonic/Navidrome music client</p>
     <a
       href="https://github.com/dbeley/covertone"
       target="_blank"

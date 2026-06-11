@@ -68,7 +68,7 @@
 </script>
 
 <div
-  class="cursor-pointer group rounded-xl border border-border bg-surface hover:border-accent/20 hover:shadow-lg hover:shadow-accent/5 transition-all duration-200 overflow-hidden active:scale-[0.98]"
+  class="cursor-pointer group glass overflow-hidden active:scale-[0.98] transition-all duration-200"
   onclick={open}
   onkeydown={onKeydown}
   role="button"
@@ -79,13 +79,19 @@
     <LazyImage
       src={coverArtUrl}
       alt={album.name}
-      loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+      loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
     />
+    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-transparent"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+    <div class="absolute bottom-0 left-0 right-0 p-2.5">
+      <p class="text-[11px] font-semibold truncate text-white drop-shadow-md">{album.name}</p>
+      <p class="text-[10px] text-white/60 truncate drop-shadow-sm">{album.artist}</p>
+    </div>
     <div
-      class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 touch:opacity-100 transition-opacity duration-200 flex items-end justify-center pb-3 gap-2 pointer-events-none"
+      class="absolute inset-0 flex items-end justify-center pb-3 gap-2 opacity-0 group-hover:opacity-100 touch:opacity-100 transition-opacity duration-200"
     >
       <button
-        class="pointer-events-auto w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-accent/80 hover:scale-110 transition-all duration-150 active:scale-95"
+        class="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-black hover:scale-110 transition-all duration-200 active:scale-95 shadow-lg"
         onclick={playAll}
         aria-label="Play all"
         title="Play all"
@@ -95,7 +101,7 @@
         </svg>
       </button>
       <button
-        class="pointer-events-auto w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-accent/80 hover:scale-110 transition-all duration-150 active:scale-95"
+        class="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-black hover:scale-110 transition-all duration-200 active:scale-95 shadow-lg"
         onclick={addToQueue}
         aria-label="Add to queue"
         title="Add to queue"
@@ -107,7 +113,7 @@
         </svg>
       </button>
       <button
-        class="pointer-events-auto w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-accent/80 hover:scale-110 transition-all duration-150 active:scale-95"
+        class="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-black hover:scale-110 transition-all duration-200 active:scale-95 shadow-lg"
         onclick={toggleStar}
         aria-label={localStarred ? 'Remove from favorites' : 'Add to favorites'}
         title={localStarred ? 'Remove from favorites' : 'Add to favorites'}
@@ -117,9 +123,5 @@
         </svg>
       </button>
     </div>
-  </div>
-  <div class="p-2.5">
-    <p class="text-sm font-medium truncate text-text">{album.name}</p>
-    <p class="text-xs text-text-dim truncate mt-0.5">{album.artist}</p>
   </div>
 </div>

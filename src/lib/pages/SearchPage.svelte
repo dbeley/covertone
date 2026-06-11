@@ -102,7 +102,7 @@
   }
 </script>
 
-<div class="p-6">
+<div class="p-4">
   <h2 class="text-2xl font-bold mb-6 tracking-tight">Search</h2>
 
   <input
@@ -119,7 +119,7 @@
     <p class="text-text-dim">No results for "{query}"</p>
   {:else}
     {#if artists.length > 0}
-      <section class="mb-8">
+      <section class="mb-6">
         <h3 class="text-lg font-semibold mb-3 tracking-tight">Artists</h3>
         <div class="flex gap-4 overflow-x-auto pb-2">
           {#each artists as artist (artist.id)}
@@ -146,7 +146,7 @@
     {/if}
 
     {#if albums.length > 0}
-      <section class="mb-8">
+      <section class="mb-6">
         <h3 class="text-lg font-semibold mb-3 tracking-tight">Albums</h3>
         <div class="flex gap-4 overflow-x-auto pb-2">
           {#each albums as album (album.id)}
