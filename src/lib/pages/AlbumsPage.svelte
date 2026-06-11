@@ -77,7 +77,7 @@
         <button
           tabindex="0"
           class="whitespace-nowrap px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150 border border-border
-                 {activeTab === tab.type ? 'bg-accent text-white border-accent shadow-sm shadow-accent/20' : 'text-text-dim hover:text-text hover:border-accent/30'}"
+                 {activeTab === tab.type ? 'bg-accent text-white border-accent shadow-sm shadow-accent/20' : 'glass text-text-dim hover:text-text hover:border-accent/30'}"
           onclick={() => switchTab(tab.type)}
           onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); switchTab(tab.type); } }}
         >
@@ -87,7 +87,7 @@
       {#if activeTab === 'random'}
         <button
           tabindex="0"
-          class="p-2 rounded-xl text-text-dim hover:text-accent hover:bg-accent/10 transition-all duration-150 active:scale-90"
+          class="p-2 rounded-xl glass text-text-dim hover:text-accent hover:bg-accent/10 transition-all duration-150 active:scale-90"
           onclick={() => library.fetchAlbums({ type: 'random', offset: 0, refresh: true })}
           onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); library.fetchAlbums({ type: 'random', offset: 0, refresh: true }); } }}
           aria-label="Refresh random albums"
