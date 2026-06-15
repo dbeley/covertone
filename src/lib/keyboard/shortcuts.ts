@@ -30,7 +30,7 @@ function isTypingTarget(el: EventTarget | null): boolean {
 function getNavigableElements(): HTMLElement[] {
   return Array.from(
     document.querySelectorAll<HTMLElement>(
-      'button[tabindex="0"], [role="button"][tabindex="0"]:not([data-nav-ignore])',
+      'button:not([tabindex="-1"]), [role="button"][tabindex="0"]:not([data-nav-ignore])',
     ),
   ).filter((el) => {
     const rect = el.getBoundingClientRect();
@@ -40,7 +40,8 @@ function getNavigableElements(): HTMLElement[] {
 
 function getRowStep(currentIdx: number): number {
   const elements = getNavigableElements();
-  if (elements.length < 2) return 1;
+  if (elements.length < 2 || currentIdx < 0 || currentIdx >= elements.length)
+    return 1;
 
   const currentTop = elements[currentIdx].getBoundingClientRect().top;
   let count = 1;
