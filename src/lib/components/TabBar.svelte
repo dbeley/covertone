@@ -33,6 +33,7 @@
           data-tab-close
           role="button"
           tabindex="0"
+          data-nav-ignore
           class="flex items-center justify-center w-4 h-4 rounded hover:bg-white/[0.06] cursor-pointer"
           aria-label="Close tab"
           onclick={(e) => { e.stopPropagation(); tabsStore.closeTab(tab.id); }}

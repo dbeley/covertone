@@ -119,6 +119,7 @@
       onkeydown={handleSeekKeydown}
       aria-label="Seek"
       style="touch-action: none"
+      tabindex="-1"
     >
       <div class="h-full flex items-center">
         <div class="w-full h-1 bg-text-dim/15 rounded-full overflow-hidden">

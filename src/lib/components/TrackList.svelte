@@ -90,7 +90,7 @@
         <div class="text-sm font-medium truncate">{song.title}</div>
         {#if showArtistLink}
           <div class="text-xs text-text-dim truncate">
-            <button class="hover:text-accent hover:underline transition-colors" onclick={(e) => { e.stopPropagation(); router.navigate(`artist/${song.artistId}`); }}>{song.artist}</button>
+            <button class="hover:text-accent hover:underline transition-colors" tabindex="-1" onclick={(e) => { e.stopPropagation(); router.navigate(`artist/${song.artistId}`); }}>{song.artist}</button>
           </div>
         {:else}
           <div class="text-xs text-text-dim truncate">{song.artist}</div>
@@ -102,6 +102,7 @@
         class="p-1 transition-opacity hover:text-accent relative text-text-dim"
         onclick={(e) => handleContextMenu(e, index)}
         aria-label="Track options"
+        tabindex="-1"
       >
         <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current">
           <circle cx="12" cy="5" r="2" />
@@ -123,12 +124,14 @@
           <button
             class="w-full text-left px-3 py-2 text-sm hover:bg-white/[0.03] transition-colors rounded-lg"
             onclick={() => handlePlayAfter(song)}
+            tabindex="-1"
           >
             Play After
           </button>
           <button
             class="w-full text-left px-3 py-2 text-sm hover:bg-white/[0.03] transition-colors rounded-lg"
             onclick={() => handleAddToQueue(song)}
+            tabindex="-1"
           >
             Add to Queue
           </button>

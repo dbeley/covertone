@@ -200,6 +200,7 @@
                   class="p-1.5 rounded-lg hover:bg-white/10 text-text-dim hover:text-text transition-colors"
                   onclick={(e) => { e.stopPropagation(); queue.addNext(song); }}
                   aria-label="Play next"
+                  tabindex="-1"
                 >
                   <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current">
                     <polygon points="7,4 19,12 7,20" />
@@ -210,6 +211,7 @@
                   class="p-1.5 rounded-lg hover:bg-white/10 text-text-dim hover:text-text transition-colors"
                   onclick={(e) => { e.stopPropagation(); queue.addToEnd(song); }}
                   aria-label="Add to queue"
+                  tabindex="-1"
                 >
                   <svg viewBox="0 0 24 24" class="w-4 h-4 fill-current">
                     <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
