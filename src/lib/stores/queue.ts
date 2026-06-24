@@ -223,10 +223,9 @@ function createQueue() {
       let result: Song | null = null;
       update((s) => {
         if (s.shuffle && s.items.length > 1) {
-          let nextIndex = Math.floor(Math.random() * s.items.length);
-          while (nextIndex === s.currentIndex) {
-            nextIndex = Math.floor(Math.random() * s.items.length);
-          }
+          // Use Fisher-Yates to pick a random index different from current
+          let nextIndex = Math.floor(Math.random() * (s.items.length - 1));
+          if (nextIndex >= s.currentIndex) nextIndex++;
           result = s.items[nextIndex].track;
           return recomputeDerived({ ...s, currentIndex: nextIndex });
         }

@@ -403,5 +403,14 @@ export async function scrobbleTrack(config: {
     params.set("time", String(config.time));
   }
   const url = `${server}/rest/scrobble?${params.toString()}`;
-  await fetch(url);
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      console.warn(
+        `Scrobble failed: ${response.status} ${response.statusText}`,
+      );
+    }
+  } catch (e) {
+    console.warn("Scrobble network error:", e instanceof Error ? e.message : e);
+  }
 }

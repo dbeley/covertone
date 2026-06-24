@@ -24,6 +24,7 @@ export interface LibraryState {
   artists: Artist[];
   artistIndex: ArtistIndexGroup[];
   loading: boolean;
+  error: string | null;
   currentAlbumListType: AlbumListType | null;
   currentOffset: number;
   hasMore: boolean;
@@ -44,6 +45,7 @@ function createLibrary() {
     artists: [],
     artistIndex: [],
     loading: false,
+    error: null,
     currentAlbumListType: null,
     currentOffset: 0,
     hasMore: true,
@@ -59,6 +61,7 @@ function createLibrary() {
         artists: [],
         artistIndex: [],
         loading: false,
+        error: null,
         currentAlbumListType: null,
         currentOffset: 0,
         hasMore: true,
@@ -79,6 +82,7 @@ function createLibrary() {
       update((s) => ({
         ...s,
         loading: true,
+        error: null,
         currentAlbumListType: params.type,
         currentOffset: offset,
       }));
@@ -103,13 +107,15 @@ function createLibrary() {
             hasMore: albums.length >= size,
           };
         });
-      } catch {
-        update((s) => ({ ...s, loading: false }));
+      } catch (e) {
+        const message =
+          e instanceof Error ? e.message : "Failed to fetch albums";
+        update((s) => ({ ...s, loading: false, error: message }));
       }
     },
     async fetchArtists() {
       if (!api) return;
-      update((s) => ({ ...s, loading: true }));
+      update((s) => ({ ...s, loading: true, error: null }));
       try {
         const result = await api.getArtists();
         const artists: Artist[] = [];
@@ -121,8 +127,10 @@ function createLibrary() {
           }
         }
         update((s) => ({ ...s, artists, artistIndex, loading: false }));
-      } catch {
-        update((s) => ({ ...s, loading: false }));
+      } catch (e) {
+        const message =
+          e instanceof Error ? e.message : "Failed to fetch artists";
+        update((s) => ({ ...s, loading: false, error: message }));
       }
     },
     getApi(): SubsonicAPI | null {
@@ -146,6 +154,7 @@ function createLibrary() {
         artists: [],
         artistIndex: [],
         loading: false,
+        error: null,
         currentAlbumListType: null,
         currentOffset: 0,
         hasMore: true,

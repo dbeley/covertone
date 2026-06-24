@@ -170,6 +170,11 @@ function createPlayer() {
       engine.onLoaded((duration) => {
         update((s) => ({ ...s, duration, status: "playing" }));
       });
+      engine.onError((error) => {
+        console.error("Audio playback error:", error.message);
+        update((s) => ({ ...s, status: "idle" }));
+        NativeMedia.hide();
+      });
 
       update((s) => ({
         ...s,

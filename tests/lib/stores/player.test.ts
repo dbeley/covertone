@@ -22,6 +22,7 @@ const mockEngine = {
   onTimeUpdate: vi.fn(),
   onEnded: vi.fn(),
   onLoaded: vi.fn(),
+  onError: vi.fn(),
   destroy: vi.fn().mockImplementation(() => {
     mockPaused = true;
   }),

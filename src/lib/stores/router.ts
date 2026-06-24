@@ -17,7 +17,14 @@ function parseRoute(hash: string): Route {
   } {
     const patternParts = pattern.split("/").filter(Boolean);
     const rawParts = path.split("/").filter(Boolean);
-    const pathParts = rawParts.map(decodeURIComponent);
+    const pathParts: string[] = [];
+    for (const part of rawParts) {
+      try {
+        pathParts.push(decodeURIComponent(part));
+      } catch {
+        pathParts.push(part);
+      }
+    }
     if (patternParts.length !== pathParts.length) {
       return { matched: false, params: {} };
     }

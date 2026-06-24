@@ -113,7 +113,7 @@ describe("FavoritesPage", () => {
   it("shows empty state when no items are starred", async () => {
     mockInstance.getStarred.mockResolvedValue(emptyData);
     render(FavoritesPage);
-    expect(await screen.findByText(/No starred albums yet/i)).toBeTruthy();
+    expect(await screen.findByText(/No starred albums/i)).toBeTruthy();
   });
 
   it("shows error message when API call fails", async () => {

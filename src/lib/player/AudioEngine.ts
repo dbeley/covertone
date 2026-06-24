@@ -1,12 +1,14 @@
 export type TimeUpdateCallback = (current: number, duration: number) => void;
 export type EndedCallback = () => void;
 export type LoadedCallback = (duration: number) => void;
+export type ErrorCallback = (error: Error) => void;
 
 export class AudioEngine {
   private audio: HTMLAudioElement;
   private onTimeUpdateCb: TimeUpdateCallback | null = null;
   private onEndedCb: EndedCallback | null = null;
   private onLoadedCb: LoadedCallback | null = null;
+  private onErrorCb: ErrorCallback | null = null;
 
   private handleTimeUpdate = () => {
     if (this.onTimeUpdateCb) {
@@ -22,11 +24,21 @@ export class AudioEngine {
     if (this.onLoadedCb) this.onLoadedCb(this.audio.duration);
   };
 
+  private handleError = () => {
+    if (this.onErrorCb) {
+      const error = this.audio.error;
+      const message =
+        error?.message || `Audio error: ${error?.code || "unknown"}`;
+      this.onErrorCb(new Error(message));
+    }
+  };
+
   constructor() {
     this.audio = new Audio();
     this.audio.addEventListener("timeupdate", this.handleTimeUpdate);
     this.audio.addEventListener("ended", this.handleEnded);
     this.audio.addEventListener("loadedmetadata", this.handleLoaded);
+    this.audio.addEventListener("error", this.handleError);
   }
 
   load(url: string): void {
@@ -82,14 +94,20 @@ export class AudioEngine {
     this.onLoadedCb = cb;
   }
 
+  onError(cb: ErrorCallback): void {
+    this.onErrorCb = cb;
+  }
+
   destroy(): void {
     this.audio.pause();
     this.audio.src = "";
     this.audio.removeEventListener("timeupdate", this.handleTimeUpdate);
     this.audio.removeEventListener("ended", this.handleEnded);
     this.audio.removeEventListener("loadedmetadata", this.handleLoaded);
+    this.audio.removeEventListener("error", this.handleError);
     this.onTimeUpdateCb = null;
     this.onEndedCb = null;
     this.onLoadedCb = null;
+    this.onErrorCb = null;
   }
 }

@@ -66,7 +66,18 @@ function loadRuntimeConfig(): Partial<SettingsState> {
 function loadPersisted(): Partial<SettingsState> {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) return JSON.parse(stored);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Validate that parsed is an object
+      if (
+        typeof parsed !== "object" ||
+        parsed === null ||
+        Array.isArray(parsed)
+      ) {
+        return loadRuntimeConfig();
+      }
+      return parsed;
+    }
   } catch {
     /* ignore */
   }
