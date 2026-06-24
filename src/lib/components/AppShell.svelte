@@ -9,6 +9,7 @@
   import { nowPlayingOpen } from '$lib/stores/ui';
   import { player } from '$lib/stores/player';
   import TabBar from './TabBar.svelte';
+  import ScrollToTop from './ScrollToTop.svelte';
   import { tabsStore } from '$lib/stores/tabs';
   import { get } from 'svelte/store';
   import { tick } from 'svelte';
@@ -180,6 +181,7 @@
     <QueueDrawer />
   </div>
 
+  <ScrollToTop />
   <NowPlayingBar
     onExpand={openNowPlaying}
   />

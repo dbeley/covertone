@@ -8,6 +8,7 @@
   import AlbumGrid from '$lib/components/AlbumGrid.svelte';
   import LazyImage from '$lib/components/LazyImage.svelte';
   import { formatDuration, shuffle } from '$lib/utils/format';
+  import EmptyState from '$lib/components/EmptyState.svelte';
   import type { Artist, Album, Song } from '$lib/api/types';
 
   type Tab = 'albums' | 'artists' | 'songs';
@@ -135,7 +136,7 @@
       {#if allAlbums.length > 0}
         <AlbumGrid albums={sortedAlbums} {serverUrl} {username} {password} />
       {:else if !loading}
-        <p class="text-text-dim text-center py-16">No starred albums yet.</p>
+        <EmptyState icon="empty" title="No starred albums" message="Star an album to see it here" />
       {/if}
     {:else if activeTab === 'artists'}
       {#if allArtists.length > 0}
@@ -163,7 +164,7 @@
           {/each}
         </div>
       {:else if !loading}
-        <p class="text-text-dim text-center py-16">No starred artists yet.</p>
+        <EmptyState icon="empty" title="No starred artists" message="Star an artist to see it here" />
       {/if}
     {:else if activeTab === 'songs'}
       {#if allSongs.length > 0}
@@ -193,7 +194,7 @@
           {/each}
         </div>
       {:else if !loading}
-        <p class="text-text-dim text-center py-16">No starred songs yet.</p>
+        <EmptyState icon="empty" title="No starred songs" message="Star a song to see it here" />
       {/if}
     {/if}
 
