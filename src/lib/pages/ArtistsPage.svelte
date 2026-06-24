@@ -5,6 +5,7 @@
   import { router } from '$lib/stores/router';
   import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import LazyImage from '$lib/components/LazyImage.svelte';
+  import EmptyState from '$lib/components/EmptyState.svelte';
   import type { Artist } from '$lib/api/types';
 
   let serverUrl = $derived($settings.serverUrl);
@@ -136,7 +137,7 @@
   />
 
   {#if loading}
-    <p class="text-text-dim">Loading...</p>
+    <EmptyState icon="loading" title="Loading artists..." />
   {:else if filteredIndex.length > 0}
     <div class="flex-1 flex min-h-0">
       <div class="flex-1 overflow-y-auto pr-2" id="artist-scroll-container">
@@ -190,6 +191,6 @@
       {/if}
     </div>
   {:else}
-    <p class="text-text-dim">{debouncedQuery ? 'No artists match your search' : 'No artists found'}</p>
+    <EmptyState icon="empty" title={debouncedQuery ? 'No results' : 'No artists'} message={debouncedQuery ? `No artists match "${debouncedQuery}"` : 'No artists found on server'} />
   {/if}
 </div>

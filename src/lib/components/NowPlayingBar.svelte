@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { slide } from "svelte/transition";
+  import { quintOut } from "svelte/easing";
   import { player } from '$lib/stores/player';
   import { queue, queueDrawerOpen } from '$lib/stores/queue';
   import { settings } from '$lib/stores/settings';
@@ -104,6 +106,7 @@
   <div
     class="fixed left-0 right-0 h-16 bg-surface/90 backdrop-blur-xl border-t border-border grid grid-cols-[1fr_auto_1fr] items-center px-4 gap-3 z-50 transition-shadow hover:shadow-lg hover:shadow-black/5 cursor-pointer"
     style="bottom: var(--safe-area-inset-bottom, 0px)"
+    transition:slide={{ duration: 250, easing: quintOut }}
     ontouchstart={handleTouchStart}
     ontouchend={handleTouchEnd}
     onclick={onExpand}
