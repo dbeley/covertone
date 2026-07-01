@@ -1,19 +1,12 @@
 <script lang="ts">
-  import { onMount, onDestroy } from "svelte";
-
   let visible = $state(false);
-  let cleanup: (() => void) | null = null;
 
-  onMount(() => {
+  $effect(() => {
     const handler = () => {
       visible = window.scrollY > 600;
     };
     window.addEventListener("scroll", handler, { passive: true });
-    cleanup = () => window.removeEventListener("scroll", handler);
-  });
-
-  onDestroy(() => {
-    cleanup?.();
+    return () => window.removeEventListener("scroll", handler);
   });
 
   function scrollToTop() {
