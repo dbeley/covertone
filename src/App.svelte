@@ -8,11 +8,12 @@
   import { nowPlayingOpen, shortcutsModalOpen } from '$lib/stores/ui';
   import { discoveryDrawerOpen } from '$lib/stores/discovery';
   import { getStreamBaseUrl } from '$lib/api/SubsonicAPI';
-  import { SubsonicAPI } from '$lib/api/SubsonicAPI';
+  import { createApi } from '$lib/api/createApi';
   import { AutoDJ } from '$lib/player/AutoDJ';
   import { isNativeAvailable } from '$lib/player/NativeMedia';
   import { initKeyboardShortcuts } from '$lib/keyboard/shortcuts';
   import { handleNativeBackButton } from '$lib/navigation/nativeBack';
+  import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
   import AppShell from '$lib/components/AppShell.svelte';
 
   onMount(() => {
@@ -80,7 +81,7 @@
     player.setStreamBase(baseUrl);
     player.setApiConfig({ server: srv, username: usr, password: pwd });
 
-    const api = new SubsonicAPI({ server: srv, username: usr, password: pwd });
+    const api = createApi({ server: srv, username: usr, password: pwd });
     queue.setAutoDJInstance(new AutoDJ(api));
     queue.setAutoDJ(autoDJEnabled);
   });
@@ -95,5 +96,7 @@
     class="glass-ambient"
     style="bottom: 10vh; left: -30vw; width: 70vw; height: 50vh; background: radial-gradient(circle at center, var(--accent-glow), transparent 70%); border-radius: 50%;"
   ></div>
-  <AppShell />
+  <ErrorBoundary>
+    <AppShell />
+  </ErrorBoundary>
 </div>

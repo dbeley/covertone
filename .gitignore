@@ -1,16 +1,37 @@
+# --- Dependencies ---
 node_modules/
+
+# --- Build output ---
 dist/
-.superpowers/
-*.log
+
+# --- Editor & OS ---
 .DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.sublime-*
+
+# --- Environment ---
+.env
+.env.local
 .direnv/
+
+# --- Logs ---
+*.log
+
+# --- Project-specific ---
+.superpowers/
+.opencode/
 docs/
+
+# --- Capacitor / Android ---
 android/local.properties
 android/.gradle/
 android/build/
 android/app/build/
 android/captures/
+ios/
 android-sdk/
 *.keystore
-.opencode/
-.env

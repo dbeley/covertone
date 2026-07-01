@@ -5,6 +5,7 @@
   import { router } from '$lib/stores/router';
   import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import LazyImage from '$lib/components/LazyImage.svelte';
+  import EmptyState from '$lib/components/EmptyState.svelte';
   import type { Artist } from '$lib/api/types';
 
   let serverUrl = $derived($settings.serverUrl);
@@ -190,6 +191,6 @@
       {/if}
     </div>
   {:else}
-    <p class="text-text-dim">{debouncedQuery ? 'No artists match your search' : 'No artists found'}</p>
+    <EmptyState icon="empty" title={debouncedQuery ? 'No results' : 'No artists'} message={debouncedQuery ? `No artists match "${debouncedQuery}"` : 'No artists found on server'} />
   {/if}
 </div>
