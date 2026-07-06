@@ -263,14 +263,18 @@ function createQueue() {
       const currentItem = state.items[state.currentIndex];
       if (!currentItem) return null;
 
-      const similar = await autoDJInstance.fetchSimilar(
-        currentItem.track.id,
-        10,
-      );
-      if (similar.length === 0) return null;
+      try {
+        const similar = await autoDJInstance.fetchSimilar(
+          currentItem.track.id,
+          10,
+        );
+        if (similar.length === 0) return null;
 
-      this.addTracksToEnd(similar);
-      return this.getNext();
+        this.addTracksToEnd(similar);
+        return this.getNext();
+      } catch {
+        return null;
+      }
     },
     syncCurrentTrack(track: Song | null) {
       update((s) => {
