@@ -255,8 +255,7 @@ export class SubsonicAPI {
         count: params.count ?? 50,
       });
       const resp = data["subsonic-response"];
-      const songs =
-        resp.similarSongs2?.song ?? resp.similarSongs?.song ?? [];
+      const songs = resp.similarSongs2?.song ?? resp.similarSongs?.song ?? [];
       return { similarSongs: { song: songs } };
     } catch {
       // Fall back to the legacy getSimilarSongs endpoint
