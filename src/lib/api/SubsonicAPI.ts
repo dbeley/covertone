@@ -246,11 +246,26 @@ export class SubsonicAPI {
     id: string;
     count?: number;
   }): Promise<{ similarSongs: { song: Song[] } }> {
-    const data = await this.requestCached<{ similarSongs: { song: Song[] } }>(
-      ENDPOINTS.getSimilarSongs,
-      { id: params.id, count: params.count ?? 50 },
-    );
-    return data["subsonic-response"];
+    try {
+      const data = await this.request<{
+        similarSongs2?: { song: Song[] };
+        similarSongs?: { song: Song[] };
+      }>(ENDPOINTS.getSimilarSongs, {
+        id: params.id,
+        count: params.count ?? 50,
+      });
+      const resp = data["subsonic-response"];
+      const songs =
+        resp.similarSongs2?.song ?? resp.similarSongs?.song ?? [];
+      return { similarSongs: { song: songs } };
+    } catch {
+      // Fall back to the legacy getSimilarSongs endpoint
+      const data = await this.requestCached<{ similarSongs: { song: Song[] } }>(
+        ENDPOINTS.getSimilarSongsLegacy,
+        { id: params.id, count: params.count ?? 50 },
+      );
+      return data["subsonic-response"];
+    }
   }
 
   async search3(params: {

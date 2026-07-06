@@ -11,10 +11,16 @@ export class AutoDJ {
   async fetchSimilar(songId: string, count: number = 10): Promise<Song[]> {
     try {
       const result = await this.api.getSimilarSongs({ id: songId, count });
-      return result.similarSongs.song;
+      const songs = result.similarSongs?.song;
+      return Array.isArray(songs) ? songs : [];
     } catch {
-      const result = await this.api.getRandomSongs({ size: count });
-      return result.randomSongs.song;
+      try {
+        const result = await this.api.getRandomSongs({ size: count });
+        const songs = result.randomSongs?.song;
+        return Array.isArray(songs) ? songs : [];
+      } catch {
+        return [];
+      }
     }
   }
 }

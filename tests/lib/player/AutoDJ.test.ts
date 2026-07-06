@@ -78,6 +78,7 @@ describe("AutoDJ", () => {
       () => Promise.reject(new Error("No random")),
     );
     const autoDJ = new AutoDJ(mockApi as any);
-    await expect(autoDJ.fetchSimilar("1", 10)).rejects.toThrow("No random");
+    const songs = await autoDJ.fetchSimilar("1", 10);
+    expect(songs).toEqual([]);
   });
 });
