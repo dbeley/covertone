@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/svelte";
 import TrackList from "$lib/components/TrackList.svelte";
 import { player } from "$lib/stores/player";
+import { library } from "$lib/stores/library";
 import type { Song } from "$lib/api/types";
 
 const mockPlayerState = {
@@ -14,6 +15,9 @@ const mockPlayerState = {
   shuffle: false,
   favorited: false,
 };
+
+const mockStar = vi.fn();
+const mockUnstar = vi.fn();
 
 vi.mock("$lib/stores/player", () => ({
   player: {
@@ -31,6 +35,15 @@ vi.mock("$lib/stores/queue", () => ({
     subscribe: vi.fn(() => vi.fn()),
     addNext: vi.fn(),
     addToEnd: vi.fn(),
+  },
+}));
+
+vi.mock("$lib/stores/library", () => ({
+  library: {
+    getApi: vi.fn(() => ({
+      star: mockStar,
+      unstar: mockUnstar,
+    })),
   },
 }));
 
@@ -68,6 +81,8 @@ describe("TrackList", () => {
   beforeEach(() => {
     mockPlayerState.currentTrack = null;
     vi.mocked(player.playTrack).mockClear();
+    mockStar.mockReset();
+    mockUnstar.mockReset();
   });
 
   it("renders song titles", () => {
@@ -136,5 +151,162 @@ describe("TrackList", () => {
     const { container } = render(TrackList, { songs });
     const list = container.querySelector(".w-full") as HTMLElement;
     expect(list.hasAttribute("style")).toBe(false);
+  });
+
+  describe("context menu", () => {
+    it("opens context menu with fixed positioning when clicking the three-dot button", async () => {
+      render(TrackList, { songs });
+      const buttons = screen.getAllByLabelText("Track options");
+      await fireEvent.click(buttons[0]);
+
+      const menu = document.querySelector('[role="menu"]') as HTMLElement;
+      expect(menu).not.toBeNull();
+      // The 'fixed' class is set via Tailwind (not inline style)
+      expect(menu.classList.contains("fixed")).toBe(true);
+      // Inline style contains computed top/right positions
+      expect(menu.getAttribute("style")).toMatch(/top:/);
+      expect(menu.getAttribute("style")).toMatch(/right:/);
+    });
+
+    it("shows Play After and Add to Queue buttons in the menu", async () => {
+      render(TrackList, { songs });
+      const buttons = screen.getAllByLabelText("Track options");
+      await fireEvent.click(buttons[0]);
+
+      expect(screen.getByText("Play After")).toBeTruthy();
+      expect(screen.getByText("Add to Queue")).toBeTruthy();
+    });
+
+    it("closes the menu when clicking the backdrop", async () => {
+      render(TrackList, { songs });
+      const buttons = screen.getAllByLabelText("Track options");
+      await fireEvent.click(buttons[0]);
+
+      expect(document.querySelector('[role="menu"]')).not.toBeNull();
+
+      const backdrop = document.querySelector(
+        '[role="presentation"]',
+      ) as HTMLElement;
+      await fireEvent.click(backdrop);
+
+      expect(document.querySelector('[role="menu"]')).toBeNull();
+    });
+
+    it("closes the menu when clicking the three-dot button again", async () => {
+      render(TrackList, { songs });
+      const buttons = screen.getAllByLabelText("Track options");
+
+      // Open
+      await fireEvent.click(buttons[0]);
+      expect(document.querySelector('[role="menu"]')).not.toBeNull();
+
+      // Close by clicking same button again
+      await fireEvent.click(buttons[0]);
+      expect(document.querySelector('[role="menu"]')).toBeNull();
+    });
+
+    it("calls queue.addNext when Play After is clicked", async () => {
+      const { queue } = await import("$lib/stores/queue");
+      render(TrackList, { songs });
+      const buttons = screen.getAllByLabelText("Track options");
+      await fireEvent.click(buttons[0]);
+
+      const playAfterBtn = screen.getByText("Play After");
+      await fireEvent.click(playAfterBtn);
+
+      expect(queue.addNext).toHaveBeenCalledWith(songs[0]);
+      expect(document.querySelector('[role="menu"]')).toBeNull();
+    });
+
+    it("calls queue.addToEnd when Add to Queue is clicked", async () => {
+      const { queue } = await import("$lib/stores/queue");
+      render(TrackList, { songs });
+      const buttons = screen.getAllByLabelText("Track options");
+      await fireEvent.click(buttons[0]);
+
+      const addToQueueBtn = screen.getByText("Add to Queue");
+      await fireEvent.click(addToQueueBtn);
+
+      expect(queue.addToEnd).toHaveBeenCalledWith(songs[0]);
+      expect(document.querySelector('[role="menu"]')).toBeNull();
+    });
+  });
+
+  describe("favorite toggle in context menu", () => {
+    it("shows Add to Favorites button in the context menu", async () => {
+      render(TrackList, { songs });
+      const buttons = screen.getAllByLabelText("Track options");
+      await fireEvent.click(buttons[0]);
+
+      expect(screen.getByText("Add to Favorites")).toBeTruthy();
+    });
+
+    it("calls api.star when Add to Favorites is clicked", async () => {
+      render(TrackList, { songs });
+      const buttons = screen.getAllByLabelText("Track options");
+      await fireEvent.click(buttons[0]);
+
+      const favBtn = screen.getByText("Add to Favorites");
+      await fireEvent.click(favBtn);
+
+      expect(mockStar).toHaveBeenCalledWith({ id: "1" });
+      expect(mockUnstar).not.toHaveBeenCalled();
+    });
+
+    it("shows Remove from Favorites for songs that are already starred", async () => {
+      const starredSongs = [
+        { ...songs[0], starred: "2026-06-01T12:00:00Z" },
+        ...songs.slice(1),
+      ];
+      render(TrackList, { songs: starredSongs });
+      const buttons = screen.getAllByLabelText("Track options");
+      await fireEvent.click(buttons[0]);
+
+      expect(screen.getByText("Remove from Favorites")).toBeTruthy();
+    });
+
+    it("calls api.unstar when Remove from Favorites is clicked on a starred song", async () => {
+      const starredSongs = [
+        { ...songs[0], starred: "2026-06-01T12:00:00Z" },
+        ...songs.slice(1),
+      ];
+      render(TrackList, { songs: starredSongs });
+      const buttons = screen.getAllByLabelText("Track options");
+      await fireEvent.click(buttons[0]);
+
+      const unfavBtn = screen.getByText("Remove from Favorites");
+      await fireEvent.click(unfavBtn);
+
+      expect(mockUnstar).toHaveBeenCalledWith({ id: "1" });
+      expect(mockStar).not.toHaveBeenCalled();
+    });
+
+    it("updates the label to Remove from Favorites when reopening the menu after favoriting", async () => {
+      mockStar.mockResolvedValue(undefined);
+      render(TrackList, { songs });
+      await fireEvent.click(screen.getAllByLabelText("Track options")[0]);
+
+      // Starts as "Add to Favorites"
+      expect(screen.getByText("Add to Favorites")).toBeTruthy();
+
+      // Click Add to Favorites — menu closes
+      await fireEvent.click(screen.getByText("Add to Favorites"));
+      expect(mockStar).toHaveBeenCalledWith({ id: "1" });
+
+      // Reopen the menu — should now show Remove from Favorites
+      await fireEvent.click(screen.getAllByLabelText("Track options")[0]);
+      expect(screen.getByText("Remove from Favorites")).toBeTruthy();
+    });
+
+    it("closes the menu after toggling favorite", async () => {
+      render(TrackList, { songs });
+      const buttons = screen.getAllByLabelText("Track options");
+      await fireEvent.click(buttons[0]);
+
+      await fireEvent.click(screen.getByText("Add to Favorites"));
+
+      // Menu should close
+      expect(document.querySelector('[role="menu"]')).toBeNull();
+    });
   });
 });
