@@ -25,6 +25,7 @@
   import SearchPage from '$lib/pages/SearchPage.svelte';
   import GamePage from '$lib/pages/GamePage.svelte';
   import SettingsPage from '$lib/pages/SettingsPage.svelte';
+  import ListenLaterPage from '$lib/pages/ListenLaterPage.svelte';
 
   let route = $derived($router);
 
@@ -173,6 +174,8 @@
         <GamePage />
       {:else if route.matches('/settings')}
         <SettingsPage />
+      {:else if route.matches('/listen-later')}
+        <ListenLaterPage />
       {:else}
         <div class="p-4"><h2 class="text-2xl font-bold">Not Found</h2></div>
       {/if}

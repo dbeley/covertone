@@ -26,6 +26,7 @@ function routeToTitle(route: string): string {
   if (route.startsWith("/playlist/")) return "Playlist";
   if (route === "/game") return "Game";
   if (route === "/settings") return "Settings";
+  if (route === "/listen-later") return "Listen Later";
   return "Page";
 }
 

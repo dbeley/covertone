@@ -2,6 +2,7 @@
   import { router } from '$lib/stores/router';
   import { player } from '$lib/stores/player';
   import { queue } from '$lib/stores/queue';
+  import { listenLater } from '$lib/stores/listenLater';
   import { settings } from '$lib/stores/settings';
   import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import LazyImage from '$lib/components/LazyImage.svelte';
@@ -22,6 +23,7 @@
   let password = $derived($settings.password);
 
   let isStarred = $state(false);
+  let isInListenLater = $state(false);
 
   let coverArtUrl = $derived(
     album?.coverArt
@@ -43,6 +45,16 @@
     } catch {
       // fire-and-forget
     }
+  }
+
+  function toggleListenLater() {
+    if (!album) return;
+    if (isInListenLater) {
+      listenLater.remove(album.id);
+    } else {
+      listenLater.add(album);
+    }
+    isInListenLater = !isInListenLater;
   }
 
   $effect(() => {
@@ -67,6 +79,7 @@
         if (cancelled) return;
         album = { id: data.album.id, name: data.album.name, artist: data.album.artist, artistId: data.album.artistId, coverArt: data.album.coverArt, songCount: data.album.songCount, duration: data.album.duration, year: data.album.year, genre: data.album.genre, starred: data.album.starred };
         isStarred = !!data.album.starred;
+        isInListenLater = listenLater.has(data.album.id);
         songs = data.album.song;
       } catch (e) {
         if (!cancelled) error = (e as Error).message;
@@ -117,6 +130,15 @@
           >
             <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+          </button>
+          <button
+            class="p-2.5 rounded-xl transition-all duration-150 active:scale-90 {isInListenLater ? 'text-accent' : 'text-text-dim hover:text-text hover:bg-white/5'}"
+            onclick={toggleListenLater}
+            aria-label={isInListenLater ? 'Remove from listen later' : 'Add to listen later'}
+          >
+            <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
+              <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H6V4h2v1h8V4h2v16zM8 12l1.4-1.4L11 12.2V8h2v4.2l1.6-1.6L16 12l-4 4-4-4z"/>
             </svg>
           </button>
         </div>
