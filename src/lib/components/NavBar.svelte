@@ -21,6 +21,7 @@
     { path: '/playlists', label: 'Playlists' },
     { path: '/favorites', label: 'Favorites' },
     { path: '/search', label: 'Search' },
+    { path: '/listen-later', label: 'Listen Later' },
     { path: '/game', label: 'Game' },
     { path: '/settings', label: 'Settings' },
   ];

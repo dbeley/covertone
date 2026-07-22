@@ -121,6 +121,11 @@ export interface AlbumResult {
   };
 }
 
+export interface ListenLaterEntry {
+  album: Album;
+  addedAt: string;
+}
+
 export interface Playlist {
   id: string;
   name: string;

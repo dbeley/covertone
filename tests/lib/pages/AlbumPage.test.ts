@@ -8,6 +8,22 @@ const apiMock = vi.hoisted(() => ({
   unstar: vi.fn(),
 }));
 
+const listenLaterMock = vi.hoisted(() => ({
+  subscribe: vi.fn((cb: (v: any) => void) => {
+    cb([]);
+    return vi.fn();
+  }),
+  add: vi.fn(),
+  remove: vi.fn(),
+  has: vi.fn(() => false),
+  clear: vi.fn(),
+  getAll: vi.fn(() => []),
+}));
+
+vi.mock("$lib/stores/listenLater", () => ({
+  listenLater: listenLaterMock,
+}));
+
 vi.mock("$lib/stores/settings", () => ({
   settings: {
     subscribe: vi.fn((cb: (v: any) => void) => {
@@ -106,5 +122,35 @@ describe("AlbumPage", () => {
     const btn = await screen.findByLabelText("Remove from favorites");
     await fireEvent.click(btn);
     expect(apiMock.unstar).toHaveBeenCalledWith({ id: "album-1" });
+  });
+
+  it("shows add to listen later button", async () => {
+    apiMock.getAlbum.mockResolvedValue(albumData);
+    render(AlbumPage);
+    expect(await screen.findByLabelText("Add to listen later")).toBeTruthy();
+  });
+
+  it("calls listenLater.add when listen later button is clicked", async () => {
+    apiMock.getAlbum.mockResolvedValue(albumData);
+    render(AlbumPage);
+    const btn = await screen.findByLabelText("Add to listen later");
+    await fireEvent.click(btn);
+    expect(listenLaterMock.add).toHaveBeenCalled();
+  });
+
+  it("shows remove from listen later when album is already saved", async () => {
+    listenLaterMock.has.mockReturnValue(true);
+    apiMock.getAlbum.mockResolvedValue(albumData);
+    render(AlbumPage);
+    expect(await screen.findByLabelText("Remove from listen later")).toBeTruthy();
+  });
+
+  it("calls listenLater.remove when remove button is clicked", async () => {
+    listenLaterMock.has.mockReturnValue(true);
+    apiMock.getAlbum.mockResolvedValue(albumData);
+    render(AlbumPage);
+    const btn = await screen.findByLabelText("Remove from listen later");
+    await fireEvent.click(btn);
+    expect(listenLaterMock.remove).toHaveBeenCalledWith("album-1");
   });
 });
