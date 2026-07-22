@@ -17,7 +17,7 @@
   } = $props();
 
   let localStarred = $state(untrack(() => !!album.starred));
-  let isInListenLater = $derived(listenLater.has(album.id));
+  let isInListenLater = $derived($listenLater.some((e) => e.album.id === album.id));
 
   function open() {
     router.navigate(`album/${album.id}`);
@@ -127,10 +127,10 @@
     </div>
     <!-- Playback actions: bottom center, revealed on hover/touch. -->
     <div
-      class="absolute inset-0 flex items-end justify-center pb-3 gap-2 opacity-0 group-hover:opacity-100 touch:opacity-100 transition-opacity duration-200"
+      class="absolute inset-0 flex items-end justify-center pb-3 gap-2 opacity-0 group-hover:opacity-100 touch:opacity-100 transition-opacity duration-200 pointer-events-none"
     >
       <button
-        class="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-black hover:scale-110 transition-all duration-200 active:scale-95 shadow-lg"
+        class="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-black hover:scale-110 transition-all duration-200 active:scale-95 shadow-lg pointer-events-auto"
         onclick={playAll}
         aria-label="Play all"
         title="Play all"
@@ -141,7 +141,7 @@
         </svg>
       </button>
       <button
-        class="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-black hover:scale-110 transition-all duration-200 active:scale-95 shadow-lg"
+        class="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-black hover:scale-110 transition-all duration-200 active:scale-95 shadow-lg pointer-events-auto"
         onclick={addToQueue}
         aria-label="Add to queue"
         title="Add to queue"
