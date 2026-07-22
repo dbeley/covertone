@@ -137,8 +137,10 @@
             onclick={toggleListenLater}
             aria-label={isInListenLater ? 'Remove from listen later' : 'Add to listen later'}
           >
-            <svg viewBox="0 0 24 24" class="w-5 h-5 fill-current">
-              <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H6V4h2v1h8V4h2v16zM8 12l1.4-1.4L11 12.2V8h2v4.2l1.6-1.6L16 12l-4 4-4-4z"/>
+            <svg viewBox="0 0 24 24" class="w-5 h-5 fill-none stroke-current stroke-[1.8]">
+              <path d="M6 3h12v18l-6-4-6 4V3z" stroke-linejoin="round" stroke-linecap="round" />
+              <line x1="12" y1="9" x2="12" y2="14" stroke-linecap="round" />
+              <line x1="9.5" y1="11.5" x2="14.5" y2="11.5" stroke-linecap="round" />
             </svg>
           </button>
         </div>

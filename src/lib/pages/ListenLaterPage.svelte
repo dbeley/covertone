@@ -18,10 +18,6 @@
       .map((e) => e.album),
   );
 
-  function remove(id: string) {
-    listenLater.remove(id);
-  }
-
   function clearAll() {
     listenLater.clear();
   }
@@ -41,7 +37,7 @@
   </div>
 
   {#if albums.length > 0}
-    <AlbumGrid {albums} {serverUrl} {username} {password} onRemove={remove} />
+    <AlbumGrid {albums} {serverUrl} {username} {password} />
   {:else}
     <EmptyState
       icon="empty"
