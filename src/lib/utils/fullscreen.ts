@@ -9,8 +9,12 @@ let _isFullscreen = false;
 
 function isCapacitorNative(): boolean {
   try {
-    if (typeof window === 'undefined') return false;
-    return !!(window as typeof window & { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.();
+    if (typeof window === "undefined") return false;
+    return !!(
+      window as typeof window & {
+        Capacitor?: { isNativePlatform?: () => boolean };
+      }
+    ).Capacitor?.isNativePlatform?.();
   } catch {
     return false;
   }
@@ -19,11 +23,11 @@ function isCapacitorNative(): boolean {
 export async function enterFullscreen(): Promise<void> {
   if (isCapacitorNative()) {
     try {
-      const { StatusBar } = await import('@capacitor/status-bar');
+      const { StatusBar } = await import("@capacitor/status-bar");
       await StatusBar.hide();
       await StatusBar.setOverlaysWebView({ overlay: true });
     } catch (e) {
-      console.warn('Failed to hide status bar via Capacitor:', e);
+      console.warn("Failed to hide status bar via Capacitor:", e);
     }
   }
 
@@ -36,18 +40,18 @@ export async function enterFullscreen(): Promise<void> {
     }
   }
 
-  document.documentElement.classList.add('is-fullscreen');
+  document.documentElement.classList.add("is-fullscreen");
   _isFullscreen = true;
 }
 
 export async function exitFullscreen(): Promise<void> {
   if (isCapacitorNative()) {
     try {
-      const { StatusBar } = await import('@capacitor/status-bar');
+      const { StatusBar } = await import("@capacitor/status-bar");
       await StatusBar.show();
       await StatusBar.setOverlaysWebView({ overlay: false });
     } catch (e) {
-      console.warn('Failed to show status bar via Capacitor:', e);
+      console.warn("Failed to show status bar via Capacitor:", e);
     }
   }
 
@@ -61,7 +65,7 @@ export async function exitFullscreen(): Promise<void> {
     }
   }
 
-  document.documentElement.classList.remove('is-fullscreen');
+  document.documentElement.classList.remove("is-fullscreen");
   _isFullscreen = false;
 }
 
