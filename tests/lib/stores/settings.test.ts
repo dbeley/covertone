@@ -115,4 +115,29 @@ describe("settings store", () => {
     const state = get(settings);
     expect(state.isConfigured).toBe(false);
   });
+
+  it("has default fullscreen false", () => {
+    const state = get(settings);
+    expect(state.fullscreen).toBe(false);
+  });
+
+  it("setFullscreen updates fullscreen state", () => {
+    settings.setFullscreen(true);
+    const state = get(settings);
+    expect(state.fullscreen).toBe(true);
+  });
+
+  it("persists fullscreen across reload", () => {
+    settings.setFullscreen(true);
+    settings.reload();
+    const state = get(settings);
+    expect(state.fullscreen).toBe(true);
+  });
+
+  it("reset restores fullscreen to false", () => {
+    settings.setFullscreen(true);
+    settings.reset();
+    const state = get(settings);
+    expect(state.fullscreen).toBe(false);
+  });
 });

@@ -16,6 +16,7 @@ export interface SettingsState {
   aiKey: string;
   aiModel: string;
   accentColor: string;
+  fullscreen: boolean;
 }
 
 const STORAGE_KEY = "covertone-settings";
@@ -125,6 +126,7 @@ function createSettings() {
     aiKey: persisted.aiKey ?? "",
     aiModel: persisted.aiModel ?? "deepseek-v4-flash",
     accentColor: persisted.accentColor ?? "",
+    fullscreen: persisted.fullscreen ?? false,
   });
 
   if (persisted.accentColor) {
@@ -141,6 +143,13 @@ function createSettings() {
           appliedTheme: resolveAppliedTheme(theme),
         };
         persist({ theme });
+        return next;
+      });
+    },
+    setFullscreen(fullscreen: boolean) {
+      update((state) => {
+        const next = { ...state, fullscreen };
+        persist({ fullscreen });
         return next;
       });
     },
@@ -222,6 +231,7 @@ function createSettings() {
         aiKey: "",
         aiModel: "deepseek-v4-flash",
         accentColor: "",
+        fullscreen: false,
       });
     },
     reload() {
@@ -240,6 +250,7 @@ function createSettings() {
         aiKey: persisted.aiKey ?? "",
         aiModel: persisted.aiModel ?? "deepseek-v4-flash",
         accentColor: persisted.accentColor ?? "",
+        fullscreen: persisted.fullscreen ?? false,
       });
     },
   };

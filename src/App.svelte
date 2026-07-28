@@ -68,6 +68,7 @@
   let configUsername = $derived($settings.username);
   let configPassword = $derived($settings.password);
   let configAutoDJ = $derived($settings.autoDJ);
+  let configFullscreen = $derived($settings.fullscreen);
   let configIsConfigured = $derived($settings.isConfigured);
 
   $effect(() => {
@@ -84,6 +85,15 @@
     const api = createApi({ server: srv, username: usr, password: pwd });
     queue.setAutoDJInstance(new AutoDJ(api));
     queue.setAutoDJ(autoDJEnabled);
+  });
+
+  $effect(() => {
+    const fs = configFullscreen;
+    if (fs) {
+      import('$lib/utils/fullscreen').then(({ enterFullscreen }) => enterFullscreen());
+    } else {
+      import('$lib/utils/fullscreen').then(({ exitFullscreen }) => exitFullscreen());
+    }
   });
 </script>
 

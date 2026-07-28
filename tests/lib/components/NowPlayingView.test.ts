@@ -14,6 +14,7 @@ const mockPlayerState = {
     coverArt?: string;
     artistId?: string;
     albumId?: string;
+    starred?: string;
   } | null,
   currentTime: 0,
   duration: 0,
@@ -61,12 +62,22 @@ vi.mock("$lib/stores/settings", () => ({
           isConfigured: true,
           theme: "dark",
           appliedTheme: "dark",
+          fullscreen: false,
         });
         return vi.fn();
       },
     ),
   },
 }));
+
+const fullscreenMock = vi.hoisted(() => ({
+  toggleFullscreen: vi.fn(),
+  getIsFullscreen: vi.fn(() => false),
+  enterFullscreen: vi.fn(),
+  exitFullscreen: vi.fn(),
+}));
+
+vi.mock("$lib/utils/fullscreen", () => fullscreenMock);
 
 const apiMock = vi.hoisted(() => ({
   star: vi.fn(),

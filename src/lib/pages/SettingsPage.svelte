@@ -293,6 +293,23 @@
   </section>
 
   <section class="mb-6">
+    <h3 class="text-lg font-semibold mb-4 tracking-tight">Jukebox</h3>
+    <div class="flex items-center gap-3">
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input
+          type="checkbox"
+          checked={$settings.fullscreen}
+          onchange={(e) => settings.setFullscreen((e.target as HTMLInputElement).checked)}
+          class="sr-only peer"
+        />
+        <div class="w-10 h-5 rounded-full peer-checked:bg-accent peer-checked:border-accent bg-white/5 border border-text-dim/30 transition-all duration-150 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full">
+        </div>
+      </label>
+      <span class="text-sm">Fullscreen mode – hides OS status bar for an immersive jukebox experience</span>
+    </div>
+  </section>
+
+  <section class="mb-6">
     <h3 class="text-lg font-semibold mb-4 tracking-tight">AI</h3>
     <p class="text-sm text-text-dim mb-4">Optional AI-powered song context ("Discover" item in nav bar). Uses OpenAI-compatible chat API.</p>
     <div class="space-y-4">
@@ -356,7 +373,7 @@
 
   <section>
     <h3 class="text-lg font-semibold mb-4 tracking-tight">About</h3>
-    <p class="text-sm text-text-dim mb-2">Covertone v0.2.7 - A Subsonic/Navidrome music client</p>
+    <p class="text-sm text-text-dim mb-2">Covertone v0.2.8 - A Subsonic/Navidrome music client</p>
     <a
       href="https://github.com/dbeley/covertone"
       target="_blank"
