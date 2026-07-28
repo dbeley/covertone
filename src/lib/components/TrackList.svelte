@@ -96,10 +96,11 @@
   }
 
   function startLongPress(e: Event, index: number) {
+    const row = e.currentTarget as HTMLElement | null;
+    if (!row) return;
     longPressTimer = setTimeout(() => {
       contextMenuIndex = index;
       longPressTimer = null;
-      const row = e.currentTarget as HTMLElement;
       const button = row.querySelector<HTMLElement>('button[aria-label="Track options"]');
       if (button) positionMenuFromElement(button);
     }, 500);
