@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
@@ -61,6 +62,7 @@ public class MainActivity extends BridgeActivity {
         updateInsets();
         wv.getSettings().setMediaPlaybackRequiresUserGesture(false);
         wv.addJavascriptInterface(new MediaBridge(), "NativeMedia");
+        wv.addJavascriptInterface(new NavigationBarBridge(), "NavigationBar");
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -126,6 +128,32 @@ public class MainActivity extends BridgeActivity {
         public void setArtwork(String imageUrl) {
             ensureService();
             PlaybackService.updateArtwork(imageUrl);
+        }
+    }
+
+    /**
+     * JavaScript bridge to control the Android system navigation bar.
+     * Exposed as `window.NavigationBar` in the WebView.
+     */
+    public class NavigationBarBridge {
+
+        @JavascriptInterface
+        public void hide() {
+            runOnUiThread(() -> {
+                View decorView = getWindow().getDecorView();
+                int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+                decorView.setSystemUiVisibility(flags);
+            });
+        }
+
+        @JavascriptInterface
+        public void show() {
+            runOnUiThread(() -> {
+                View decorView = getWindow().getDecorView();
+                decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+            });
         }
     }
 }
