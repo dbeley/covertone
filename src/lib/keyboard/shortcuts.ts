@@ -237,9 +237,13 @@ function handleKeyDown(e: KeyboardEvent) {
       break;
     case "7":
       e.preventDefault();
-      router.navigate("/game");
+      router.navigate("/listen-later");
       break;
     case "8":
+      e.preventDefault();
+      router.navigate("/game");
+      break;
+    case "9":
       e.preventDefault();
       router.navigate("/settings");
       break;
