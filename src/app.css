@@ -207,3 +207,45 @@ input:focus-visible {
 .animate-fade-slow {
   animation: fade-in 1s ease-out;
 }
+
+/* ---- Fullscreen / Jukebox mode ---- */
+
+.is-fullscreen {
+  /* Hide the browser scrollbar for a cleaner look */
+  overflow: hidden;
+}
+
+.is-fullscreen body {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+/* Slow spin for vinyl animation on album art */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 12s linear infinite;
+}
+
+@keyframes pulse-slow {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
