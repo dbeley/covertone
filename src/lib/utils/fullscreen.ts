@@ -20,6 +20,22 @@ function isCapacitorNative(): boolean {
   }
 }
 
+function getNavigationBar(): { hide: () => void; show: () => void } | null {
+  if (typeof window === "undefined") return null;
+  const nb = (window as unknown as Record<string, unknown>).NavigationBar;
+  if (
+    nb &&
+    typeof nb === "object" &&
+    "hide" in nb &&
+    "show" in nb &&
+    typeof (nb as { hide: () => void }).hide === "function" &&
+    typeof (nb as { show: () => void }).show === "function"
+  ) {
+    return nb as { hide: () => void; show: () => void };
+  }
+  return null;
+}
+
 export async function enterFullscreen(): Promise<void> {
   if (isCapacitorNative()) {
     try {
@@ -28,6 +44,13 @@ export async function enterFullscreen(): Promise<void> {
       await StatusBar.setOverlaysWebView({ overlay: true });
     } catch (e) {
       console.warn("Failed to hide status bar via Capacitor:", e);
+    }
+
+    // Hide Android navigation bar (gesture hint) via native bridge
+    try {
+      getNavigationBar()?.hide();
+    } catch {
+      // bridge not available
     }
   }
 
@@ -52,6 +75,13 @@ export async function exitFullscreen(): Promise<void> {
       await StatusBar.setOverlaysWebView({ overlay: false });
     } catch (e) {
       console.warn("Failed to show status bar via Capacitor:", e);
+    }
+
+    // Restore Android navigation bar
+    try {
+      getNavigationBar()?.show();
+    } catch {
+      // bridge not available
     }
   }
 
