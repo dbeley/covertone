@@ -47,7 +47,7 @@
           cfg = config.services.covertone;
           configJs = pkgs.writeText "config.js" ''
             window.__COVERTONE_CONFIG__ = ${
-              builtins.toJSON (lib.filterAttrs (k: v: v != null) {
+              builtins.toJSON (lib.filterAttrs (_: v: v != null) {
                 inherit (cfg) server username password aiEndpoint aiKey aiModel;
               })
             };
@@ -99,22 +99,25 @@
               root = toString (
                 pkgs.runCommand "covertone-dist" { } ''
                   cp -r ${self.packages.${pkgs.system}.default} $out
+                  chmod -R +w $out
                   cp ${configJs} $out/config.js
                 ''
               );
-              locations."/" = {
-                tryFiles = "$uri $uri/ /index.html";
-              };
-              locations."/assets/" = {
-                extraConfig = ''
-                  expires 1y;
-                  add_header Cache-Control "public, immutable";
-                '';
-              };
-              locations."= /sw.js" = {
-                extraConfig = ''
-                  add_header Cache-Control "no-cache";
-                '';
+              locations = {
+                "/" = {
+                  tryFiles = "$uri $uri/ /index.html";
+                };
+                "/assets/" = {
+                  extraConfig = ''
+                    expires 1y;
+                    add_header Cache-Control "public, immutable";
+                  '';
+                };
+                "= /sw.js" = {
+                  extraConfig = ''
+                    add_header Cache-Control "no-cache";
+                  '';
+                };
               };
             };
           };
