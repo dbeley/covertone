@@ -19,19 +19,26 @@
           pname = "covertone";
           version = "0.2.8";
           src = self;
-          nativeBuildInputs = [ pkgs.nodejs_22 pkgs.pnpm ];
+
+          pnpmDeps = pkgs.fetchPnpmDeps {
+            src = ./.;
+            pname = "covertone";
+            version = "0.2.8";
+            hash = "sha256-sJ/2e7RMDnJoHCT+aBYPuFaalPi7bY/nseTnmseFaF4=";
+            fetcherVersion = 4;
+          };
+
+          nativeBuildInputs = [ pkgs.nodejs_22 pkgs.pnpm pkgs.pnpmConfigHook ];
+
           env = { inherit baseUrl; };
+
           buildPhase = ''
-            export HOME="$TMPDIR"
-            pnpm install --frozen-lockfile
             pnpm build
           '';
+
           installPhase = ''
             cp -r dist $out
           '';
-          # ponytail: allows network for pnpm install — switch to
-          # offlined pnpm.fetchDeps when build purity matters
-          __noChroot = true;
         };
 
       nixosModule =
