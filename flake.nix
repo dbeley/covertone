@@ -12,12 +12,115 @@
       nixpkgs,
       flake-utils,
     }:
-    flake-utils.lib.eachDefaultSystem (
+    let
+      buildCovertone =
+        { pkgs, baseUrl ? "/" }:
+        pkgs.stdenv.mkDerivation {
+          pname = "covertone";
+          version = "0.2.8";
+          src = self;
+          nativeBuildInputs = [ pkgs.nodejs_22 pkgs.pnpm ];
+          env = { inherit baseUrl; };
+          buildPhase = ''
+            export HOME="$TMPDIR"
+            pnpm install --frozen-lockfile
+            pnpm build
+          '';
+          installPhase = ''
+            cp -r dist $out
+          '';
+          # ponytail: allows network for pnpm install — switch to
+          # offlined pnpm.fetchDeps when build purity matters
+          __noChroot = true;
+        };
+
+      nixosModule =
+        { config, lib, pkgs, ... }:
+        let
+          cfg = config.services.covertone;
+          configJs = pkgs.writeText "config.js" ''
+            window.__COVERTONE_CONFIG__ = ${
+              builtins.toJSON (lib.filterAttrs (k: v: v != null) {
+                inherit (cfg) server username password aiEndpoint aiKey aiModel;
+              })
+            };
+          '';
+        in
+        {
+          options.services.covertone = {
+            enable = lib.mkEnableOption "Covertone SPA";
+            server = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = "Subsonic server URL";
+            };
+            username = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = "Subsonic username";
+            };
+            password = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = "Subsonic password";
+            };
+            aiEndpoint = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = "AI endpoint URL";
+            };
+            aiKey = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = "AI API key";
+            };
+            aiModel = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = "AI model name";
+            };
+            virtualHost = lib.mkOption {
+              type = lib.types.str;
+              default = "covertone.local";
+              description = "nginx virtual host name";
+            };
+          };
+
+          config = lib.mkIf cfg.enable {
+            services.nginx.enable = true;
+            services.nginx.virtualHosts.${cfg.virtualHost} = {
+              root = toString (
+                pkgs.runCommand "covertone-dist" { } ''
+                  cp -r ${self.packages.${pkgs.system}.default} $out
+                  cp ${configJs} $out/config.js
+                ''
+              );
+              locations."/" = {
+                tryFiles = "$uri $uri/ /index.html";
+              };
+              locations."/assets/" = {
+                extraConfig = ''
+                  expires 1y;
+                  add_header Cache-Control "public, immutable";
+                '';
+              };
+              locations."= /sw.js" = {
+                extraConfig = ''
+                  add_header Cache-Control "no-cache";
+                '';
+              };
+            };
+          };
+        };
+    in
+    (flake-utils.lib.eachDefaultSystem (
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
       in
       {
+        packages.default = buildCovertone { inherit pkgs; };
+
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
             nodejs_22
@@ -72,5 +175,7 @@
           '';
         };
       }
-    );
+    )) // {
+      nixosModules.default = nixosModule;
+    };
 }
