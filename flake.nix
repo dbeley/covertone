@@ -13,17 +13,19 @@
       flake-utils,
     }:
     let
+      pkgVersion = (builtins.fromJSON (builtins.readFile ./package.json)).version;
+
       buildCovertone =
         { pkgs, baseUrl ? "/" }:
         pkgs.stdenv.mkDerivation {
           pname = "covertone";
-          version = "0.2.8";
+          version = pkgVersion;
           src = self;
 
           pnpmDeps = pkgs.fetchPnpmDeps {
             src = ./.;
             pname = "covertone";
-            version = "0.2.8";
+            version = pkgVersion;
             hash = "sha256-sJ/2e7RMDnJoHCT+aBYPuFaalPi7bY/nseTnmseFaF4=";
             fetcherVersion = 4;
           };

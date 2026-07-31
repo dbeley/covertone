@@ -3,6 +3,7 @@
   import { get } from 'svelte/store';
   import { SubsonicAPI } from '$lib/api/SubsonicAPI';
   import type { Theme } from '$lib/stores/settings';
+  import { version } from '../../../package.json';
 
   const saved = get(settings);
 
@@ -373,7 +374,7 @@
 
   <section>
     <h3 class="text-lg font-semibold mb-4 tracking-tight">About</h3>
-    <p class="text-sm text-text-dim mb-2">Covertone v0.2.8 - A Subsonic/Navidrome music client</p>
+    <p class="text-sm text-text-dim mb-2">Covertone v{version} - A Subsonic/Navidrome music client</p>
     <a
       href="https://github.com/dbeley/covertone"
       target="_blank"
