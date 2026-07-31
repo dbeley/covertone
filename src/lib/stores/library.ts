@@ -88,7 +88,7 @@ function createLibrary() {
           size,
           offset,
         });
-        const albums = result.albumList2.album;
+        const albums = result.albumList2?.album ?? [];
         update((s) => {
           const isNewType = s.currentAlbumListType !== params.type;
           const shouldReplace = isNewType || offset === 0;

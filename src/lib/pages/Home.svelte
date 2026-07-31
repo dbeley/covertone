@@ -35,7 +35,7 @@
   async function fetchSection(api: SubsonicAPI, type: string, size: number): Promise<Album[]> {
     try {
       const result = await api.getAlbumList({ type, size });
-      return result.albumList2.album;
+      return result.albumList2?.album ?? [];
     } catch {
       return [];
     }
