@@ -3,8 +3,11 @@
   import { player } from '$lib/stores/player';
   import { queue } from '$lib/stores/queue';
   import { settings } from '$lib/stores/settings';
+  import { searchStore } from '$lib/stores/search';
+  import { get } from 'svelte/store';
   import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import LazyImage from '$lib/components/LazyImage.svelte';
+  import AlbumCard from '$lib/components/AlbumCard.svelte';
   import { formatDuration } from '$lib/utils/format';
   import type { Artist, Album, Song } from '$lib/api/types';
   import { onMount } from 'svelte';
@@ -13,12 +16,13 @@
   let username = $derived($settings.username);
   let password = $derived($settings.password);
 
-  let query = $state('');
-  let artists = $state<Artist[]>([]);
-  let albums = $state<Album[]>([]);
-  let songs = $state<Song[]>([]);
+  let prevSearch = get(searchStore);
+  let query = $state(prevSearch.query);
+  let artists = $state<Artist[]>(prevSearch.artists);
+  let albums = $state<Album[]>(prevSearch.albums);
+  let songs = $state<Song[]>(prevSearch.songs);
   let searching = $state(false);
-  let hasSearched = $state(false);
+  let hasSearched = $state(prevSearch.hasSearched);
 
   let inputRef = $state<HTMLInputElement | null>(null);
 
@@ -36,6 +40,7 @@
   function handleInput(e: Event) {
     const value = (e.target as HTMLInputElement).value;
     query = value;
+    searchStore.setQuery(value);
     clearTimeout(debounceTimer);
 
     if (value.length < 2) {
@@ -43,6 +48,7 @@
       albums = [];
       songs = [];
       hasSearched = false;
+      searchStore.reset();
       return;
     }
 
@@ -59,10 +65,12 @@
       artists = result.searchResult3.artist ?? [];
       albums = result.searchResult3.album ?? [];
       songs = result.searchResult3.song ?? [];
+      searchStore.setResults({ artists, albums, songs });
     } catch {
       artists = [];
       albums = [];
       songs = [];
+      searchStore.setResults({ artists, albums, songs });
     }
 
     searching = false;
@@ -76,21 +84,10 @@
     router.navigate(`artist/${id}`);
   }
 
-  function openAlbum(id: string) {
-    router.navigate(`album/${id}`);
-  }
-
   function onArtistKeydown(e: KeyboardEvent, id: string) {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       openArtist(id);
-    }
-  }
-
-  function onAlbumKeydown(e: KeyboardEvent, id: string) {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      openAlbum(id);
     }
   }
 
@@ -108,6 +105,7 @@
   <input
     type="text"
     placeholder="Search albums, artists, songs..."
+    value={query}
     oninput={handleInput}
     bind:this={inputRef}
     class="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150 mb-6"
@@ -150,23 +148,12 @@
         <h3 class="text-lg font-semibold mb-3 tracking-tight">Albums</h3>
         <div class="flex gap-4 overflow-x-auto pb-2">
           {#each albums as album (album.id)}
-            <div
-              class="cursor-pointer group shrink-0"
-              onclick={() => openAlbum(album.id)}
-              onkeydown={(e) => onAlbumKeydown(e, album.id)}
-              role="button"
-              tabindex="0"
-              aria-label={`Open album ${album.name}`}
-            >
-              <div class="w-32 h-32 rounded-lg overflow-hidden mb-1">
-                <LazyImage
-                  src={coverUrl(album.coverArt, 192)}
-                  alt={album.name}
-                  loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-              </div>
-              <p class="text-xs font-medium truncate w-32">{album.name}</p>
-              <p class="text-xs text-text-dim truncate w-32">{album.artist}</p>
+            <div class="shrink-0 w-32">
+              <AlbumCard
+                album={album}
+                coverArtUrl={coverUrl(album.coverArt, 256)}
+                {serverUrl} {username} {password}
+              />
             </div>
           {/each}
         </div>
