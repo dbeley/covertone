@@ -319,6 +319,7 @@
     appearance: none;
     width: 16px;
     height: 16px;
+    margin-top: -5px;
     border-radius: 50%;
     background: var(--accent);
     cursor: pointer;
