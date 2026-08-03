@@ -16,7 +16,7 @@
   let loading = $derived($library.loading);
   let hasMore = $derived($library.hasMore);
 
-  let activeTab = $state<AlbumListType>('random');
+  let activeTab = $state<AlbumListType>($library.currentAlbumListType ?? 'random');
   let sentinelEl = $state<HTMLDivElement | null>(null);
 
   const tabs: { label: string; type: AlbumListType }[] = [
@@ -52,7 +52,10 @@
     if (!libInitialized) {
       library.init({ server: serverUrl, username, password });
     }
-    library.fetchAlbums({ type: 'random', offset: 0 });
+    const state = get(library);
+    if (state.currentAlbumListType !== activeTab || state.albums.length === 0) {
+      library.fetchAlbums({ type: activeTab, offset: 0 });
+    }
 
     if (!sentinelEl) return;
     const observer = new IntersectionObserver(
