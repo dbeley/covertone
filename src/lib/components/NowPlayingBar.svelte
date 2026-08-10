@@ -63,6 +63,11 @@
     player.togglePlay();
   }
 
+  function handleSeekBy(e: MouseEvent, delta: number) {
+    e.stopPropagation();
+    player.seek(Math.max(0, Math.min(duration, currentTime + delta)));
+  }
+
   async function handleNext(e: MouseEvent) {
     e.stopPropagation();
     const next = await queue.getNextAutoDJ();
@@ -159,6 +164,14 @@
       </button>
 
       <button
+        class="p-2 rounded-xl text-xs font-semibold tabular-nums transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
+        onclick={(e) => handleSeekBy(e, -5)}
+        aria-label="Seek back 5 seconds"
+      >
+        -5
+      </button>
+
+      <button
         class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
         onclick={handleTogglePlay}
         aria-label={status === 'playing' ? 'Pause' : 'Play'}
@@ -173,6 +186,14 @@
             <polygon points="6,4 20,12 6,20" />
           </svg>
         {/if}
+      </button>
+
+      <button
+        class="p-2 rounded-xl text-xs font-semibold tabular-nums transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
+        onclick={(e) => handleSeekBy(e, 5)}
+        aria-label="Seek forward 5 seconds"
+      >
+        +5
       </button>
 
       <button
