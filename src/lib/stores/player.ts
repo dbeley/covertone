@@ -25,6 +25,7 @@ function createPlayer() {
   let apiConfig: { server: string; username: string; password: string } | null =
     null;
   let scrobbled = false;
+  let generation = 0;
 
   const store: Writable<PlayerState> = writable({
     status: "idle",
@@ -142,17 +143,21 @@ function createPlayer() {
       }
 
       if (engine) engine.destroy();
+      generation++;
+      const currentGeneration = generation;
       engine = new AudioEngine();
       scrobbled = false;
 
       const currentEngine = engine;
       engine.onTimeUpdate(() => {
+        if (currentGeneration !== generation) return;
         update((s) => ({
           ...s,
           currentTime: currentEngine?.getCurrentTime() ?? 0,
         }));
       });
       engine.onEnded(async () => {
+        if (currentGeneration !== generation) return;
         update((s) => {
           if (s.currentTrack) fireScrobble(s.currentTrack.id, true);
           return { ...s, status: "idle" };
@@ -168,6 +173,7 @@ function createPlayer() {
         }
       });
       engine.onLoaded((duration) => {
+        if (currentGeneration !== generation) return;
         update((s) => ({ ...s, duration, status: "playing" }));
       });
 
