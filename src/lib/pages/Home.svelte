@@ -3,7 +3,7 @@
   import { library } from '$lib/stores/library';
   import { settings } from '$lib/stores/settings';
   import { router } from '$lib/stores/router';
-  import { SubsonicAPI } from '$lib/api/SubsonicAPI';
+  import type { SubsonicAPI } from '$lib/api/SubsonicAPI';
   import AlbumGrid from '$lib/components/AlbumGrid.svelte';
   import type { Album } from '$lib/api/types';
 
@@ -48,7 +48,8 @@
       library.init({ server: serverUrl, username, password });
     }
 
-    const api = new SubsonicAPI({ server: serverUrl, username, password });
+    const api = library.getApi();
+    if (!api) { loading = false; return; }
 
     const [recent, newest, random, frequent] = await Promise.all([
       fetchSection(api, 'recent', sectionSize),

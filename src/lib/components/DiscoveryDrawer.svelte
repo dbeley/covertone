@@ -1,8 +1,10 @@
 <script lang="ts">
   import { player } from '$lib/stores/player';
   import { settings } from '$lib/stores/settings';
+  import { library } from '$lib/stores/library';
   import { discoveryDrawerOpen } from '$lib/stores/discovery';
-  import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
+  import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
+  import type { SubsonicAPI } from '$lib/api/SubsonicAPI';
 
   import { fetchSongContext } from '$lib/api/ai';
   import { router } from '$lib/stores/router';
@@ -84,7 +86,8 @@
     const track = currentTrack;
     if (!track) return;
 
-    const api = new SubsonicAPI({ server: serverUrl, username, password });
+    const api = library.getApi();
+    if (!api) return;
     refreshLoading = true;
 
     const promises: Promise<void>[] = [];
