@@ -222,10 +222,13 @@ function createQueue() {
     getNext(): Song | null {
       let result: Song | null = null;
       update((s) => {
+        if (s.items.length === 0) return s;
         if (s.shuffle && s.items.length > 1) {
           let nextIndex = Math.floor(Math.random() * s.items.length);
-          while (nextIndex === s.currentIndex) {
+          let attempts = 0;
+          while (nextIndex === s.currentIndex && attempts < s.items.length) {
             nextIndex = Math.floor(Math.random() * s.items.length);
+            attempts++;
           }
           result = s.items[nextIndex].track;
           return recomputeDerived({ ...s, currentIndex: nextIndex });
