@@ -259,7 +259,7 @@ export class SubsonicAPI {
       return { similarSongs: { song: songs } };
     } catch {
       // Fall back to the legacy getSimilarSongs endpoint
-      const data = await this.requestCached<{ similarSongs: { song: Song[] } }>(
+      const data = await this.request<{ similarSongs: { song: Song[] } }>(
         ENDPOINTS.getSimilarSongsLegacy,
         { id: params.id, count: params.count ?? 50 },
       );
