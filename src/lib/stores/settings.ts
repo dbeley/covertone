@@ -218,6 +218,7 @@ function createSettings() {
       } catch {
         /* ignore */
       }
+      applyAccentColor("");
       set({
         theme: "system",
         appliedTheme: resolveAppliedTheme("system"),

@@ -259,7 +259,7 @@ export class SubsonicAPI {
       return { similarSongs: { song: songs } };
     } catch {
       // Fall back to the legacy getSimilarSongs endpoint
-      const data = await this.requestCached<{ similarSongs: { song: Song[] } }>(
+      const data = await this.request<{ similarSongs: { song: Song[] } }>(
         ENDPOINTS.getSimilarSongsLegacy,
         { id: params.id, count: params.count ?? 50 },
       );
@@ -417,5 +417,14 @@ export async function scrobbleTrack(config: {
     params.set("time", String(config.time));
   }
   const url = `${server}/rest/scrobble?${params.toString()}`;
-  await fetch(url);
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      console.warn(
+        `Scrobble failed: ${response.status} ${response.statusText}`,
+      );
+    }
+  } catch (e) {
+    console.warn("Scrobble request failed:", e);
+  }
 }
