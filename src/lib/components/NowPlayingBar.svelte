@@ -153,6 +153,14 @@
 
     <div class="flex items-center gap-2 justify-center">
       <button
+        class="p-2 rounded-xl text-xs font-semibold tabular-nums ring-1 ring-border transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:ring-border hover:bg-white/5"
+        onclick={(e) => handleSeekBy(e, -5)}
+        aria-label="Seek back 5 seconds"
+      >
+        -5
+      </button>
+
+      <button
         class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
         onclick={handlePrev}
         aria-label="Previous"
@@ -161,14 +169,6 @@
           <polygon points="19,4 7,12 19,20" />
           <rect x="4" y="4" width="3" height="16" rx="1" />
         </svg>
-      </button>
-
-      <button
-        class="p-2 rounded-xl text-xs font-semibold tabular-nums transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
-        onclick={(e) => handleSeekBy(e, -5)}
-        aria-label="Seek back 5 seconds"
-      >
-        -5
       </button>
 
       <button
@@ -189,14 +189,6 @@
       </button>
 
       <button
-        class="p-2 rounded-xl text-xs font-semibold tabular-nums transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
-        onclick={(e) => handleSeekBy(e, 5)}
-        aria-label="Seek forward 5 seconds"
-      >
-        +5
-      </button>
-
-      <button
         class="p-2.5 rounded-2xl shadow-lg shadow-black/20 transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:bg-white/5"
         onclick={handleNext}
         aria-label="Next"
@@ -205,6 +197,14 @@
           <polygon points="5,4 17,12 5,20" />
           <rect x="17" y="4" width="3" height="16" rx="1" />
         </svg>
+      </button>
+
+      <button
+        class="p-2 rounded-xl text-xs font-semibold tabular-nums ring-1 ring-border transition-all duration-150 active:scale-90 text-text-dim hover:text-text hover:ring-border hover:bg-white/5"
+        onclick={(e) => handleSeekBy(e, 5)}
+        aria-label="Seek forward 5 seconds"
+      >
+        +5
       </button>
     </div>
 
