@@ -1,5 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { get } from "svelte/store";
+import "fake-indexeddb/auto";
+import { clearAll, putSong } from "$lib/offline/db";
+import { registerCachedSong, clearResolveUrls } from "$lib/offline/resolve";
 import type { Song } from "$lib/api/types";
 
 let mockPaused = true;
@@ -22,6 +25,7 @@ const mockEngine = {
   onTimeUpdate: vi.fn(),
   onEnded: vi.fn(),
   onLoaded: vi.fn(),
+  onError: vi.fn(),
   destroy: vi.fn().mockImplementation(() => {
     mockPaused = true;
   }),
@@ -43,10 +47,15 @@ const mockSong: Song = {
 };
 
 describe("player store", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     player.reset();
     mockPaused = true;
     vi.clearAllMocks();
+    // jsdom lacks these URL helpers; stub them so cache cleanup is safe.
+    URL.createObjectURL = vi.fn(() => "blob:mock");
+    URL.revokeObjectURL = vi.fn();
+    clearResolveUrls();
+    await clearAll();
   });
 
   it("has correct initial state", () => {
@@ -223,9 +232,11 @@ describe("player store", () => {
     player.setStreamBase("https://example.com/rest/stream?id=");
 
     let timeCb: ((...args: unknown[]) => void) | null = null;
-    mockEngine.onTimeUpdate.mockImplementation((cb: (...args: unknown[]) => void) => {
-      timeCb = cb;
-    });
+    mockEngine.onTimeUpdate.mockImplementation(
+      (cb: (...args: unknown[]) => void) => {
+        timeCb = cb;
+      },
+    );
 
     player.playTrack(mockSong);
     mockEngine.getCurrentTime.mockReturnValue(45);
@@ -238,9 +249,11 @@ describe("player store", () => {
     player.setStreamBase("https://example.com/rest/stream?id=");
 
     let loadedCb: ((...args: unknown[]) => void) | null = null;
-    mockEngine.onLoaded.mockImplementation((cb: (...args: unknown[]) => void) => {
-      loadedCb = cb;
-    });
+    mockEngine.onLoaded.mockImplementation(
+      (cb: (...args: unknown[]) => void) => {
+        loadedCb = cb;
+      },
+    );
 
     player.playTrack(mockSong);
     loadedCb!(200);
@@ -251,12 +264,91 @@ describe("player store", () => {
     player.setStreamBase("https://example.com/rest/stream?id=");
 
     let endedCb: ((...args: unknown[]) => void) | null = null;
-    mockEngine.onEnded.mockImplementation((cb: (...args: unknown[]) => void) => {
-      endedCb = cb;
-    });
+    mockEngine.onEnded.mockImplementation(
+      (cb: (...args: unknown[]) => void) => {
+        endedCb = cb;
+      },
+    );
 
     player.playTrack(mockSong);
     endedCb!();
     expect(get(player).status).toBe("idle");
+  });
+
+  it("loads a cached blob URL and plays when the song is offline-cached", async () => {
+    const originalCreate = URL.createObjectURL;
+    URL.createObjectURL = vi.fn(() => "blob:offline");
+
+    await putSong("1", {
+      albumId: "a1",
+      song: mockSong,
+      bytes: new TextEncoder().encode("audio").buffer,
+    });
+    registerCachedSong("1");
+
+    player.setStreamBase("https://example.com/rest/stream?id=");
+    player.playTrack(mockSong);
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(mockEngine.load).toHaveBeenLastCalledWith("blob:offline");
+    expect(mockEngine.play).toHaveBeenCalledTimes(1);
+
+    URL.createObjectURL = originalCreate;
+  });
+
+  it("retries from the offline cache when a remote stream errors", async () => {
+    const originalCreate = URL.createObjectURL;
+    URL.createObjectURL = vi.fn(() => "blob:offline");
+
+    await putSong("1", {
+      albumId: "a1",
+      song: mockSong,
+      bytes: new TextEncoder().encode("audio").buffer,
+    });
+    // Not registered as cached -> player chooses the remote stream first.
+    let errorCb: (() => void) | null = null;
+    mockEngine.onError.mockImplementation((cb: () => void) => {
+      errorCb = cb;
+    });
+
+    player.setStreamBase("https://example.com/rest/stream?id=");
+    player.playTrack(mockSong);
+    expect(mockEngine.load).toHaveBeenLastCalledWith(
+      "https://example.com/rest/stream?id=1",
+    );
+
+    errorCb!();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(mockEngine.load).toHaveBeenLastCalledWith("blob:offline");
+    expect(mockEngine.play).toHaveBeenCalledTimes(2);
+
+    URL.createObjectURL = originalCreate;
+  });
+
+  it("revokes the previous track's blob URL when switching tracks", async () => {
+    const originalCreate = URL.createObjectURL;
+    URL.createObjectURL = vi.fn(() => "blob:offline");
+    const revoke = URL.revokeObjectURL as ReturnType<typeof vi.fn>;
+    revoke.mockClear();
+
+    await putSong("1", {
+      albumId: "a1",
+      song: mockSong,
+      bytes: new TextEncoder().encode("audio").buffer,
+    });
+    registerCachedSong("1");
+
+    player.setStreamBase("https://example.com/rest/stream?id=");
+    player.playTrack(mockSong);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const other: Song = { ...mockSong, id: "other" };
+    player.playTrack(other);
+
+    expect(revoke).toHaveBeenCalledWith("blob:offline");
+
+    URL.createObjectURL = originalCreate;
   });
 });
