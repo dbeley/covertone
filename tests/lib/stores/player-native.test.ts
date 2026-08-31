@@ -21,6 +21,7 @@ const mockEngine = {
   onTimeUpdate: vi.fn(),
   onEnded: vi.fn(),
   onLoaded: vi.fn(),
+  onError: vi.fn(),
   getCurrentTime: vi.fn().mockReturnValue(0),
   getDuration: vi.fn().mockReturnValue(0),
   isPaused: vi.fn().mockReturnValue(false),
