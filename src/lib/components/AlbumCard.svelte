@@ -27,9 +27,13 @@
       offlineArt = '';
       return;
     }
-    resolveCoverArt(album.id, 256).then((url) => {
-      if (url) offlineArt = url;
+    let cancelled = false;
+    resolveCoverArt(album.id, 512).then((url) => {
+      if (!cancelled && url) offlineArt = url;
     });
+    return () => {
+      cancelled = true;
+    };
   });
 
   let effectiveCover = $derived(offlineArt || coverArtUrl);
