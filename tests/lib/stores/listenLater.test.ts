@@ -60,7 +60,9 @@ describe("listenLater store", () => {
     expect(entries[0].album.id).toBe("album-1");
     expect(entries[1].album.id).toBe("album-2");
     // second-added album has a later timestamp
-    expect(new Date(entries[0].addedAt).getTime()).toBeGreaterThanOrEqual(before);
+    expect(new Date(entries[0].addedAt).getTime()).toBeGreaterThanOrEqual(
+      before,
+    );
   });
 
   it("removes an album by id", () => {
@@ -92,6 +94,19 @@ describe("listenLater store", () => {
     const parsed = JSON.parse(raw!);
     expect(parsed).toHaveLength(1);
     expect(parsed[0].album.id).toBe("album-1");
+  });
+
+  it("de-proxies a $state-style proxied album so it stays cloneable", () => {
+    const proxied = new Proxy(testAlbum, {});
+    listenLater.add(proxied);
+
+    const stored = listenLater.getAll()[0].album;
+    expect(stored).toEqual(testAlbum);
+    // A Proxy would fail to structured-clone; the stored value must not be one.
+    expect(structuredClone(stored)).toEqual(testAlbum);
+    // Persisted form round-trips to plain JSON.
+    const raw = JSON.parse(localStorage.getItem("covertone-listen-later")!);
+    expect(raw[0].album).toEqual(testAlbum);
   });
 
   it("loads from localStorage on init", () => {

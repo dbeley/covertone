@@ -138,6 +138,16 @@ describe("downloadAlbum", () => {
     expect(prog?.totalSongs).toBe(2);
   });
 
+  it("downloads an album passed as a proxied (non-cloneable) object", async () => {
+    // Svelte `$state` wraps array items in Proxies, which IndexedDB can't
+    // structured-clone. De-proxying at the DB boundary must handle this.
+    const api = makeApi();
+    const proxiedAlbum = new Proxy(album, {});
+    const status = await downloadAlbum(api, proxiedAlbum);
+    expect(status).toBe("ready");
+    expect(await dbGetAlbum("a1")).toBeDefined();
+  });
+
   it("getOfflineSummary counts albums by status", async () => {
     await putMeta({
       albumId: "a1",

@@ -77,6 +77,14 @@ function reqToPromise<T>(request: IDBRequest<T>): Promise<T> {
   });
 }
 
+/**
+ * IndexedDB uses structured clone, which cannot clone Svelte 5 `$state`
+ * proxies. Reduce any value to a plain, cloneable object before writing.
+ */
+function toPlain<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
 async function getFromStore<T>(
   storeName: StoreName,
   key: IDBValidKey,
@@ -128,7 +136,13 @@ export async function putSong(
   songId: string,
   value: CachedSong,
 ): Promise<void> {
-  await putInStore(DB_STORES.songs, songId, value);
+  // `song` is plainified for IndexedDB structured clone; `bytes` passes through.
+  await putInStore(DB_STORES.songs, songId, {
+    albumId: value.albumId,
+    song: toPlain(value.song),
+    bytes: value.bytes,
+    contentType: value.contentType,
+  });
 }
 export async function getSong(songId: string): Promise<CachedSong | undefined> {
   return getFromStore<CachedSong>(DB_STORES.songs, songId);
@@ -149,7 +163,10 @@ export async function putAlbum(
   albumId: string,
   value: CachedAlbum,
 ): Promise<void> {
-  await putInStore(DB_STORES.albums, albumId, value);
+  await putInStore(DB_STORES.albums, albumId, {
+    album: toPlain(value.album),
+    songs: value.songs.map((s) => toPlain(s)),
+  });
 }
 export async function getAlbum(
   albumId: string,
@@ -177,7 +194,7 @@ export async function getArtKeysByPrefix(prefix: string): Promise<string[]> {
 
 // ——— download metadata ———
 export async function putMeta(meta: DownloadMeta): Promise<void> {
-  await putInStore(DB_STORES.meta, meta.albumId, meta);
+  await putInStore(DB_STORES.meta, meta.albumId, toPlain(meta));
 }
 export async function getMeta(
   albumId: string,

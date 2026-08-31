@@ -29,7 +29,13 @@ function createListenLater() {
     add(album: Album): void {
       update((entries) => {
         if (entries.some((e) => e.album.id === album.id)) return entries;
-        const next = [{ album, addedAt: new Date().toISOString() }, ...entries];
+        // Store a plain copy so Svelte `$state` proxies never leak into
+        // localStorage or the IndexedDB offline cache (which can't clone them).
+        const plain: Album = JSON.parse(JSON.stringify(album));
+        const next = [
+          { album: plain, addedAt: new Date().toISOString() },
+          ...entries,
+        ];
         persist(next);
         return next;
       });
