@@ -1,8 +1,10 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
+  import { get } from 'svelte/store';
   import { library } from '$lib/stores/library';
   import { settings } from '$lib/stores/settings';
   import { router } from '$lib/stores/router';
+  import { artistsPageStore } from '$lib/stores/artistsPage';
   import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import LazyImage from '$lib/components/LazyImage.svelte';
   import EmptyState from '$lib/components/EmptyState.svelte';
@@ -17,9 +19,14 @@
   let artistIndex = $derived($library.artistIndex);
   let loading = $derived($library.loading);
 
-  let searchQuery = $state('');
-  let debouncedQuery = $state('');
-  let visibleCount = $state(6);
+  let searchQuery = $state(get(artistsPageStore).query);
+  let debouncedQuery = $state(get(artistsPageStore).debouncedQuery);
+  let visibleCount = $state(get(artistsPageStore).visibleCount);
+
+  // Keep filter state across navigation (page unmounts when opening an artist)
+  $effect(() => {
+    artistsPageStore.set({ query: searchQuery, debouncedQuery, visibleCount });
+  });
 
   let debounceTimer: ReturnType<typeof setTimeout>;
   let observer: IntersectionObserver | null = null;
