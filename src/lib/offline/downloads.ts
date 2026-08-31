@@ -73,6 +73,50 @@ async function fetchBytes(url: string): Promise<{
   }
 }
 
+const NETWORK_ATTEMPTS = 3;
+const RETRY_DELAY_MS = 350;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Retry a transient fetch failure so a single network hiccup (common while the
+ * app is actively streaming/loading) doesn't fail the whole album download.
+ */
+async function fetchBytesWithRetry(url: string): Promise<{
+  bytes: ArrayBuffer;
+  contentType?: string;
+} | null> {
+  for (let attempt = 0; attempt < NETWORK_ATTEMPTS; attempt++) {
+    const result = await fetchBytes(url);
+    if (result) return result;
+    if (attempt < NETWORK_ATTEMPTS - 1) {
+      await sleep(RETRY_DELAY_MS * (attempt + 1));
+    }
+  }
+  return null;
+}
+
+/** Retry a promise-returning call a few times before giving up. */
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  attempts = NETWORK_ATTEMPTS,
+): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    try {
+      return await fn();
+    } catch (e) {
+      lastError = e;
+      if (attempt < attempts - 1) {
+        await sleep(RETRY_DELAY_MS * (attempt + 1));
+      }
+    }
+  }
+  throw lastError;
+}
+
 export async function isAlbumReady(albumId: string): Promise<boolean> {
   try {
     const meta = await db.getMeta(albumId);
@@ -115,14 +159,14 @@ export async function downloadAlbum(
 
   const songIds: string[] = [];
   try {
-    const data = await api.getAlbum({ id: album.id });
+    const data = await withRetry(() => api.getAlbum({ id: album.id }));
     const songs = data.album.song;
 
     await db.putAlbum(album.id, { album, songs });
 
     for (const song of songs) {
       if (!isInflight(album.id, epoch)) return "cancelled";
-      const art = await fetchBytes(api.stream({ id: song.id }));
+      const art = await fetchBytesWithRetry(api.stream({ id: song.id }));
       if (!isInflight(album.id, epoch)) return "cancelled";
       if (!art) throw new Error(`Failed to download stream for ${song.id}`);
       await db.putSong(song.id, {
@@ -143,7 +187,7 @@ export async function downloadAlbum(
     if (album.coverArt) {
       for (const size of ART_SIZES) {
         if (!isInflight(album.id, epoch)) return "cancelled";
-        const art = await fetchBytes(
+        const art = await fetchBytesWithRetry(
           api.getCoverArt({ id: album.coverArt, size }),
         );
         if (!isInflight(album.id, epoch)) return "cancelled";
@@ -174,6 +218,7 @@ export async function downloadAlbum(
   } catch (e) {
     if (!isInflight(album.id, epoch)) return "cancelled";
     const message = e instanceof Error ? e.message : String(e);
+    console.error(`[offline] Download of album ${album.id} failed:`, e);
     await db.putMeta({
       albumId: album.id,
       status: "failed",

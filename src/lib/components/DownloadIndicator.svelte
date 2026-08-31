@@ -54,7 +54,9 @@
   <button
     class="rounded-full bg-black/60 backdrop-blur-md px-2 py-0.5 text-[10px] font-semibold text-red-300 ring-1 ring-red-400/40 hover:bg-black/80"
     onclick={retry}
-    title="Download failed — tap to retry"
+    title={progress.error
+      ? `Download failed: ${progress.error}`
+      : 'Download failed — tap to retry'}
   >
     Retry
   </button>
