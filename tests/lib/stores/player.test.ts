@@ -288,10 +288,9 @@ describe("player store", () => {
 
     player.setStreamBase("https://example.com/rest/stream?id=");
     player.playTrack(mockSong);
-
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    expect(mockEngine.load).toHaveBeenLastCalledWith("blob:offline");
+    await vi.waitFor(() =>
+      expect(mockEngine.load).toHaveBeenLastCalledWith("blob:offline"),
+    );
     expect(mockEngine.play).toHaveBeenCalledTimes(1);
 
     URL.createObjectURL = originalCreate;
@@ -308,7 +307,7 @@ describe("player store", () => {
     });
     // Not registered as cached -> player chooses the remote stream first.
     let errorCb: (() => void) | null = null;
-    mockEngine.onError.mockImplementation((cb: () => void) => {
+    mockEngine.onError = vi.fn((cb: () => void) => {
       errorCb = cb;
     });
 
@@ -319,9 +318,9 @@ describe("player store", () => {
     );
 
     errorCb!();
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    expect(mockEngine.load).toHaveBeenLastCalledWith("blob:offline");
+    await vi.waitFor(() =>
+      expect(mockEngine.load).toHaveBeenLastCalledWith("blob:offline"),
+    );
     expect(mockEngine.play).toHaveBeenCalledTimes(2);
 
     URL.createObjectURL = originalCreate;
@@ -342,7 +341,10 @@ describe("player store", () => {
 
     player.setStreamBase("https://example.com/rest/stream?id=");
     player.playTrack(mockSong);
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    // Wait until the cached blob resolves and loads before switching tracks.
+    await vi.waitFor(() =>
+      expect(mockEngine.load).toHaveBeenLastCalledWith("blob:offline"),
+    );
 
     const other: Song = { ...mockSong, id: "other" };
     player.playTrack(other);
