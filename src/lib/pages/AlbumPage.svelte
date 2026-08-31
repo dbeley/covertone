@@ -35,10 +35,17 @@
 
   $effect(() => {
     const id = album?.id;
-    if (!id) { offlineArt = ''; return; }
-    resolveCoverArt(id, 192).then((url) => {
-      if (url) offlineArt = url;
+    if (!id) {
+      offlineArt = '';
+      return;
+    }
+    let cancelled = false;
+    resolveCoverArt(id, 512).then((url) => {
+      if (!cancelled && url) offlineArt = url;
     });
+    return () => {
+      cancelled = true;
+    };
   });
 
   async function toggleStar() {
@@ -105,7 +112,7 @@
         songs = data.album.song;
       } catch {
         if (cancelled) return;
-        if (!cached) error = 'Unable to load this album offline.';
+        if (!cached) error = 'Unable to load this album.';
       }
       if (!cancelled) loading = false;
     })();

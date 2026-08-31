@@ -193,15 +193,12 @@ export async function getAllMeta(): Promise<DownloadMeta[]> {
 
 /**
  * Wipe every store. Used mainly in tests, but also safe to expose for a
- * hypothetical "clear all offline data" control.
+ * hypothetical "clear all offline data" control. The DB handle is kept open so
+ * concurrent transactions aren't invalidated by a mid-operation close.
  */
 export async function clearAll(): Promise<void> {
   if (!isIndexedDBAvailable()) return;
   for (const name of Object.values(DB_STORES)) {
     await clearStore(name);
-  }
-  if (dbPromise) {
-    (await dbPromise).close();
-    dbPromise = null;
   }
 }

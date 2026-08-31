@@ -6,6 +6,23 @@ function toBlob(bytes: ArrayBuffer, contentType?: string): Blob {
   return new Blob([bytes], contentType ? { type: contentType } : undefined);
 }
 
+/** Artwork sizes stored in the cache, sorted from preferred (largest) first. */
+export const ART_SIZES = [512, 192];
+
+const MAX_SONG_URLS = 40;
+const MAX_ART_URLS = 40;
+
+/** Bound a blob-URL map by revoking the oldest entries once it overflows. */
+function capBlobUrls(map: Map<string, string>, max: number): void {
+  while (map.size > max) {
+    const first = map.keys().next().value;
+    if (first === undefined) break;
+    const url = map.get(first);
+    if (url) URL.revokeObjectURL(url);
+    map.delete(first);
+  }
+}
+
 const songUrls = new Map<string, string>();
 const artUrls = new Map<string, string>();
 const cachedSongIds = new Set<string>();
@@ -50,6 +67,7 @@ export async function resolveStream(songId: string): Promise<string | null> {
     if (!entry) return null;
     const url = URL.createObjectURL(toBlob(entry.bytes, entry.contentType));
     songUrls.set(songId, url);
+    capBlobUrls(songUrls, MAX_SONG_URLS);
     return url;
   } catch {
     return null;
@@ -76,26 +94,27 @@ export async function getCachedAlbum(
 }
 
 /**
- * Resolve cover art for an album from the cache, as a `blob:` URL. Falls back
- * through larger cached sizes and finally to `null` when nothing is cached.
+ * Resolve cover art for an album from the cache, as a `blob:` URL. Only the
+ * sizes actually stored in the cache are queried; the largest cached size is
+ * preferred. Returns `null` when nothing is cached.
  */
 export async function resolveCoverArt(
   albumId: string,
-  size: number,
+  _size: number,
 ): Promise<string | null> {
-  const sizes = [size, 512, 192];
-  for (const s of sizes) {
+  for (const s of ART_SIZES) {
     const key = `${albumId}:${s}`;
     const cached = artUrls.get(key);
     if (cached) return cached;
   }
   try {
-    for (const s of sizes) {
+    for (const s of ART_SIZES) {
       const key = `${albumId}:${s}`;
       const art: db.CachedArt | undefined = await db.getArt(key);
       if (art) {
         const url = URL.createObjectURL(toBlob(art.bytes, art.contentType));
         artUrls.set(key, url);
+        capBlobUrls(artUrls, MAX_ART_URLS);
         return url;
       }
     }

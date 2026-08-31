@@ -2,7 +2,7 @@ import { writable } from "svelte/store";
 import type { Album, Song } from "$lib/api/types";
 import * as db from "./db";
 import type { DownloadStatus } from "./db";
-import { revokeAlbum, registerCachedSong } from "./resolve";
+import { revokeAlbum, registerCachedSong, ART_SIZES } from "./resolve";
 
 export interface DownloadProgress {
   status: DownloadStatus;
@@ -31,7 +31,6 @@ export interface DownloadApi {
   stream(params: { id: string }): string;
 }
 
-const ART_SIZES = [192, 512];
 const inflight = new Map<string, number>();
 
 /**

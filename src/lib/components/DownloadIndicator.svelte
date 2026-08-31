@@ -14,14 +14,17 @@
   // Re-evaluate persisted readiness when this album's progress changes.
   let unsub: (() => void) | undefined;
   $effect(() => {
+    let cancelled = false;
     const check = async () => {
-      ready = await isAlbumReady(album.id);
+      const done = await isAlbumReady(album.id);
+      if (!cancelled) ready = done;
     };
     void check();
     unsub = offlineProgress.subscribe(() => {
       void check();
     });
     return () => {
+      cancelled = true;
       unsub?.();
     };
   });

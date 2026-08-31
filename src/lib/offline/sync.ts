@@ -34,11 +34,9 @@ export async function reconcile(): Promise<void> {
   }
   const metaByAlbum = new Map(metas.map((m) => [m.albumId, m]));
 
-  for (const m of metas) {
-    if (!ids.has(m.albumId)) {
-      await purgeAlbum(m.albumId);
-    }
-  }
+  await Promise.all(
+    metas.filter((m) => !ids.has(m.albumId)).map((m) => purgeAlbum(m.albumId)),
+  );
 
   for (const album of albums) {
     const meta = metaByAlbum.get(album.id);
