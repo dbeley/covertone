@@ -5,6 +5,8 @@
   import { queue } from '$lib/stores/queue';
   import { library } from '$lib/stores/library';
   import { listenLater } from '$lib/stores/listenLater';
+  import { resolveCoverArt } from '$lib/offline/resolve';
+  import DownloadIndicator from '$lib/components/DownloadIndicator.svelte';
   import LazyImage from '$lib/components/LazyImage.svelte';
   import type { Album } from '$lib/api/types';
 
@@ -18,6 +20,19 @@
 
   let localStarred = $state(untrack(() => !!album.starred));
   let isInListenLater = $derived($listenLater.some((e) => e.album.id === album.id));
+  let offlineArt = $state('');
+
+  $effect(() => {
+    if (!album.coverArt || !album.id) {
+      offlineArt = '';
+      return;
+    }
+    resolveCoverArt(album.id, 256).then((url) => {
+      if (url) offlineArt = url;
+    });
+  });
+
+  let effectiveCover = $derived(offlineArt || coverArtUrl);
 
   function open() {
     router.navigate(`album/${album.id}`);
@@ -88,7 +103,7 @@
 >
   <div class="aspect-square overflow-hidden relative">
     <LazyImage
-      src={coverArtUrl}
+      src={effectiveCover}
       alt={album.name}
       loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
     />
@@ -155,6 +170,10 @@
           <line x1="14" y1="17" x2="20" y2="17" stroke-linecap="round" />
         </svg>
       </button>
+    </div>
+    <!-- Offline download indicator: bottom-left, visible for listen-later albums. -->
+    <div class="absolute bottom-1.5 left-1.5 z-10">
+      <DownloadIndicator {album} />
     </div>
   </div>
 </div>
