@@ -11,6 +11,7 @@
   import { formatDuration } from '$lib/utils/format';
   import type { Artist, Album, Song } from '$lib/api/types';
   import { onMount } from 'svelte';
+  import ClearButton from '$lib/components/ClearButton.svelte';
 
   let serverUrl = $derived($settings.serverUrl);
   let username = $derived($settings.username);
@@ -53,6 +54,17 @@
     }
 
     debounceTimer = setTimeout(() => performSearch(value), 300);
+  }
+
+  function clearSearch() {
+    clearTimeout(debounceTimer);
+    query = '';
+    artists = [];
+    albums = [];
+    songs = [];
+    hasSearched = false;
+    searchStore.reset();
+    requestAnimationFrame(() => inputRef?.focus());
   }
 
   async function performSearch(q: string) {
@@ -102,14 +114,21 @@
 <div class="p-4">
   <h2 class="text-2xl font-bold mb-6 tracking-tight">Search</h2>
 
-  <input
-    type="text"
-    placeholder="Search albums, artists, songs..."
-    value={query}
-    oninput={handleInput}
-    bind:this={inputRef}
-    class="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150 mb-6"
-  />
+  <div class="relative mb-6">
+    <input
+      type="text"
+      placeholder="Search albums, artists, songs..."
+      value={query}
+      oninput={handleInput}
+      bind:this={inputRef}
+      class="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150 pr-10"
+    />
+    {#if query}
+      <span class="absolute right-2 top-1/2 -translate-y-1/2">
+        <ClearButton onclick={clearSearch} label="Clear search" />
+      </span>
+    {/if}
+  </div>
 
   {#if searching}
     <p class="text-text-dim">Searching...</p>

@@ -8,6 +8,7 @@
   import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
   import LazyImage from '$lib/components/LazyImage.svelte';
   import EmptyState from '$lib/components/EmptyState.svelte';
+  import ClearButton from '$lib/components/ClearButton.svelte';
   import type { Artist } from '$lib/api/types';
 
   let serverUrl = $derived($settings.serverUrl);
@@ -22,6 +23,7 @@
   let searchQuery = $state(get(artistsPageStore).query);
   let debouncedQuery = $state(get(artistsPageStore).debouncedQuery);
   let visibleCount = $state(get(artistsPageStore).visibleCount);
+  let searchInput = $state<HTMLInputElement | null>(null);
 
   // Keep filter state across navigation (page unmounts when opening an artist)
   $effect(() => {
@@ -66,6 +68,13 @@
     searchQuery = value;
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => { debouncedQuery = value; }, 150);
+  }
+
+  function clearSearch() {
+    clearTimeout(debounceTimer);
+    searchQuery = '';
+    debouncedQuery = '';
+    requestAnimationFrame(() => searchInput?.focus());
   }
 
   function scrollToLetter(letter: string) {
@@ -135,13 +144,21 @@
 <div class="p-4 h-full flex flex-col">
   <h2 class="text-2xl font-bold mb-4 tracking-tight shrink-0">Artists</h2>
 
-  <input
-    type="text"
-    placeholder="Filter artists..."
-    oninput={handleSearchInput}
-    value={searchQuery}
-    class="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150 mb-4 shrink-0"
-  />
+  <div class="relative mb-4 shrink-0">
+    <input
+      type="text"
+      placeholder="Filter artists..."
+      oninput={handleSearchInput}
+      value={searchQuery}
+      bind:this={searchInput}
+      class="w-full px-4 py-3 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150 pr-10"
+    />
+    {#if searchQuery}
+      <span class="absolute right-2 top-1/2 -translate-y-1/2">
+        <ClearButton onclick={clearSearch} label="Clear filter" />
+      </span>
+    {/if}
+  </div>
 
   {#if loading}
     <p class="text-text-dim">Loading...</p>

@@ -2,6 +2,7 @@
   import { settings } from '$lib/stores/settings';
   import { get } from 'svelte/store';
   import { SubsonicAPI } from '$lib/api/SubsonicAPI';
+  import ClearButton from '$lib/components/ClearButton.svelte';
   import type { Theme } from '$lib/stores/settings';
   import { version } from '../../../package.json';
 
@@ -130,33 +131,54 @@
     <div class="space-y-4">
       <div>
         <label for="settings-server-url" class="block text-sm font-medium text-text-dim mb-1.5">URL</label>
-        <input
-          id="settings-server-url"
-          type="text"
-          bind:value={server}
-          placeholder="https://navidrome.example.com"
-          class="w-full px-4 py-2.5 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150"
-        />
+        <div class="relative">
+          <input
+            id="settings-server-url"
+            type="text"
+            bind:value={server}
+            placeholder="https://navidrome.example.com"
+            class="w-full px-4 py-2.5 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150 pr-10"
+          />
+          {#if server}
+            <span class="absolute right-2 top-1/2 -translate-y-1/2">
+              <ClearButton onclick={() => { server = ''; }} label="Clear server URL" />
+            </span>
+          {/if}
+        </div>
       </div>
       <div>
         <label for="settings-username" class="block text-sm font-medium text-text-dim mb-1.5">Username</label>
-        <input
-          id="settings-username"
-          type="text"
-          bind:value={username}
-          placeholder="username"
-          class="w-full px-4 py-2.5 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150"
-        />
+        <div class="relative">
+          <input
+            id="settings-username"
+            type="text"
+            bind:value={username}
+            placeholder="username"
+            class="w-full px-4 py-2.5 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150 pr-10"
+          />
+          {#if username}
+            <span class="absolute right-2 top-1/2 -translate-y-1/2">
+              <ClearButton onclick={() => { username = ''; }} label="Clear username" />
+            </span>
+          {/if}
+        </div>
       </div>
       <div>
         <label for="settings-password" class="block text-sm font-medium text-text-dim mb-1.5">Password</label>
-        <input
-          id="settings-password"
-          type="password"
-          bind:value={password}
-          placeholder="password"
-          class="w-full px-4 py-2.5 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150"
-        />
+        <div class="relative">
+          <input
+            id="settings-password"
+            type="password"
+            bind:value={password}
+            placeholder="password"
+            class="w-full px-4 py-2.5 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150 pr-10"
+          />
+          {#if password}
+            <span class="absolute right-2 top-1/2 -translate-y-1/2">
+              <ClearButton onclick={() => { password = ''; }} label="Clear password" />
+            </span>
+          {/if}
+        </div>
       </div>
 
       <div class="flex items-center gap-3">
@@ -316,33 +338,54 @@
     <div class="space-y-4">
       <div>
         <label for="settings-ai-endpoint" class="block text-sm font-medium text-text-dim mb-1.5">Endpoint URL</label>
-        <input
-          id="settings-ai-endpoint"
-          type="text"
-          bind:value={aiEndpoint}
-          placeholder="https://api.deepseek.com"
-          class="w-full px-4 py-2.5 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150"
-        />
+        <div class="relative">
+          <input
+            id="settings-ai-endpoint"
+            type="text"
+            bind:value={aiEndpoint}
+            placeholder="https://api.deepseek.com"
+            class="w-full px-4 py-2.5 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150 pr-10"
+          />
+          {#if aiEndpoint}
+            <span class="absolute right-2 top-1/2 -translate-y-1/2">
+              <ClearButton onclick={() => { aiEndpoint = ''; }} label="Clear endpoint URL" />
+            </span>
+          {/if}
+        </div>
       </div>
       <div>
         <label for="settings-ai-key" class="block text-sm font-medium text-text-dim mb-1.5">API Key</label>
-        <input
-          id="settings-ai-key"
-          type="password"
-          bind:value={aiKey}
-          placeholder="sk-..."
-          class="w-full px-4 py-2.5 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150"
-        />
+        <div class="relative">
+          <input
+            id="settings-ai-key"
+            type="password"
+            bind:value={aiKey}
+            placeholder="sk-..."
+            class="w-full px-4 py-2.5 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150 pr-10"
+          />
+          {#if aiKey}
+            <span class="absolute right-2 top-1/2 -translate-y-1/2">
+              <ClearButton onclick={() => { aiKey = ''; }} label="Clear API key" />
+            </span>
+          {/if}
+        </div>
       </div>
       <div>
         <label for="settings-ai-model" class="block text-sm font-medium text-text-dim mb-1.5">Model</label>
-        <input
-          id="settings-ai-model"
-          type="text"
-          bind:value={aiModel}
-          placeholder="deepseek-chat"
-          class="w-full px-4 py-2.5 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150"
-        />
+        <div class="relative">
+          <input
+            id="settings-ai-model"
+            type="text"
+            bind:value={aiModel}
+            placeholder="deepseek-chat"
+            class="w-full px-4 py-2.5 bg-surface border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/30 transition-all duration-150 pr-10"
+          />
+          {#if aiModel}
+            <span class="absolute right-2 top-1/2 -translate-y-1/2">
+              <ClearButton onclick={() => { aiModel = ''; }} label="Clear model" />
+            </span>
+          {/if}
+        </div>
       </div>
       <div class="flex items-center gap-3">
         <button
