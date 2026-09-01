@@ -2,6 +2,12 @@ import { writable, get } from "svelte/store";
 import type { Writable } from "svelte/store";
 import { AudioEngine } from "$lib/player/AudioEngine";
 import { scrobbleTrack, getCoverArtUrl } from "$lib/api/SubsonicAPI";
+import {
+  resolveStream,
+  isSongCached,
+  revokeStreamUrl,
+  resolveCoverArt,
+} from "$lib/offline/resolve";
 import { settings } from "$lib/stores/settings";
 import * as NativeMedia from "$lib/player/NativeMedia";
 import type { Song } from "$lib/api/types";
@@ -131,6 +137,12 @@ function createPlayer() {
       });
       const currentState = get(store);
 
+      // Stop holding a blob URL for a previous, different track.
+      const prevTrackId = currentState.currentTrack?.id;
+      if (prevTrackId && prevTrackId !== track.id) {
+        revokeStreamUrl(prevTrackId);
+      }
+
       if (currentState.currentTrack && !scrobbled) {
         const minScrobbleTime = Math.min(30, currentState.duration / 2);
         if (currentState.currentTime >= minScrobbleTime) {
@@ -177,6 +189,19 @@ function createPlayer() {
         update((s) => ({ ...s, duration, status: "playing" }));
       });
 
+      // If a stream fails to load (e.g. offline but the presence hint hadn't
+      // caught up yet), retry once from the offline cache when available.
+      let retriedOffline = false;
+      currentEngine.onError(() => {
+        if (currentGeneration !== generation || retriedOffline) return;
+        retriedOffline = true;
+        void resolveStream(track.id).then((offline) => {
+          if (!offline || currentGeneration !== generation) return;
+          currentEngine.load(offline);
+          currentEngine.play().catch(() => {});
+        });
+      });
+
       update((s) => ({
         ...s,
         currentTrack: track,
@@ -203,14 +228,43 @@ function createPlayer() {
         });
       }
 
-      engine.load(`${streamBase}${track.id}`);
-      engine.play().catch(() => {
-        update((s) => ({ ...s, status: "paused" }));
-      });
+      const targetEngine = engine;
+      const targetGeneration = generation;
+
+      const offlinePlay = (offline: string | null) => {
+        targetEngine.load(offline ?? `${streamBase}${track.id}`);
+        return targetEngine.play().catch(() => {
+          update((s) => ({ ...s, status: "paused" }));
+        });
+      };
+
+      if (isSongCached(track.id)) {
+        resolveStream(track.id)
+          .then((offline) => {
+            if (targetGeneration !== generation) return;
+            return offlinePlay(offline);
+          })
+          .catch(() => {
+            if (targetGeneration !== generation) return;
+            offlinePlay(null);
+          });
+      } else {
+        offlinePlay(null);
+      }
 
       const artUrl = coverUrl(track);
       NativeMedia.showPlaying(track.title, track.artist, artUrl);
       fireScrobble(track.id, false);
+
+      // Offline: the remote artwork URL can't load without a connection, so
+      // refresh the native notification with the cached cover art when the
+      // track's album has any (fire-and-forget; the blob URL resolves async).
+      if (isSongCached(track.id)) {
+        void resolveCoverArt(track.albumId, 512).then((url) => {
+          if (targetGeneration !== generation || !url) return;
+          NativeMedia.showPlaying(track.title, track.artist, url);
+        });
+      }
     },
     pause() {
       if (engine) {
@@ -248,6 +302,8 @@ function createPlayer() {
     },
     stop() {
       lastTrack = null;
+      const cur = get(store).currentTrack;
+      if (cur) revokeStreamUrl(cur.id);
       import("$lib/stores/queue").then(({ queue }) => {
         queue.syncCurrentTrack(null);
       });

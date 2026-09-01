@@ -5,6 +5,7 @@
   import { listenLater } from '$lib/stores/listenLater';
   import { settings } from '$lib/stores/settings';
   import { SubsonicAPI, getCoverArtUrl } from '$lib/api/SubsonicAPI';
+  import { getCachedAlbum, resolveCoverArt } from '$lib/offline/resolve';
   import LazyImage from '$lib/components/LazyImage.svelte';
   import TrackList from '$lib/components/TrackList.svelte';
   import BackButton from '$lib/components/BackButton.svelte';
@@ -24,12 +25,28 @@
 
   let isStarred = $state(false);
   let isInListenLater = $state(false);
+  let offlineArt = $state('');
 
   let coverArtUrl = $derived(
     album?.coverArt
       ? getCoverArtUrl({ server: serverUrl, username, password, id: album.coverArt, size: 192 })
       : ''
   );
+
+  $effect(() => {
+    const id = album?.id;
+    if (!id) {
+      offlineArt = '';
+      return;
+    }
+    let cancelled = false;
+    resolveCoverArt(id, 512).then((url) => {
+      if (!cancelled && url) offlineArt = url;
+    });
+    return () => {
+      cancelled = true;
+    };
+  });
 
   async function toggleStar() {
     const newState = !isStarred;
@@ -73,6 +90,18 @@
     let cancelled = false;
 
     (async () => {
+      const cached = await getCachedAlbum(id);
+      if (cancelled) return;
+      if (cached) {
+        // Instant render from cache (also the offline path).
+        album = cached.album;
+        isStarred = false;
+        isInListenLater = listenLater.has(cached.album.id);
+        songs = cached.songs;
+        loading = false;
+      }
+
+      // Refresh / fetch metadata when possible.
       try {
         const api = new SubsonicAPI({ server: srv, username: usr, password: pwd });
         const data = await api.getAlbum({ id });
@@ -81,8 +110,9 @@
         isStarred = !!data.album.starred;
         isInListenLater = listenLater.has(data.album.id);
         songs = data.album.song;
-      } catch (e) {
-        if (!cancelled) error = (e as Error).message;
+      } catch {
+        if (cancelled) return;
+        if (!cached) error = 'Unable to load this album.';
       }
       if (!cancelled) loading = false;
     })();
@@ -99,7 +129,7 @@
   {:else if album && songs.length > 0}
     <BackButton />
     <div class="flex flex-col sm:flex-row items-start gap-4 mb-6 mt-4">
-      <LazyImage src={coverArtUrl} alt="" loading="lazy" decoding="async" class="w-48 h-48 rounded-2xl object-cover shadow-xl shadow-black/10 ring-1 ring-border/50" />
+      <LazyImage src={offlineArt || coverArtUrl} alt="" loading="lazy" decoding="async" class="w-48 h-48 rounded-2xl object-cover shadow-xl shadow-black/10 ring-1 ring-border/50" />
       <div class="flex flex-col justify-center gap-2">
         <p class="text-xs text-text-dim uppercase tracking-widest font-medium">Album</p>
         <h1 class="text-2xl font-bold tracking-tight">{album.name}</h1>

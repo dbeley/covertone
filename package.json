@@ -1,7 +1,7 @@
 {
   "name": "covertone",
   "private": true,
-  "version": "0.2.12",
+  "version": "0.2.13",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -33,6 +33,7 @@
     "@types/node": "^22.20.1",
     "eslint": "^9.39.5",
     "eslint-plugin-svelte": "^3.23.0",
+    "fake-indexeddb": "^6.2.5",
     "jsdom": "^26.1.0",
     "prettier": "^3.9.6",
     "prettier-plugin-svelte": "^3.5.2",
