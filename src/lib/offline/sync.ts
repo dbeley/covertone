@@ -2,7 +2,7 @@ import type { Album } from "$lib/api/types";
 import { listenLater } from "$lib/stores/listenLater";
 import { createApiFromSettings } from "$lib/api/createApi";
 import * as db from "./db";
-import { downloadAlbum, purgeAlbum } from "./downloads";
+import { downloadAlbum, purgeAlbum, seedReadyAlbums } from "./downloads";
 import { populateCachedSongIds } from "./resolve";
 
 let initialized = false;
@@ -17,8 +17,13 @@ async function ensureDownloaded(album: Album): Promise<void> {
 /**
  * Bring the offline cache in line with the Listen Later list:
  *  - purge any cached album no longer saved
- *  - (re)download any saved album that isn't cached yet (resumes interrupted
- *    downloads after the app was backgrounded).
+ *  - download saved albums that have never been cached (fresh upgrade) and
+ *    resume interrupted downloads (status `downloading`).
+ *
+ * Albums in `failed` status are deliberately left alone: auto-retrying them
+ * on every launch would re-hammer the network (and IndexedDB) at startup
+ * for albums that may fail permanently — the user retries them explicitly
+ * from the download indicator instead.
  */
 export async function reconcile(): Promise<void> {
   await populateCachedSongIds();
@@ -32,6 +37,7 @@ export async function reconcile(): Promise<void> {
   } catch {
     return;
   }
+  seedReadyAlbums(metas);
   const metaByAlbum = new Map(metas.map((m) => [m.albumId, m]));
 
   await Promise.all(
@@ -40,7 +46,7 @@ export async function reconcile(): Promise<void> {
 
   for (const album of albums) {
     const meta = metaByAlbum.get(album.id);
-    if (!meta || meta.status !== "ready") {
+    if (!meta || meta.status === "downloading") {
       await ensureDownloaded(album);
     }
   }
@@ -53,6 +59,10 @@ export async function reconcile(): Promise<void> {
 export function initOffline(): void {
   if (initialized) return;
   initialized = true;
+
+  // Seed the diff base before subscribing so the first synchronous emission
+  // (current list) is not mistaken for a change and re-downloads everything.
+  previous = new Set(listenLater.getAll().map((e) => e.album.id));
 
   void reconcile();
 

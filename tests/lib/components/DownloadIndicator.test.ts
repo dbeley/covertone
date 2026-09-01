@@ -2,7 +2,10 @@ import "fake-indexeddb/auto";
 import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/svelte";
 import DownloadIndicator from "$lib/components/DownloadIndicator.svelte";
-import { offlineProgress } from "$lib/offline/downloads";
+import {
+  offlineProgress,
+  seedReadyAlbums,
+} from "$lib/offline/downloads";
 import { clearAll, putMeta } from "$lib/offline/db";
 import { clearResolveUrls } from "$lib/offline/resolve";
 import type { Album } from "$lib/api/types";
@@ -55,6 +58,20 @@ describe("DownloadIndicator", () => {
       songIds: [],
       totalSongs: 2,
     });
+    render(DownloadIndicator, { album });
+    expect(await screen.findByText("Offline")).toBeTruthy();
+  });
+
+  it("shows the offline badge from the in-memory readiness set (no IDB)", async () => {
+    seedReadyAlbums([
+      {
+        albumId: "a1",
+        status: "ready",
+        savedAt: "x",
+        songIds: [],
+        totalSongs: 2,
+      },
+    ]);
     render(DownloadIndicator, { album });
     expect(await screen.findByText("Offline")).toBeTruthy();
   });

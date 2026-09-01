@@ -5,23 +5,28 @@
     offlineProgress,
     downloadAlbum,
     isAlbumReady,
+    isAlbumReadySync,
   } from "$lib/offline/downloads";
 
   let { album }: { album: Album } = $props();
 
   let ready = $state(false);
 
-  // Re-evaluate persisted readiness when this album's progress changes.
+  // Re-evaluate readiness when this album's progress changes. The per-tick
+  // check is synchronous (in-memory set) — only the initial mount reads
+  // IndexedDB, so a grid of cards can't fan out an IDB read per progress
+  // update while an album is downloading.
   let unsub: (() => void) | undefined;
   $effect(() => {
     let cancelled = false;
-    const check = async () => {
+    ready = isAlbumReadySync(album.id);
+    const checkPersisted = async () => {
       const done = await isAlbumReady(album.id);
       if (!cancelled) ready = done;
     };
-    void check();
+    void checkPersisted();
     unsub = offlineProgress.subscribe(() => {
-      void check();
+      ready = isAlbumReadySync(album.id);
     });
     return () => {
       cancelled = true;

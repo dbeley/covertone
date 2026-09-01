@@ -34,6 +34,26 @@ export interface DownloadApi {
 const inflight = new Map<string, number>();
 
 /**
+ * Albums whose persisted meta is `ready`, mirrored in memory so the UI can
+ * check readiness synchronously (no IndexedDB read per render tick).
+ * Seeded from `getAllMeta()` at startup and kept in sync by download/purge.
+ */
+const readyAlbums = new Set<string>();
+
+/** Seed the in-memory readiness set from persisted metadata. Cheap: no audio. */
+export function seedReadyAlbums(metas: db.DownloadMeta[]): void {
+  readyAlbums.clear();
+  for (const m of metas) {
+    if (m.status === "ready") readyAlbums.add(m.albumId);
+  }
+}
+
+/** Synchronous readiness check backed by the in-memory set. */
+export function isAlbumReadySync(albumId: string): boolean {
+  return readyAlbums.has(albumId);
+}
+
+/**
  * Cancel any in-flight download for an album. Called when the album is
  * removed, so a still-running loop won't re-cache a removed album.
  */
@@ -133,35 +153,45 @@ export function isAlbumDownloading(albumId: string): boolean {
 /**
  * Download an album (audio, artwork, metadata) into the offline cache.
  * Best-effort: returns the final status and never throws to callers.
+ *
+ * Cancellation contract: `purgeAlbum` (via `cancelAlbumDownload`) may run at
+ * any moment while this is in flight. The epoch is registered synchronously
+ * before the first await, and every IndexedDB write is preceded by an
+ * in-flight check, so a cancelled download never leaves rows behind.
  */
 export async function downloadAlbum(
   api: DownloadApi,
   album: Album,
 ): Promise<DownloadStatus> {
-  if (await isAlbumReady(album.id)) return "ready";
   if (inflight.has(album.id)) return "downloading";
 
   const epoch = makeEpoch();
   inflight.set(album.id, epoch);
 
-  setProgress(album.id, {
-    status: "downloading",
-    downloadedSongs: 0,
-    totalSongs: album.songCount,
-  });
-  await db.putMeta({
-    albumId: album.id,
-    status: "downloading",
-    savedAt: new Date().toISOString(),
-    songIds: [],
-    totalSongs: album.songCount,
-  });
-
   const songIds: string[] = [];
   try {
+    if (await isAlbumReady(album.id)) return "ready";
+    // A purge may have cancelled us while the ready check was in flight.
+    if (!isInflight(album.id, epoch)) return "cancelled";
+
+    setProgress(album.id, {
+      status: "downloading",
+      downloadedSongs: 0,
+      totalSongs: album.songCount,
+    });
+    readyAlbums.delete(album.id);
+    await db.putMeta({
+      albumId: album.id,
+      status: "downloading",
+      savedAt: new Date().toISOString(),
+      songIds: [],
+      totalSongs: album.songCount,
+    });
+
     const data = await withRetry(() => api.getAlbum({ id: album.id }));
     const songs = data.album.song;
 
+    if (!isInflight(album.id, epoch)) return "cancelled";
     await db.putAlbum(album.id, { album, songs });
 
     for (const song of songs) {
@@ -209,6 +239,7 @@ export async function downloadAlbum(
       songIds,
       totalSongs: songs.length,
     });
+    readyAlbums.add(album.id);
     setProgress(album.id, {
       status: "ready",
       downloadedSongs: songIds.length,
@@ -219,6 +250,7 @@ export async function downloadAlbum(
     if (!isInflight(album.id, epoch)) return "cancelled";
     const message = e instanceof Error ? e.message : String(e);
     console.error(`[offline] Download of album ${album.id} failed:`, e);
+    readyAlbums.delete(album.id);
     await db.putMeta({
       albumId: album.id,
       status: "failed",
@@ -243,6 +275,7 @@ export async function downloadAlbum(
  */
 export async function purgeAlbum(albumId: string): Promise<void> {
   cancelAlbumDownload(albumId);
+  readyAlbums.delete(albumId);
 
   let songIds: string[] = [];
   try {

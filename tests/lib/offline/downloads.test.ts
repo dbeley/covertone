@@ -8,11 +8,14 @@ import {
   getMeta,
   getArtKeysByPrefix,
   putMeta,
+  getAllMeta,
 } from "$lib/offline/db";
 import {
   downloadAlbum,
   purgeAlbum,
   isAlbumReady,
+  isAlbumReadySync,
+  seedReadyAlbums,
   offlineProgress,
   getOfflineSummary,
 } from "$lib/offline/downloads";
@@ -77,6 +80,7 @@ beforeEach(async () => {
   await clearAll();
   clearResolveUrls();
   offlineProgress.set({});
+  seedReadyAlbums([]);
   globalThis.fetch = vi.fn(
     () => Promise.resolve(makeFetchResponse()) as unknown as Response,
   );
@@ -146,6 +150,50 @@ describe("downloadAlbum", () => {
     const status = await downloadAlbum(api, proxiedAlbum);
     expect(status).toBe("ready");
     expect(await dbGetAlbum("a1")).toBeDefined();
+  });
+
+  it("tracks readiness synchronously (in-memory set)", async () => {
+    expect(isAlbumReadySync("a1")).toBe(false);
+
+    const api = makeApi();
+    await downloadAlbum(api, album);
+    expect(isAlbumReadySync("a1")).toBe(true);
+
+    await purgeAlbum("a1");
+    expect(isAlbumReadySync("a1")).toBe(false);
+  });
+
+  it("stays not-ready when a download fails", async () => {
+    const api = makeApi();
+    const failing = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("network down"));
+    globalThis.fetch = failing as unknown as typeof fetch;
+
+    await downloadAlbum(api, album);
+    expect(isAlbumReadySync("a1")).toBe(false);
+  });
+
+  it("seedReadyAlbums mirrors persisted metadata into the sync set", async () => {
+    await putMeta({
+      albumId: "a1",
+      status: "ready",
+      savedAt: "x",
+      songIds: [],
+      totalSongs: 0,
+    });
+    await putMeta({
+      albumId: "b2",
+      status: "failed",
+      savedAt: "y",
+      songIds: [],
+      totalSongs: 0,
+    });
+
+    seedReadyAlbums(await getAllMeta());
+
+    expect(isAlbumReadySync("a1")).toBe(true);
+    expect(isAlbumReadySync("b2")).toBe(false);
   });
 
   it("getOfflineSummary counts albums by status", async () => {
