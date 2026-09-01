@@ -9,8 +9,11 @@ function toBlob(bytes: ArrayBuffer, contentType?: string): Blob {
 /** Artwork sizes stored in the cache, sorted from preferred (largest) first. */
 export const ART_SIZES = [512, 192];
 
-const MAX_SONG_URLS = 40;
-const MAX_ART_URLS = 40;
+// Blob URLs pin their full byte content in memory. On mobile, keep the
+// retention tight: sequential playback revokes the previous track's URL
+// anyway, so the cap is only a safety net for random access.
+const MAX_SONG_URLS = 12;
+const MAX_ART_URLS = 16;
 
 /** Bound a blob-URL map by revoking the oldest entries once it overflows. */
 function capBlobUrls(map: Map<string, string>, max: number): void {
@@ -36,11 +39,15 @@ export function unregisterCachedSong(songId: string): void {
   cachedSongIds.delete(songId);
 }
 
-/** Rebuild the in-memory presence set from the DB (e.g. at app startup). */
+/**
+ * Rebuild the in-memory presence set from the DB (e.g. at app startup).
+ * Uses song keys only — loading full rows would pull every cached song's
+ * audio bytes into memory at once and can crash the app on mobile.
+ */
 export async function populateCachedSongIds(): Promise<void> {
   try {
-    const all = await db.getAllSongs();
-    for (const entry of all) cachedSongIds.add(entry.song.id);
+    const ids = await db.getAllSongIds();
+    for (const id of ids) cachedSongIds.add(id);
   } catch {
     /* ignore */
   }

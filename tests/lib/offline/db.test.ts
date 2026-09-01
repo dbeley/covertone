@@ -7,6 +7,9 @@ import {
   getSong,
   deleteSong,
   getAllSongs,
+  getAllSongIds,
+  getSongIdsByAlbum,
+  getSongsByAlbum,
   putAlbum,
   getAlbum,
   deleteAlbum,
@@ -78,6 +81,56 @@ describe("offline db", () => {
     });
     const all = await getAllSongs();
     expect(all.map((s) => s.song.id).sort()).toEqual(["s1", "s2"]);
+  });
+
+  it("lists all cached song ids without loading bytes", async () => {
+    await putSong("s1", {
+      albumId: "a1",
+      song: songs[0],
+      bytes: new ArrayBuffer(0),
+    });
+    await putSong("s2", {
+      albumId: "a1",
+      song: songs[1],
+      bytes: new ArrayBuffer(0),
+    });
+    expect((await getAllSongIds()).sort()).toEqual(["s1", "s2"]);
+  });
+
+  it("lists song ids by album via the albumId index", async () => {
+    await putSong("s1", {
+      albumId: "a1",
+      song: songs[0],
+      bytes: new ArrayBuffer(0),
+    });
+    await putSong("s2", {
+      albumId: "a1",
+      song: songs[1],
+      bytes: new ArrayBuffer(0),
+    });
+    // Another album's song must not leak into the a1 results.
+    await putSong("x9", {
+      albumId: "b2",
+      song: { ...songs[0], id: "x9", albumId: "b2" },
+      bytes: new ArrayBuffer(0),
+    });
+    expect((await getSongIdsByAlbum("a1")).sort()).toEqual(["s1", "s2"]);
+    expect(await getSongIdsByAlbum("b2")).toEqual(["x9"]);
+  });
+
+  it("getSongsByAlbum returns only that album's songs", async () => {
+    await putSong("s1", {
+      albumId: "a1",
+      song: songs[0],
+      bytes: new ArrayBuffer(0),
+    });
+    await putSong("x9", {
+      albumId: "b2",
+      song: { ...songs[0], id: "x9", albumId: "b2" },
+      bytes: new ArrayBuffer(0),
+    });
+    const byAlbum = await getSongsByAlbum("a1");
+    expect(byAlbum.map((s) => s.song.id)).toEqual(["s1"]);
   });
 
   it("stores and reads album metadata", async () => {

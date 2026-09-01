@@ -28,7 +28,10 @@ export interface DownloadMeta {
 }
 
 const DB_NAME = "covertone-offline";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
+
+/** Index on the songs store: album id -> song ids. */
+export const SONGS_ALBUM_INDEX = "albumId";
 
 export const DB_STORES = {
   songs: "songs",
@@ -58,6 +61,14 @@ function openDB(): Promise<IDBDatabase> {
         if (!db.objectStoreNames.contains(name)) {
           db.createObjectStore(name);
         }
+      }
+      // Songs are queried by album (purge, resume); an index avoids scanning
+      // the whole store — critical since each row holds full audio bytes.
+      const songsStore = request.transaction!.objectStore(DB_STORES.songs);
+      if (!songsStore.indexNames.contains(SONGS_ALBUM_INDEX)) {
+        songsStore.createIndex(SONGS_ALBUM_INDEX, "albumId", {
+          unique: false,
+        });
       }
     };
     request.onsuccess = () => resolve(request.result);
@@ -119,6 +130,32 @@ async function getAllKeys(storeName: StoreName): Promise<IDBValidKey[]> {
   return reqToPromise(store.getAllKeys());
 }
 
+async function getIndexKeys(
+  storeName: StoreName,
+  indexName: string,
+  query: IDBValidKey,
+): Promise<IDBValidKey[]> {
+  const db = await openDB();
+  const index = db
+    .transaction(storeName)
+    .objectStore(storeName)
+    .index(indexName);
+  return reqToPromise(index.getAllKeys(query));
+}
+
+async function getIndexAll<T>(
+  storeName: StoreName,
+  indexName: string,
+  query: IDBValidKey,
+): Promise<T[]> {
+  const db = await openDB();
+  const index = db
+    .transaction(storeName)
+    .objectStore(storeName)
+    .index(indexName);
+  return reqToPromise(index.getAll(query));
+}
+
 async function getAllFromStore<T>(storeName: StoreName): Promise<T[]> {
   const db = await openDB();
   const store = db.transaction(storeName).objectStore(storeName);
@@ -153,9 +190,28 @@ export async function deleteSong(songId: string): Promise<void> {
 export async function getAllSongs(): Promise<CachedSong[]> {
   return getAllFromStore<CachedSong>(DB_STORES.songs);
 }
+
+/**
+ * All cached song ids, without loading their audio bytes. Building the
+ * in-memory presence set from keys (instead of `getAllSongs`) keeps app
+ * startup memory flat no matter how large the cache is.
+ */
+export async function getAllSongIds(): Promise<string[]> {
+  const keys = await getAllKeys(DB_STORES.songs);
+  return keys.map(String);
+}
+
+/**
+ * Song ids for one album via the `albumId` index — never scans the full
+ * songs store (whose rows contain full audio bytes).
+ */
+export async function getSongIdsByAlbum(albumId: string): Promise<string[]> {
+  const keys = await getIndexKeys(DB_STORES.songs, SONGS_ALBUM_INDEX, albumId);
+  return keys.map(String);
+}
+
 export async function getSongsByAlbum(albumId: string): Promise<CachedSong[]> {
-  const all = await getAllFromStore<CachedSong>(DB_STORES.songs);
-  return all.filter((s) => s.albumId === albumId);
+  return getIndexAll<CachedSong>(DB_STORES.songs, SONGS_ALBUM_INDEX, albumId);
 }
 
 // ——— album metadata ———
