@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { get } from "svelte/store";
 import "fake-indexeddb/auto";
-import { clearAll, putSong } from "$lib/offline/db";
+import { clearAll, putSong, putArt } from "$lib/offline/db";
 import { registerCachedSong, clearResolveUrls } from "$lib/offline/resolve";
 import type { Song } from "$lib/api/types";
 
@@ -351,6 +351,45 @@ describe("player store", () => {
 
     expect(revoke).toHaveBeenCalledWith("blob:offline");
 
+    URL.createObjectURL = originalCreate;
+  });
+
+  it("refreshes the native notification with cached artwork offline", async () => {
+    const originalCreate = URL.createObjectURL;
+    URL.createObjectURL = vi.fn(() => "blob:offline");
+    const setPlaying = vi.fn();
+    (window as unknown as { NativeMedia?: object }).NativeMedia = {
+      setPlaying,
+      setPaused: vi.fn(),
+      hide: vi.fn(),
+      setArtwork: vi.fn(),
+    };
+
+    await putSong("1", {
+      albumId: "a1",
+      song: mockSong,
+      bytes: new TextEncoder().encode("audio").buffer,
+    });
+    await putArt("a1:512", {
+      bytes: new TextEncoder().encode("art").buffer,
+      contentType: "image/jpeg",
+    });
+    registerCachedSong("1");
+
+    player.setStreamBase("https://example.com/rest/stream?id=");
+    player.playTrack(mockSong);
+
+    // The remote URL is sent first; the cached blob must replace it once the
+    // artwork resolves from IndexedDB.
+    await vi.waitFor(() =>
+      expect(setPlaying).toHaveBeenLastCalledWith(
+        "Test Song",
+        "Test Artist",
+        "blob:offline",
+      ),
+    );
+
+    delete (window as unknown as { NativeMedia?: object }).NativeMedia;
     URL.createObjectURL = originalCreate;
   });
 });

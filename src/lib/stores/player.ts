@@ -6,6 +6,7 @@ import {
   resolveStream,
   isSongCached,
   revokeStreamUrl,
+  resolveCoverArt,
 } from "$lib/offline/resolve";
 import { settings } from "$lib/stores/settings";
 import * as NativeMedia from "$lib/player/NativeMedia";
@@ -254,6 +255,16 @@ function createPlayer() {
       const artUrl = coverUrl(track);
       NativeMedia.showPlaying(track.title, track.artist, artUrl);
       fireScrobble(track.id, false);
+
+      // Offline: the remote artwork URL can't load without a connection, so
+      // refresh the native notification with the cached cover art when the
+      // track's album has any (fire-and-forget; the blob URL resolves async).
+      if (isSongCached(track.id)) {
+        void resolveCoverArt(track.albumId, 512).then((url) => {
+          if (targetGeneration !== generation || !url) return;
+          NativeMedia.showPlaying(track.title, track.artist, url);
+        });
+      }
     },
     pause() {
       if (engine) {
