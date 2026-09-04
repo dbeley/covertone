@@ -16,7 +16,10 @@
       pkgVersion = (builtins.fromJSON (builtins.readFile ./package.json)).version;
 
       buildCovertone =
-        { pkgs, baseUrl ? "/" }:
+        {
+          pkgs,
+          baseUrl ? "/",
+        }:
         pkgs.stdenv.mkDerivation {
           pname = "covertone";
           version = pkgVersion;
@@ -26,11 +29,15 @@
             src = ./.;
             pname = "covertone";
             version = pkgVersion;
-            hash = "sha256-sJ/2e7RMDnJoHCT+aBYPuFaalPi7bY/nseTnmseFaF4=";
+            hash = "sha256-GSR4MqflmHAfFXKFezJcHnZYvBTofFVorRWVtbQtNPQ=";
             fetcherVersion = 4;
           };
 
-          nativeBuildInputs = [ pkgs.nodejs_22 pkgs.pnpm pkgs.pnpmConfigHook ];
+          nativeBuildInputs = [
+            pkgs.nodejs_22
+            pkgs.pnpm
+            pkgs.pnpmConfigHook
+          ];
 
           env = { inherit baseUrl; };
 
@@ -44,14 +51,28 @@
         };
 
       nixosModule =
-        { config, lib, pkgs, ... }:
+        {
+          config,
+          lib,
+          pkgs,
+          ...
+        }:
         let
           cfg = config.services.covertone;
           configJs = pkgs.writeText "config.js" ''
             window.__COVERTONE_CONFIG__ = ${
-              builtins.toJSON (lib.filterAttrs (_: v: v != null) {
-                inherit (cfg) server username password aiEndpoint aiKey aiModel;
-              })
+              builtins.toJSON (
+                lib.filterAttrs (_: v: v != null) {
+                  inherit (cfg)
+                    server
+                    username
+                    password
+                    aiEndpoint
+                    aiKey
+                    aiModel
+                    ;
+                }
+              )
             };
           '';
         in
@@ -187,7 +208,8 @@
           '';
         };
       }
-    )) // {
+    ))
+    // {
       nixosModules.default = nixosModule;
     };
 }
