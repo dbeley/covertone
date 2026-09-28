@@ -3,20 +3,15 @@ import { render, screen, fireEvent } from "@testing-library/svelte";
 import SearchPage from "$lib/pages/SearchPage.svelte";
 
 const mockSearch3 = vi.fn();
-const mockPlayTrack = vi.fn();
+const mockAddToEndAndPlay = vi.fn();
 const mockNavigate = vi.fn();
 
-vi.mock("$lib/stores/player", () => ({
-  player: {
-    subscribe: vi.fn((cb: (v: unknown) => void) => {
-      cb({ currentTrack: null, status: "idle", currentTime: 0, duration: 0, volume: 1, repeating: false, shuffle: false, favorited: false });
-      return vi.fn();
-    }),
-    playTrack: (...args: unknown[]) => mockPlayTrack(...args),
+vi.mock("$lib/stores/queue", () => ({
+  queue: {
+    subscribe: vi.fn(() => vi.fn()),
+    addToEndAndPlay: (...args: unknown[]) => mockAddToEndAndPlay(...args),
   },
 }));
-
-vi.mock("$lib/stores/queue", () => ({ queue: { subscribe: vi.fn(() => vi.fn()) } }));
 
 vi.mock("$lib/stores/router", () => ({
   router: {
@@ -81,5 +76,15 @@ describe("SearchPage", () => {
     await vi.waitFor(() => expect(screen.getByText("Test Artist")).toBeDefined(), { timeout: 2000 });
     expect(screen.getByText("Test Album")).toBeDefined();
     expect(screen.getByText("Test Song")).toBeDefined();
+  });
+
+  it("adds to the queue and plays when a song is clicked", async () => {
+    const song = { id: "s1", title: "Test Song", artist: "Artist", album: "Album", albumId: "al1", duration: 200 };
+    mockSearch3.mockResolvedValue({ searchResult3: { artist: [], album: [], song: [song] } });
+    render(SearchPage);
+    await fireEvent.input(screen.getByPlaceholderText("Search albums, artists, songs..."), { target: { value: "Test" } });
+    const row = await vi.waitFor(() => screen.getByRole("button", { name: "Play Test Song by Artist" }), { timeout: 2000 });
+    await fireEvent.click(row);
+    expect(mockAddToEndAndPlay).toHaveBeenCalledWith(song);
   });
 });

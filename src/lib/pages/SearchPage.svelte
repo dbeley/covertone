@@ -1,6 +1,5 @@
 <script lang="ts">
   import { router } from '$lib/stores/router';
-  import { player } from '$lib/stores/player';
   import { queue } from '$lib/stores/queue';
   import { settings } from '$lib/stores/settings';
   import { searchStore } from '$lib/stores/search';
@@ -89,7 +88,7 @@
   }
 
   function playSong(song: Song) {
-    player.playTrack(song);
+    queue.addToEndAndPlay(song);
   }
 
   function openArtist(id: string) {

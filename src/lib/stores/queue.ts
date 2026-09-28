@@ -69,6 +69,25 @@ function createQueue() {
         });
       }
     },
+    /**
+     * Appends a track to the end of the queue, selects it and starts playing
+     * it immediately. Unlike `addToEnd`, this always plays the track (even when
+     * the queue already has items) and keeps it visible in the queue instead of
+     * leaving a "ghost" playback that isn't part of the queue.
+     */
+    addToEndAndPlay(track: Song) {
+      update((s) => {
+        const newItems = [...s.items, makeItem(track)];
+        return recomputeDerived({
+          ...s,
+          items: newItems,
+          currentIndex: newItems.length - 1,
+        });
+      });
+      import("$lib/stores/player").then(({ player }) => {
+        player.playTrack(track);
+      });
+    },
     addTracksToEnd(tracks: Song[]) {
       let wasEmpty = false;
       update((s) => {
