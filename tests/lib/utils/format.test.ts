@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatDuration, shuffle } from "$lib/utils/format";
+import { formatDuration, formatBytes, shuffle } from "$lib/utils/format";
 
 describe("formatDuration", () => {
   it("formats seconds-only durations", () => {
@@ -23,6 +23,21 @@ describe("formatDuration", () => {
   it("handles fractional seconds", () => {
     expect(formatDuration(0.5)).toBe("0:00");
     expect(formatDuration(59.9)).toBe("0:59");
+  });
+});
+
+describe("formatBytes", () => {
+  it("formats bytes, kilobytes, megabytes", () => {
+    expect(formatBytes(0)).toBe("0 B");
+    expect(formatBytes(500)).toBe("500 B");
+    expect(formatBytes(2048)).toBe("2 KB");
+    expect(formatBytes(11 * 1024 * 1024)).toBe("11 MB");
+    expect(formatBytes((1.5 * 1024 * 1024 * 1024) / 1024)).toBe("1.5 MB");
+  });
+
+  it("handles invalid input gracefully", () => {
+    expect(formatBytes(-5)).toBe("0 B");
+    expect(formatBytes(Number.NaN)).toBe("0 B");
   });
 });
 

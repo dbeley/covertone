@@ -5,6 +5,7 @@
   import { settings } from '$lib/stores/settings';
   import { library } from '$lib/stores/library';
   import { getCoverArtUrl } from '$lib/api/SubsonicAPI';
+  import { resolveCoverArt } from '$lib/offline/resolve';
   import { toggleFullscreen } from '$lib/utils/fullscreen';
   import LazyImage from '$lib/components/LazyImage.svelte';
 
@@ -23,10 +24,29 @@
   let username = $derived($settings.username);
   let password = $derived($settings.password);
 
+  // Offline fallback: when the track's album has cached artwork, show the
+  // blob URL so the cover isn't blank without a connection.
+  let offlineArt = $state('');
+  $effect(() => {
+    const id = currentTrack?.albumId;
+    if (!id) {
+      offlineArt = '';
+      return;
+    }
+    let cancelled = false;
+    resolveCoverArt(id, 512).then((url) => {
+      if (!cancelled && url) offlineArt = url;
+    });
+    return () => {
+      cancelled = true;
+    };
+  });
+
   let coverArtUrl = $derived(
-    currentTrack?.coverArt
-      ? getCoverArtUrl({ server: serverUrl, username, password, id: currentTrack.coverArt, size: 512 })
-      : ''
+    offlineArt ||
+      (currentTrack?.coverArt
+        ? getCoverArtUrl({ server: serverUrl, username, password, id: currentTrack.coverArt, size: 512 })
+        : '')
   );
 
   let currentMinutes = $derived(Math.floor(currentTime / 60));

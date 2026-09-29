@@ -102,6 +102,35 @@ describe("queue store", () => {
     expect(state.currentIndex).toBe(1);
   });
 
+  it("addToEndAndPlay appends, selects the new track and plays it", async () => {
+    queue.replaceAll([song1, song2]);
+    queue.playIndex(0);
+    queue.addToEndAndPlay(song3);
+    const state = get(queue);
+    expect(tracksFrom(state)).toEqual([song1, song2, song3]);
+    expect(state.currentIndex).toBe(2);
+    await vi.waitFor(() => {
+      expect(player.playTrack).toHaveBeenCalledWith(song3);
+    });
+  });
+
+  it("addToEndAndPlay works on an empty queue", async () => {
+    queue.addToEndAndPlay(song1);
+    const state = get(queue);
+    expect(tracksFrom(state)).toEqual([song1]);
+    expect(state.currentIndex).toBe(0);
+    await vi.waitFor(() => {
+      expect(player.playTrack).toHaveBeenCalledWith(song1);
+    });
+  });
+
+  it("addToEndAndPlay selects the newly appended duplicate", () => {
+    queue.replaceAll([song1, song1]);
+    queue.playIndex(0);
+    queue.addToEndAndPlay(song1);
+    expect(get(queue).currentIndex).toBe(2);
+  });
+
   it("addTracksToEnd appends multiple tracks and sets currentIndex on empty queue", () => {
     queue.addTracksToEnd([song1, song2]);
     const state = get(queue);
