@@ -7,6 +7,7 @@ const settingsMocks = vi.hoisted(() => ({
   setTheme: vi.fn(),
   setScrobbleEnabled: vi.fn(),
   setAiConfig: vi.fn(),
+  setOfflineCacheEnabled: vi.fn(),
 }));
 
 const initialState = {
@@ -21,6 +22,7 @@ const initialState = {
   aiEndpoint: "https://api.deepseek.com",
   aiKey: "",
   aiModel: "deepseek-v4-flash",
+  offlineCacheEnabled: false,
 };
 
 vi.mock("$lib/stores/settings", () => ({
@@ -33,6 +35,7 @@ vi.mock("$lib/stores/settings", () => ({
     setTheme: settingsMocks.setTheme,
     setScrobbleEnabled: settingsMocks.setScrobbleEnabled,
     setAiConfig: settingsMocks.setAiConfig,
+    setOfflineCacheEnabled: settingsMocks.setOfflineCacheEnabled,
   },
 }));
 
@@ -47,6 +50,7 @@ describe("SettingsPage", () => {
     settingsMocks.setServerConfig.mockClear();
     settingsMocks.setTheme.mockClear();
     settingsMocks.setScrobbleEnabled.mockClear();
+    settingsMocks.setOfflineCacheEnabled.mockClear();
   });
 
   it("associates server labels with corresponding controls", () => {
@@ -77,5 +81,17 @@ describe("SettingsPage", () => {
       username: "demo-user",
       password: "demo-pass",
     });
+  });
+
+  it("toggles the offline cache setting", async () => {
+    render(SettingsPage);
+    const toggle = screen.getByRole("checkbox", {
+      name: "Cache albums for offline listening",
+    }) as HTMLInputElement;
+    expect(toggle.checked).toBe(false);
+
+    await fireEvent.click(toggle);
+
+    expect(settingsMocks.setOfflineCacheEnabled).toHaveBeenCalledWith(true);
   });
 });

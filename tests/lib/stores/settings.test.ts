@@ -140,4 +140,28 @@ describe("settings store", () => {
     const state = get(settings);
     expect(state.fullscreen).toBe(false);
   });
+
+  it("has offline cache disabled by default", () => {
+    expect(get(settings).offlineCacheEnabled).toBe(false);
+  });
+
+  it("setOfflineCacheEnabled updates and persists", () => {
+    settings.setOfflineCacheEnabled(true);
+    expect(get(settings).offlineCacheEnabled).toBe(true);
+    expect(localStorage.getItem("covertone-settings")).toContain(
+      '"offlineCacheEnabled":true',
+    );
+  });
+
+  it("persists offline cache setting across reload", () => {
+    settings.setOfflineCacheEnabled(true);
+    settings.reload();
+    expect(get(settings).offlineCacheEnabled).toBe(true);
+  });
+
+  it("reset restores offline cache to false", () => {
+    settings.setOfflineCacheEnabled(true);
+    settings.reset();
+    expect(get(settings).offlineCacheEnabled).toBe(false);
+  });
 });

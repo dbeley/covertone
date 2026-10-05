@@ -13,13 +13,14 @@ import {
 import {
   downloadAlbum,
   purgeAlbum,
+  purgeAllOffline,
   isAlbumReady,
   isAlbumReadySync,
   seedReadyAlbums,
   offlineProgress,
   getOfflineSummary,
 } from "$lib/offline/downloads";
-import { clearResolveUrls } from "$lib/offline/resolve";
+import { clearResolveUrls, isSongCached } from "$lib/offline/resolve";
 import type { Album, Song } from "$lib/api/types";
 
 const album: Album = {
@@ -269,5 +270,48 @@ describe("purgeAlbum", () => {
     expect(await getSong("s2")).toBeUndefined();
     expect(await getMeta("a1")).toBeUndefined();
     expect(await dbGetAlbum("a1")).toBeUndefined();
+  });
+});
+
+describe("purgeAllOffline", () => {
+  it("removes every cached artifact and in-memory hint", async () => {
+    const api = makeApi();
+    await downloadAlbum(api, album);
+
+    await purgeAllOffline();
+
+    expect(await getSong("s1")).toBeUndefined();
+    expect(await dbGetAlbum("a1")).toBeUndefined();
+    expect(await getMeta("a1")).toBeUndefined();
+    expect(await getArtKeysByPrefix("a1:")).toEqual([]);
+    expect(await getAllMeta()).toEqual([]);
+    expect(isAlbumReadySync("a1")).toBe(false);
+    expect(isSongCached("s1")).toBe(false);
+    expect(get(offlineProgress)).toEqual({});
+  });
+
+  it("cancels an in-flight download", async () => {
+    const api = makeApi();
+
+    let releaseS2: () => void = () => {};
+    const s2Gate = new Promise<void>((resolve) => {
+      releaseS2 = resolve;
+    });
+    globalThis.fetch = vi.fn((url: unknown) => {
+      if (String(url).includes("stream?id=s2")) {
+        return s2Gate.then(() => makeFetchResponse());
+      }
+      return Promise.resolve(makeFetchResponse()) as unknown as Response;
+    }) as unknown as typeof fetch;
+
+    const done = downloadAlbum(api, album);
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await purgeAllOffline();
+    releaseS2();
+
+    expect(await done).toBe("cancelled");
+    expect(await getSong("s1")).toBeUndefined();
+    expect(await getMeta("a1")).toBeUndefined();
   });
 });

@@ -316,6 +316,28 @@
   </section>
 
   <section class="mb-6">
+    <h3 class="text-lg font-semibold mb-4 tracking-tight">Offline</h3>
+    <div class="flex items-center gap-3">
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input
+          type="checkbox"
+          aria-label="Cache albums for offline listening"
+          checked={$settings.offlineCacheEnabled}
+          onchange={(e) => settings.setOfflineCacheEnabled((e.target as HTMLInputElement).checked)}
+          class="sr-only peer"
+        />
+        <div class="w-10 h-5 rounded-full peer-checked:bg-accent peer-checked:border-accent bg-white/5 border border-text-dim/30 transition-all duration-150 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full">
+        </div>
+      </label>
+      <span class="text-sm">Cache albums for offline listening</span>
+    </div>
+    <p class="text-xs text-text-dim mt-2">
+      Automatically downloads Listen Later albums to this device. Turn off on always-connected
+      devices to save space — turning it off clears this device's offline cache.
+    </p>
+  </section>
+
+  <section class="mb-6">
     <h3 class="text-lg font-semibold mb-4 tracking-tight">Jukebox</h3>
     <div class="flex items-center gap-3">
       <label class="relative inline-flex items-center cursor-pointer">

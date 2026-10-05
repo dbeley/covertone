@@ -1,12 +1,22 @@
 import type { Album } from "$lib/api/types";
 import { listenLater } from "$lib/stores/listenLater";
+import { settings } from "$lib/stores/settings";
 import { createApiFromSettings } from "$lib/api/createApi";
 import * as db from "./db";
-import { downloadAlbum, purgeAlbum, seedReadyAlbums } from "./downloads";
+import {
+  downloadAlbum,
+  purgeAlbum,
+  purgeAllOffline,
+  seedReadyAlbums,
+} from "./downloads";
 import { populateCachedSongIds } from "./resolve";
 
 let initialized = false;
 let previous = new Set<string>();
+let subscribed = false;
+let lastEnabled: boolean | null = null;
+let unsubscribeSettings: (() => void) | null = null;
+let unsubscribeListenLater: (() => void) | null = null;
 
 async function ensureDownloaded(album: Album): Promise<void> {
   const api = createApiFromSettings();
@@ -53,29 +63,69 @@ export async function reconcile(): Promise<void> {
 }
 
 /**
- * Wire Offline caching to the Listen Later list: adding an album downloads
- * it, removing it purges its cache. Call once at app startup.
+ * Apply the offline-cache setting. Enabling downloads the Listen Later list;
+ * disabling purges every cached artifact on this device. Idempotent per value
+ * so unrelated settings changes don't retrigger work.
  */
-export function initOffline(): void {
-  if (initialized) return;
-  initialized = true;
+async function applyOfflineCacheEnabled(enabled: boolean): Promise<void> {
+  if (enabled === lastEnabled) return;
+  lastEnabled = enabled;
+
+  if (!enabled) {
+    previous = new Set();
+    await purgeAllOffline();
+    return;
+  }
 
   // Seed the diff base before subscribing so the first synchronous emission
   // (current list) is not mistaken for a change and re-downloads everything.
   previous = new Set(listenLater.getAll().map((e) => e.album.id));
 
-  void reconcile();
+  if (!subscribed) {
+    subscribed = true;
+    unsubscribeListenLater = listenLater.subscribe((entries) => {
+      // A cache-disabled device must never download, even if the list changes.
+      if (!lastEnabled) return;
 
-  listenLater.subscribe((entries) => {
-    const current = new Set(entries.map((e) => e.album.id));
+      const current = new Set(entries.map((e) => e.album.id));
 
-    for (const id of previous) {
-      if (!current.has(id)) void purgeAlbum(id);
-    }
-    for (const entry of entries) {
-      if (!previous.has(entry.album.id)) void ensureDownloaded(entry.album);
-    }
+      for (const id of previous) {
+        if (!current.has(id)) void purgeAlbum(id);
+      }
+      for (const entry of entries) {
+        if (!previous.has(entry.album.id)) void ensureDownloaded(entry.album);
+      }
 
-    previous = current;
+      previous = current;
+    });
+  }
+
+  await reconcile();
+}
+
+/**
+ * Wire Offline caching to the Listen Later list, gated by the per-device
+ * "cache albums for offline listening" setting. Call once at app startup.
+ */
+export function initOffline(): void {
+  if (initialized) return;
+  initialized = true;
+
+  // The subscription fires synchronously with the current value, so this also
+  // handles the initial state (including the default-off first launch).
+  unsubscribeSettings = settings.subscribe((state) => {
+    void applyOfflineCacheEnabled(state.offlineCacheEnabled);
   });
+}
+
+/** For tests: drop subscriptions and bookkeeping so initOffline can re-run. */
+export function resetOfflineSyncForTests(): void {
+  unsubscribeSettings?.();
+  unsubscribeListenLater?.();
+  unsubscribeSettings = null;
+  unsubscribeListenLater = null;
+  initialized = false;
+  subscribed = false;
+  lastEnabled = null;
+  previous = new Set();
 }

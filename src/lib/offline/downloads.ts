@@ -2,7 +2,12 @@ import { writable } from "svelte/store";
 import type { Album, Song } from "$lib/api/types";
 import * as db from "./db";
 import type { DownloadStatus } from "./db";
-import { revokeAlbum, registerCachedSong, ART_SIZES } from "./resolve";
+import {
+  revokeAlbum,
+  registerCachedSong,
+  ART_SIZES,
+  clearAllCachedState,
+} from "./resolve";
 
 export interface DownloadProgress {
   status: DownloadStatus;
@@ -309,6 +314,34 @@ export async function purgeAlbum(albumId: string): Promise<void> {
     delete next[albumId];
     return next;
   });
+}
+
+/**
+ * Remove every offline artifact and in-memory hint. Used when the offline
+ * cache is disabled: the device should hold no cached audio, art or metadata.
+ */
+export async function purgeAllOffline(): Promise<void> {
+  for (const albumId of [...inflight.keys()]) cancelAlbumDownload(albumId);
+
+  try {
+    const metas = await db.getAllMeta();
+    for (const meta of metas) {
+      await purgeAlbum(meta.albumId);
+    }
+  } catch {
+    /* ignore */
+  }
+
+  // Sweep rows left behind by interrupted downloads that never wrote metadata.
+  try {
+    await db.clearAll();
+  } catch {
+    /* ignore */
+  }
+
+  readyAlbums.clear();
+  clearAllCachedState();
+  offlineProgress.set({});
 }
 
 export interface OfflineSummary {

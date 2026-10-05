@@ -17,6 +17,7 @@ export interface SettingsState {
   aiModel: string;
   accentColor: string;
   fullscreen: boolean;
+  offlineCacheEnabled: boolean;
 }
 
 const STORAGE_KEY = "covertone-settings";
@@ -127,6 +128,7 @@ function createSettings() {
     aiModel: persisted.aiModel ?? "deepseek-v4-flash",
     accentColor: persisted.accentColor ?? "",
     fullscreen: persisted.fullscreen ?? false,
+    offlineCacheEnabled: persisted.offlineCacheEnabled ?? false,
   });
 
   if (persisted.accentColor) {
@@ -150,6 +152,13 @@ function createSettings() {
       update((state) => {
         const next = { ...state, fullscreen };
         persist({ fullscreen });
+        return next;
+      });
+    },
+    setOfflineCacheEnabled(enabled: boolean) {
+      update((state) => {
+        const next = { ...state, offlineCacheEnabled: enabled };
+        persist({ offlineCacheEnabled: enabled });
         return next;
       });
     },
@@ -233,6 +242,7 @@ function createSettings() {
         aiModel: "deepseek-v4-flash",
         accentColor: "",
         fullscreen: false,
+        offlineCacheEnabled: false,
       });
     },
     reload() {
@@ -252,6 +262,7 @@ function createSettings() {
         aiModel: persisted.aiModel ?? "deepseek-v4-flash",
         accentColor: persisted.accentColor ?? "",
         fullscreen: persisted.fullscreen ?? false,
+        offlineCacheEnabled: persisted.offlineCacheEnabled ?? false,
       });
     },
   };

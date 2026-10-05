@@ -8,8 +8,13 @@ import {
   seedReadyAlbums,
 } from "$lib/offline/downloads";
 import { clearResolveUrls, isSongCached } from "$lib/offline/resolve";
-import { reconcile } from "$lib/offline/sync";
+import {
+  reconcile,
+  initOffline,
+  resetOfflineSyncForTests,
+} from "$lib/offline/sync";
 import { listenLater } from "$lib/stores/listenLater";
+import { settings } from "$lib/stores/settings";
 import type { Album, Song } from "$lib/api/types";
 
 vi.mock("$lib/api/createApi", () => ({
@@ -80,12 +85,14 @@ const readyMeta = {
 };
 
 beforeEach(async () => {
+  resetOfflineSyncForTests();
   await clearAll();
   clearResolveUrls();
   offlineProgress.set({});
-  localStorage.clear();
   listenLater.clear();
   seedReadyAlbums([]);
+  localStorage.clear();
+  settings.reset();
   mockedCreateApi.mockReset();
   mockedCreateApi.mockReturnValue(null);
   globalThis.fetch = vi.fn(
@@ -172,5 +179,75 @@ describe("reconcile", () => {
     await reconcile();
 
     expect(isSongCached("s1")).toBe(true);
+  });
+});
+
+describe("offline cache gating", () => {
+  it("purges existing cache and never downloads when disabled at startup", async () => {
+    listenLater.add(album);
+    await putSong("s1", {
+      albumId: "a1",
+      song: songs[0],
+      bytes: new TextEncoder().encode("audio").buffer,
+    });
+    await putMeta(readyMeta);
+    const api = makeApi();
+    mockedCreateApi.mockReturnValue(api as unknown as never);
+    settings.setOfflineCacheEnabled(false);
+
+    initOffline();
+
+    await vi.waitFor(async () => {
+      expect(await getMeta("a1")).toBeUndefined();
+    });
+    expect(api.stream).not.toHaveBeenCalled();
+    expect(isSongCached("s1")).toBe(false);
+  });
+
+  it("downloads listen later albums when enabled at startup", async () => {
+    listenLater.add(album);
+    const api = makeApi();
+    mockedCreateApi.mockReturnValue(api as unknown as never);
+    settings.setOfflineCacheEnabled(true);
+
+    initOffline();
+
+    await vi.waitFor(async () => {
+      expect((await getMeta("a1"))?.status).toBe("ready");
+    });
+    // Exactly once: the initial listenLater emission must not re-download.
+    expect(api.stream).toHaveBeenCalledTimes(2);
+  });
+
+  it("purges when the setting is toggled off after being enabled", async () => {
+    listenLater.add(album);
+    const api = makeApi();
+    mockedCreateApi.mockReturnValue(api as unknown as never);
+    settings.setOfflineCacheEnabled(true);
+
+    initOffline();
+    await vi.waitFor(async () => {
+      expect((await getMeta("a1"))?.status).toBe("ready");
+    });
+
+    settings.setOfflineCacheEnabled(false);
+
+    await vi.waitFor(async () => {
+      expect(await getMeta("a1")).toBeUndefined();
+    });
+    expect(isSongCached("s1")).toBe(false);
+  });
+
+  it("does not download an album added while disabled", async () => {
+    const api = makeApi();
+    mockedCreateApi.mockReturnValue(api as unknown as never);
+    settings.setOfflineCacheEnabled(false);
+
+    initOffline();
+    listenLater.add(album);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(api.stream).not.toHaveBeenCalled();
+    expect(await getMeta("a1")).toBeUndefined();
   });
 });

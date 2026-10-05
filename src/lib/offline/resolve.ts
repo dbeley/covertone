@@ -161,11 +161,17 @@ export function revokeAlbum(albumId: string, songIds: string[]): void {
   }
 }
 
-/** For tests: drop every tracked blob URL and presence set. */
-export function clearResolveUrls(): void {
+/**
+ * Drop every tracked blob URL and presence hint. Used when the offline cache
+ * is disabled and its IndexedDB rows are purged.
+ */
+export function clearAllCachedState(): void {
   for (const url of songUrls.values()) URL.revokeObjectURL(url);
   for (const url of artUrls.values()) URL.revokeObjectURL(url);
   songUrls.clear();
   artUrls.clear();
   cachedSongIds.clear();
 }
+
+/** Alias kept for existing test imports. */
+export const clearResolveUrls = clearAllCachedState;
