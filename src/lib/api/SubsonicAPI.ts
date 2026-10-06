@@ -113,7 +113,9 @@ export class SubsonicAPI {
       return data;
     } catch (e) {
       if (e instanceof SyntaxError) {
-        throw new Error(`Failed to parse response: ${text.slice(0, 200)}`);
+        throw new Error(`Failed to parse response: ${text.slice(0, 200)}`, {
+          cause: e,
+        });
       }
       throw e;
     }

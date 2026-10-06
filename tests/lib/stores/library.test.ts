@@ -44,7 +44,9 @@ describe("library store", () => {
           },
         }),
     };
-    (SubsonicAPI as any).mockImplementation(() => mockApi);
+    (SubsonicAPI as any).mockImplementation(function () {
+      return mockApi;
+    });
   });
 
   it("init sets API instance", () => {

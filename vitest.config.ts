@@ -13,7 +13,7 @@ export default defineConfig({
   resolve: {
     conditions: ['browser'],
     alias: {
-      '$lib': path.resolve(__dirname, 'src/lib'),
+      '$lib': path.resolve(import.meta.dirname, 'src/lib'),
     },
   },
 });

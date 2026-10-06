@@ -28,7 +28,9 @@ const mockEngine = {
 };
 
 vi.mock("$lib/player/AudioEngine", () => ({
-  AudioEngine: vi.fn().mockImplementation(() => mockEngine),
+  AudioEngine: vi.fn(function () {
+    return mockEngine;
+  }),
 }));
 
 vi.mock("$lib/api/SubsonicAPI", () => ({

@@ -352,12 +352,8 @@ export interface OfflineSummary {
 
 /** Count cached albums by download status, from the metadata store. */
 export async function getOfflineSummary(): Promise<OfflineSummary> {
-  let metas: db.DownloadMeta[] = [];
-  try {
-    metas = await db.getAllMeta();
-  } catch {
-    return { ready: 0, downloading: 0, failed: 0 };
-  }
+  const metas = await db.getAllMeta().catch(() => null);
+  if (!metas) return { ready: 0, downloading: 0, failed: 0 };
   const summary: OfflineSummary = { ready: 0, downloading: 0, failed: 0 };
   for (const m of metas) {
     if (m.status === "ready") summary.ready++;

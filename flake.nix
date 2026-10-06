@@ -29,7 +29,7 @@
             src = ./.;
             pname = "covertone";
             version = pkgVersion;
-            hash = "sha256-c0TajcAMW5W29lOXyH+xp31jKMniCb48jC1s6ME2Hhs=";
+            hash = "sha256-0VNVYBqoJQF1exJsTD0PKc+EO60NGg//9dsNkn+Tlm4=";
             fetcherVersion = 4;
           };
 
@@ -158,16 +158,22 @@
           buildInputs = with pkgs; [
             nodejs_22
             pnpm
+            just
             typescript-language-server
             svelte-language-server
             caddy
             jdk21
             patchelf
+            # tooling
             shellcheck
-            statix
+            jq
             git
             gh
             python3
+            # nix hygiene
+            nixfmt-rfc-style
+            statix
+            deadnix
           ];
 
           JAVA_HOME = "${pkgs.jdk21.home}";
@@ -197,6 +203,7 @@
               echo "  (SDK will be downloaded by Gradle on first build)"
             fi
             echo ""
+            echo "  just --list          - all tasks (dev, test, verify, deps-update, release, ...)"
             echo "  pnpm dev             - start dev server"
             echo "  pnpm test            - run tests"
             echo "  pnpm build           - production build"

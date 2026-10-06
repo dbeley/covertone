@@ -85,7 +85,9 @@ const apiMock = vi.hoisted(() => ({
 }));
 
 vi.mock("$lib/api/SubsonicAPI", () => ({
-  SubsonicAPI: vi.fn().mockImplementation(() => apiMock),
+  SubsonicAPI: vi.fn(function () {
+    return apiMock;
+  }),
   getCoverArtUrl: vi.fn(() => ""),
 }));
 

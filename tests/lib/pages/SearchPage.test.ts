@@ -33,7 +33,9 @@ vi.mock("$lib/stores/settings", () => ({
 }));
 
 vi.mock("$lib/api/SubsonicAPI", () => ({
-  SubsonicAPI: vi.fn().mockImplementation(() => ({ search3: mockSearch3 })),
+  SubsonicAPI: vi.fn(function () {
+    return { search3: mockSearch3 };
+  }),
   getCoverArtUrl: vi.fn().mockReturnValue("http://ex.com/cover.jpg"),
 }));
 

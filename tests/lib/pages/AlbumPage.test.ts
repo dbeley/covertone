@@ -39,7 +39,9 @@ vi.mock("$lib/stores/settings", () => ({
 }));
 
 vi.mock("$lib/api/SubsonicAPI", () => ({
-  SubsonicAPI: vi.fn().mockImplementation(() => apiMock),
+  SubsonicAPI: vi.fn(function () {
+    return apiMock;
+  }),
   getCoverArtUrl: vi.fn(({ id }: { id: string }) => `/cover/${id}`),
 }));
 

@@ -53,7 +53,9 @@ describe("AlbumsPage back-navigation", () => {
       getAlbum: vi.fn(),
       getArtists: vi.fn(),
     };
-    (SubsonicAPI as any).mockImplementation(() => mockApi);
+    (SubsonicAPI as any).mockImplementation(function () {
+      return mockApi;
+    });
     library.init({ server: "https://example.com", username: "u", password: "p" });
   });
 

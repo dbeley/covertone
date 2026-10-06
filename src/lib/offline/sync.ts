@@ -41,12 +41,8 @@ export async function reconcile(): Promise<void> {
   const albums = listenLater.getAll().map((e) => e.album);
   const ids = new Set(albums.map((a) => a.id));
 
-  let metas: db.DownloadMeta[] = [];
-  try {
-    metas = await db.getAllMeta();
-  } catch {
-    return;
-  }
+  const metas = await db.getAllMeta().catch(() => null);
+  if (!metas) return;
   seedReadyAlbums(metas);
   const metaByAlbum = new Map(metas.map((m) => [m.albumId, m]));
 

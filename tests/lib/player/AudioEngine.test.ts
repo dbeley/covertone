@@ -46,7 +46,9 @@ describe("AudioEngine", () => {
     mock = createMockAudio();
     AudioSpy = vi
       .spyOn(window, "Audio")
-      .mockImplementation(() => mock.audio as any);
+      .mockImplementation(function () {
+        return mock.audio as any;
+      });
     engine = new AudioEngine();
   });
 

@@ -7,7 +7,9 @@ const mockAutoDJ = {
 };
 
 vi.mock("$lib/player/AutoDJ", () => ({
-  AutoDJ: vi.fn().mockImplementation(() => mockAutoDJ),
+  AutoDJ: vi.fn(function () {
+    return mockAutoDJ;
+  }),
 }));
 
 vi.mock("$lib/stores/player", () => ({

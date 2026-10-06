@@ -40,9 +40,9 @@ vi.mock("$lib/stores/settings", () => ({
 }));
 
 vi.mock("$lib/api/SubsonicAPI", () => ({
-  SubsonicAPI: vi.fn().mockImplementation(() => ({
-    ping: vi.fn().mockResolvedValue(true),
-  })),
+  SubsonicAPI: vi.fn(function () {
+    return { ping: vi.fn().mockResolvedValue(true) };
+  }),
 }));
 
 describe("SettingsPage", () => {

@@ -60,7 +60,9 @@ vi.mock("$lib/stores/settings", () => ({
 }));
 
 vi.mock("$lib/api/SubsonicAPI", () => ({
-  SubsonicAPI: vi.fn().mockImplementation(() => ({ star: vi.fn(), unstar: vi.fn() })),
+  SubsonicAPI: vi.fn(function () {
+    return { star: vi.fn(), unstar: vi.fn() };
+  }),
 }));
 
 describe("keyboard shortcuts", () => {
