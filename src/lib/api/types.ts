@@ -146,3 +146,20 @@ export interface ArtistsResult {
     }[];
   };
 }
+
+export interface ScanStatus {
+  /** Whether a scan is currently running on the server. */
+  scanning: boolean;
+  /** Number of files scanned so far during the current scan. */
+  count?: number;
+  /** Timestamp of the last completed scan (Navidrome extension). */
+  lastScan?: string;
+  /** Number of music folders watched by the server (Navidrome extension). */
+  folderCount?: number;
+  /** Kind of the current/last scan (Navidrome extension). */
+  scanType?: "quick" | "full";
+}
+
+export interface ScanStatusResult {
+  scanStatus: ScanStatus;
+}

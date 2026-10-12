@@ -31,3 +31,11 @@ export function shuffle<T>(arr: T[]): T[] {
   }
   return a;
 }
+
+/** Format an ISO-8601 timestamp for display, or "" when it is unusable. */
+export function formatTimestamp(value?: string): string {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString();
+}

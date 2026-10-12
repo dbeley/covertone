@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/svelte";
+import { render, screen, fireEvent, waitFor } from "@testing-library/svelte";
 import SettingsPage from "$lib/pages/SettingsPage.svelte";
 
 const settingsMocks = vi.hoisted(() => ({
@@ -8,6 +8,16 @@ const settingsMocks = vi.hoisted(() => ({
   setScrobbleEnabled: vi.fn(),
   setAiConfig: vi.fn(),
   setOfflineCacheEnabled: vi.fn(),
+}));
+
+const apiMocks = vi.hoisted(() => ({
+  ping: vi.fn(() => Promise.resolve(true)),
+  getScanStatus: vi.fn(),
+  startScan: vi.fn(),
+}));
+
+const scanMocks = vi.hoisted(() => ({
+  watchScan: vi.fn(() => () => {}),
 }));
 
 const initialState = {
@@ -41,8 +51,20 @@ vi.mock("$lib/stores/settings", () => ({
 
 vi.mock("$lib/api/SubsonicAPI", () => ({
   SubsonicAPI: vi.fn(function () {
-    return { ping: vi.fn().mockResolvedValue(true) };
+    return {
+      ping: apiMocks.ping,
+      getScanStatus: apiMocks.getScanStatus,
+      startScan: apiMocks.startScan,
+    };
   }),
+}));
+
+vi.mock("$lib/library/scan", () => ({
+  watchScan: scanMocks.watchScan,
+}));
+
+vi.mock("$lib/stores/apiCache", () => ({
+  cacheInvalidate: vi.fn(),
 }));
 
 describe("SettingsPage", () => {
@@ -51,6 +73,9 @@ describe("SettingsPage", () => {
     settingsMocks.setTheme.mockClear();
     settingsMocks.setScrobbleEnabled.mockClear();
     settingsMocks.setOfflineCacheEnabled.mockClear();
+    apiMocks.startScan.mockReset();
+    apiMocks.getScanStatus.mockReset();
+    scanMocks.watchScan.mockClear();
   });
 
   it("associates server labels with corresponding controls", () => {
@@ -94,4 +119,110 @@ describe("SettingsPage", () => {
 
     expect(settingsMocks.setOfflineCacheEnabled).toHaveBeenCalledWith(true);
   });
+
+  it("triggers an incremental library scan", async () => {
+    apiMocks.startScan.mockResolvedValue({
+      scanStatus: { scanning: true, count: 0, scanType: "quick" },
+    });
+    apiMocks.getScanStatus.mockResolvedValue({
+      scanStatus: { scanning: true, count: 5 },
+    });
+    render(SettingsPage);
+    await fillServerFields();
+
+    await fireEvent.click(screen.getByRole("button", { name: "Scan Library" }));
+
+    expect(apiMocks.startScan).toHaveBeenCalledWith({ fullScan: false });
+    expect(scanMocks.watchScan).toHaveBeenCalledTimes(1);
+  });
+
+  it("requests a full rescan when asked to", async () => {
+    apiMocks.startScan.mockResolvedValue({
+      scanStatus: { scanning: true, count: 0, scanType: "full" },
+    });
+    render(SettingsPage);
+    await fillServerFields();
+
+    await fireEvent.click(screen.getByRole("button", { name: "Full Scan" }));
+
+    expect(apiMocks.startScan).toHaveBeenCalledWith({ fullScan: true });
+  });
+
+  it("disables the scan buttons while a scan is running", async () => {
+    apiMocks.startScan.mockResolvedValue({
+      scanStatus: { scanning: true, count: 0 },
+    });
+    render(SettingsPage);
+    await fillServerFields();
+
+    await fireEvent.click(screen.getByRole("button", { name: "Scan Library" }));
+
+    const running = screen.getByRole("button", {
+      name: "Scanning...",
+    }) as HTMLButtonElement;
+    const fullScan = screen.getByRole("button", {
+      name: "Full Scan",
+    }) as HTMLButtonElement;
+    expect(running.disabled).toBe(true);
+    expect(fullScan.disabled).toBe(true);
+  });
+
+  it("reports a failed scan", async () => {
+    apiMocks.startScan.mockRejectedValue(new Error("HTTP 501: Not Implemented"));
+    render(SettingsPage);
+    await fillServerFields();
+
+    await fireEvent.click(screen.getByRole("button", { name: "Scan Library" }));
+
+    await waitFor(() =>
+      expect(document.body.textContent).toContain("Scan failed"),
+    );
+    expect(document.body.textContent).toContain("HTTP 501");
+    expect(scanMocks.watchScan).not.toHaveBeenCalled();
+  });
+
+  it("reports an error when scanning without a server URL", async () => {
+    render(SettingsPage);
+
+    await fireEvent.click(screen.getByRole("button", { name: "Scan Library" }));
+
+    expect(apiMocks.startScan).not.toHaveBeenCalled();
+    await waitFor(() =>
+      expect(document.body.textContent).toContain("no server configured"),
+    );
+  });
+
+  it("loads the scan status on mount for a configured server", async () => {
+    apiMocks.getScanStatus.mockResolvedValue({
+      scanStatus: {
+        scanning: false,
+        count: 0,
+        lastScan: "2026-10-12T18:31:00Z",
+        folderCount: 3,
+      },
+    });
+    initialState.serverUrl = "https://demo.example.com";
+    try {
+      render(SettingsPage);
+
+      await waitFor(() => expect(apiMocks.getScanStatus).toHaveBeenCalled());
+      await waitFor(() =>
+        expect(document.body.textContent).toContain("3 folders"),
+      );
+    } finally {
+      initialState.serverUrl = "";
+    }
+  });
 });
+
+async function fillServerFields() {
+  await fireEvent.input(screen.getByLabelText("URL"), {
+    target: { value: "https://demo.example.com" },
+  });
+  await fireEvent.input(screen.getByLabelText("Username"), {
+    target: { value: "demo-user" },
+  });
+  await fireEvent.input(screen.getByLabelText("Password"), {
+    target: { value: "demo-pass" },
+  });
+}

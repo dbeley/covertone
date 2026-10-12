@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { formatDuration, formatBytes, shuffle } from "$lib/utils/format";
+import {
+  formatDuration,
+  formatBytes,
+  shuffle,
+  formatTimestamp,
+} from "$lib/utils/format";
 
 describe("formatDuration", () => {
   it("formats seconds-only durations", () => {
@@ -59,5 +64,19 @@ describe("shuffle", () => {
   it("handles empty and single-element arrays", () => {
     expect(shuffle([])).toEqual([]);
     expect(shuffle([42])).toEqual([42]);
+  });
+});
+
+describe("formatTimestamp", () => {
+  it("formats an ISO-8601 timestamp", () => {
+    const formatted = formatTimestamp("2026-10-12T18:31:00Z");
+    expect(formatted).not.toBe("");
+    expect(formatted).not.toBe("2026-10-12T18:31:00Z");
+  });
+
+  it("returns an empty string for missing or invalid timestamps", () => {
+    expect(formatTimestamp()).toBe("");
+    expect(formatTimestamp("")).toBe("");
+    expect(formatTimestamp("not a date")).toBe("");
   });
 });
