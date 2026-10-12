@@ -18,4 +18,6 @@ export const ENDPOINTS = {
   getStarred: "getStarred",
   star: "star",
   unstar: "unstar",
+  getScanStatus: "getScanStatus",
+  startScan: "startScan",
 } as const;

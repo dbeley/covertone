@@ -22,6 +22,7 @@ A modern Subsonic/Navidrome music streaming client for Web / Android tailored to
 - **Random album discovery** - Album views default to random sorting to help you discover music
 - **Guess the Artist** - Trivia game with 3 difficulty levels (Easy/Medium/Hard) that plays a song and challenges you to pick the right artist
 - **Cross-platform** - Installable PWA, Android app (via Capacitor), or Docker image
+- **Library rescan** - Trigger a quick or full library scan on the server from the Settings page, without waiting for its scheduled scan
 - **Custom accent color** - Personalize the UI with preset swatches or custom hex color
 
 ## Keyboard Shortcuts

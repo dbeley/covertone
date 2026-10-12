@@ -14,6 +14,7 @@ import type {
   Album,
   Song,
   Playlist,
+  ScanStatusResult,
 } from "./types";
 
 export interface SubsonicAPIConfig {
@@ -24,7 +25,7 @@ export interface SubsonicAPIConfig {
 }
 
 interface RequestParams {
-  [key: string]: string | number | undefined;
+  [key: string]: string | number | boolean | undefined;
 }
 
 export class SubsonicAPI {
@@ -349,6 +350,29 @@ export class SubsonicAPI {
     await this.request(ENDPOINTS.unstar, params);
     cacheInvalidate("getStarred");
     cacheInvalidate("getAlbumList");
+  }
+
+  /**
+   * Return the current media library scan status (Subsonic 1.15.0+).
+   * Never cached: the status changes while a scan runs.
+   */
+  async getScanStatus(): Promise<ScanStatusResult> {
+    const data = await this.request<ScanStatusResult>(ENDPOINTS.getScanStatus);
+    return data["subsonic-response"];
+  }
+
+  /**
+   * Ask the server to rescan its media library (Subsonic 1.15.0+).
+   * Without `fullScan` this is the cheap incremental scan; `fullScan: true`
+   * asks for a full rescan (Navidrome extension, ignored by other servers).
+   */
+  async startScan(
+    params: { fullScan?: boolean } = {},
+  ): Promise<ScanStatusResult> {
+    const data = await this.request<ScanStatusResult>(ENDPOINTS.startScan, {
+      fullScan: params.fullScan ? true : undefined,
+    });
+    return data["subsonic-response"];
   }
 }
 

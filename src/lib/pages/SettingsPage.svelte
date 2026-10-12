@@ -1,9 +1,14 @@
 <script lang="ts">
   import { settings } from '$lib/stores/settings';
   import { get } from 'svelte/store';
+  import { onMount } from 'svelte';
   import { SubsonicAPI } from '$lib/api/SubsonicAPI';
+  import { watchScan } from '$lib/library/scan';
+  import { cacheInvalidate } from '$lib/stores/apiCache';
+  import { formatTimestamp } from '$lib/utils/format';
   import ClearButton from '$lib/components/ClearButton.svelte';
   import type { Theme } from '$lib/stores/settings';
+  import type { ScanStatus } from '$lib/api/types';
   import { version } from '../../../package.json';
 
   const saved = get(settings);
@@ -19,6 +24,11 @@
   let aiModel = $state(saved.aiModel ?? '');
   let aiTestStatus = $state<'idle' | 'testing' | 'success' | 'error'>('idle');
   let aiSaveStatus = $state<'idle' | 'saved'>('idle');
+
+  let scanState = $state<'idle' | 'scanning' | 'done' | 'error'>('idle');
+  let scanError = $state('');
+  let scanInfo = $state<ScanStatus | null>(null);
+  let stopScanWatch: (() => void) | null = null;
 
   let theme = $derived($settings.theme);
 
@@ -120,6 +130,73 @@
     aiSaveStatus = 'saved';
     setTimeout(() => { aiSaveStatus = 'idle'; }, 2000);
   }
+
+  function apiFromForm(): SubsonicAPI | null {
+    const serverUrl = readInput('settings-server-url', server).trim();
+    if (!serverUrl.startsWith('http')) return null;
+    return new SubsonicAPI({
+      server: serverUrl,
+      username: readInput('settings-username', username),
+      password: readInput('settings-password', password),
+    });
+  }
+
+  function stopWatchingScan() {
+    stopScanWatch?.();
+    stopScanWatch = null;
+  }
+
+  async function loadScanStatus() {
+    const api = apiFromForm();
+    if (!api) return;
+    try {
+      scanInfo = (await api.getScanStatus()).scanStatus;
+      if (scanInfo?.scanning) scanState = 'scanning';
+    } catch {
+      // Servers older than Subsonic 1.15.0 have no scan status; stay quiet.
+    }
+  }
+
+  async function startLibraryScan(fullScan: boolean) {
+    const api = apiFromForm();
+    if (!api) {
+      scanState = 'error';
+      scanError = 'no server configured';
+      return;
+    }
+    stopWatchingScan();
+    scanError = '';
+    scanState = 'scanning';
+    try {
+      const result = await api.startScan({ fullScan });
+      if (result.scanStatus) scanInfo = result.scanStatus;
+    } catch (error) {
+      scanState = 'error';
+      scanError = error instanceof Error ? error.message : String(error);
+      return;
+    }
+    stopScanWatch = watchScan(
+      async () => (await api.getScanStatus()).scanStatus,
+      {
+        onStatus: (status) => { scanInfo = status; },
+        onFinished: (status) => {
+          scanInfo = status;
+          scanState = 'done';
+          // Drop cached library data so the freshly scanned files show up.
+          cacheInvalidate();
+        },
+        onError: (error) => {
+          scanState = 'error';
+          scanError = error instanceof Error ? error.message : String(error);
+        },
+      },
+    );
+  }
+
+  onMount(() => {
+    void loadScanStatus();
+    return stopWatchingScan;
+  });
 </script>
 
 <div class="p-4 max-w-lg">
@@ -208,6 +285,48 @@
         {/if}
       </div>
     </div>
+  </section>
+
+  <section class="mb-6">
+    <h3 class="text-lg font-semibold mb-4 tracking-tight">Library</h3>
+    <p class="text-sm text-text-dim mb-4">
+      Rescan the server's music library to pick up newly added files without waiting for its
+      scheduled scan. Needs a server exposing the Subsonic 1.15.0 scan endpoints
+      (Navidrome, Gonic, …).
+    </p>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <button
+        class="px-4 py-2.5 bg-surface border border-border rounded-xl text-sm font-medium hover:border-accent/30 hover:text-text active:scale-[0.98] transition-all duration-150 disabled:opacity-50"
+        onclick={() => startLibraryScan(false)}
+        disabled={scanState === 'scanning'}
+      >
+        {scanState === 'scanning' ? 'Scanning...' : 'Scan Library'}
+      </button>
+      <button
+        class="px-4 py-2.5 bg-surface border border-border rounded-xl text-sm font-medium hover:border-accent/30 hover:text-text active:scale-[0.98] transition-all duration-150 disabled:opacity-50"
+        onclick={() => startLibraryScan(true)}
+        disabled={scanState === 'scanning'}
+      >
+        Full Scan
+      </button>
+      {#if scanState === 'done'}
+        <span class="text-green-500 text-sm">Scan complete</span>
+      {:else if scanState === 'error'}
+        <span class="text-red-500 text-sm">Scan failed: {scanError}</span>
+      {/if}
+    </div>
+
+    {#if scanInfo}
+      <p class="text-xs text-text-dim mt-3">
+        {#if scanInfo.scanning}
+          Scanning in progress{#if scanInfo.count !== undefined} — {scanInfo.count} files so far{/if}...
+        {:else if formatTimestamp(scanInfo.lastScan)}
+          Last scan: {formatTimestamp(scanInfo.lastScan)}
+          {#if scanInfo.folderCount !== undefined}· {scanInfo.folderCount} folders{/if}
+        {/if}
+      </p>
+    {/if}
   </section>
 
   <section class="mb-6">

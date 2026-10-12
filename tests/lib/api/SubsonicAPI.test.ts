@@ -376,6 +376,102 @@ describe("SubsonicAPI", () => {
     await api.getAlbumList({ type: "newest", size: 20 });
     expect(fetchSpy).toHaveBeenCalledTimes(3); // first get + star + second get
   });
+
+  it("getScanStatus returns the scan status without caching it", async () => {
+    fetchSpy.mockResolvedValue({
+      ok: true,
+      text: () =>
+        Promise.resolve(
+          JSON.stringify(
+            createSubsonicResponse({
+              scanStatus: {
+                scanning: false,
+                count: 0,
+                lastScan: "2026-10-12T18:31:00Z",
+                folderCount: 2,
+              },
+            }),
+          ),
+        ),
+    });
+
+    const first = await api.getScanStatus();
+    const second = await api.getScanStatus();
+
+    expect(first.scanStatus.scanning).toBe(false);
+    expect(second.scanStatus.lastScan).toBe("2026-10-12T18:31:00Z");
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+    const url = new URL(fetchSpy.mock.calls[0][0]);
+    expect(url.pathname).toBe("/rest/getScanStatus");
+  });
+
+  it("startScan triggers an incremental scan by default", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      ok: true,
+      text: () =>
+        Promise.resolve(
+          JSON.stringify(
+            createSubsonicResponse({
+              scanStatus: { scanning: true, count: 3 },
+            }),
+          ),
+        ),
+    });
+
+    const result = await api.startScan();
+
+    expect(result.scanStatus.scanning).toBe(true);
+    const url = new URL(fetchSpy.mock.calls[0][0]);
+    expect(url.pathname).toBe("/rest/startScan");
+    expect(url.searchParams.has("fullScan")).toBe(false);
+  });
+
+  it("startScan sends fullScan=true for a full rescan", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      ok: true,
+      text: () =>
+        Promise.resolve(
+          JSON.stringify(
+            createSubsonicResponse({
+              scanStatus: { scanning: true, count: 0, scanType: "full" },
+            }),
+          ),
+        ),
+    });
+
+    await api.startScan({ fullScan: true });
+
+    const url = new URL(fetchSpy.mock.calls[0][0]);
+    expect(url.pathname).toBe("/rest/startScan");
+    expect(url.searchParams.get("fullScan")).toBe("true");
+  });
+
+  it("startScan rejects when the server does not support scanning", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      ok: false,
+      status: 501,
+      statusText: "Not Implemented",
+    });
+
+    await expect(api.startScan()).rejects.toThrow("HTTP 501");
+  });
+
+  it("startScan rejects on a failed subsonic response", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      ok: true,
+      text: () =>
+        Promise.resolve(
+          JSON.stringify(
+            createSubsonicResponse(
+              { error: { code: 50, message: "User is not authorized" } },
+              "failed",
+            ),
+          ),
+        ),
+    });
+
+    await expect(api.startScan()).rejects.toThrow("User is not authorized");
+  });
 });
 
 describe("getCoverArtUrl", () => {
