@@ -29,7 +29,7 @@
             src = ./.;
             pname = "covertone";
             version = pkgVersion;
-            hash = "sha256-0VNVYBqoJQF1exJsTD0PKc+EO60NGg//9dsNkn+Tlm4=";
+            hash = "sha256-ADtK6uQV3k0smpAqNXHI10i+7Extdl7cf2EWACwSNeg=";
             fetcherVersion = 4;
           };
 
