@@ -19,18 +19,10 @@
   let frequentAlbums = $state<Album[]>([]);
   let loading = $state(true);
 
-  function getColumnCount(): number {
-    if (typeof window === 'undefined') return 2;
-    const w = window.innerWidth;
-    if (w >= 1536) return 8;
-    if (w >= 1280) return 6;
-    if (w >= 1024) return 5;
-    if (w >= 768) return 4;
-    if (w >= 640) return 3;
-    return 2;
-  }
-
-  let sectionSize = $derived(getColumnCount() * 2);
+  // Fetch a pool large enough for the widest layout (AlbumGrid caps at 8
+  // columns × 2 rows = 16 on 2xl). AlbumGrid slices it to whatever actually
+  // fits, so resizing never needs a refetch.
+  const SECTION_POOL = 24;
 
   async function fetchSection(api: SubsonicAPI, type: string, size: number): Promise<Album[]> {
     try {
@@ -52,10 +44,10 @@
     if (!api) { loading = false; return; }
 
     const [recent, newest, random, frequent] = await Promise.all([
-      fetchSection(api, 'recent', sectionSize),
-      fetchSection(api, 'newest', sectionSize),
-      fetchSection(api, 'random', sectionSize),
-      fetchSection(api, 'frequent', sectionSize),
+      fetchSection(api, 'recent', SECTION_POOL),
+      fetchSection(api, 'newest', SECTION_POOL),
+      fetchSection(api, 'random', SECTION_POOL),
+      fetchSection(api, 'frequent', SECTION_POOL),
     ]);
 
     recentAlbums = recent;
@@ -84,25 +76,25 @@
     {#if randomAlbums.length > 0}
       <section class="mb-10">
         <h2 class="text-xl font-bold mb-4 tracking-tight">Random Albums</h2>
-        <AlbumGrid albums={randomAlbums} {serverUrl} {username} {password} />
+        <AlbumGrid albums={randomAlbums} {serverUrl} {username} {password} maxRows={2} />
       </section>
     {/if}
     {#if newestAlbums.length > 0}
       <section class="mb-10">
         <h2 class="text-xl font-bold mb-4 tracking-tight">Recently Added</h2>
-        <AlbumGrid albums={newestAlbums} {serverUrl} {username} {password} />
+        <AlbumGrid albums={newestAlbums} {serverUrl} {username} {password} maxRows={2} />
       </section>
     {/if}
     {#if recentAlbums.length > 0}
       <section class="mb-10">
         <h2 class="text-xl font-bold mb-4 tracking-tight">Recently Played</h2>
-        <AlbumGrid albums={recentAlbums} {serverUrl} {username} {password} />
+        <AlbumGrid albums={recentAlbums} {serverUrl} {username} {password} maxRows={2} />
       </section>
     {/if}
     {#if frequentAlbums.length > 0}
       <section class="mb-10">
         <h2 class="text-xl font-bold mb-4 tracking-tight">Most Played</h2>
-        <AlbumGrid albums={frequentAlbums} {serverUrl} {username} {password} />
+        <AlbumGrid albums={frequentAlbums} {serverUrl} {username} {password} maxRows={2} />
       </section>
     {/if}
     {#if recentAlbums.length === 0 && newestAlbums.length === 0 && randomAlbums.length === 0 && frequentAlbums.length === 0}
