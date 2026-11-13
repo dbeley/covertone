@@ -1,9 +1,9 @@
 <script lang="ts">
-  let { onclick, label = 'Clear', disabled = false } = $props<{
-    onclick: () => void;
-    label?: string;
-    disabled?: boolean;
-  }>();
+  let {
+    onclick,
+    label = 'Clear',
+    disabled = false,
+  }: { onclick: () => void; label?: string; disabled?: boolean } = $props();
 </script>
 
 <button

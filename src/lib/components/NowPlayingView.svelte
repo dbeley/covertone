@@ -9,9 +9,7 @@
   import { toggleFullscreen } from '$lib/utils/fullscreen';
   import LazyImage from '$lib/components/LazyImage.svelte';
 
-  let { onClose = () => {} } = $props<{
-    onClose?: () => void;
-  }>();
+  let { onClose = () => {} }: { onClose?: () => void } = $props();
 
   let status = $derived($player.status);
   let currentTrack = $derived($player.currentTrack);
