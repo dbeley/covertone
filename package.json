@@ -1,7 +1,7 @@
 {
   "name": "covertone",
   "private": true,
-  "version": "0.2.13",
+  "version": "0.2.14",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -31,11 +31,11 @@
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/svelte": "^5.4.2",
     "@types/node": "^26.6.6",
-    "eslint": "^10.14.0",
+    "eslint": "^10.15.0",
     "eslint-plugin-svelte": "^3.24.1",
     "fake-indexeddb": "^6.2.8",
-    "jsdom": "^31.0.0",
-    "prettier": "^3.10.0",
+    "jsdom": "^31.0.1",
+    "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.1.1",
     "svelte": "^5.57.3",
     "svelte-check": "^4.7.8",
@@ -48,11 +48,11 @@
     "vitest": "^5.1.0"
   },
   "dependencies": {
-    "@capacitor/android": "^8.6.0",
+    "@capacitor/android": "^8.6.2",
     "@capacitor/app": "^8.1.2",
-    "@capacitor/cli": "^8.6.0",
-    "@capacitor/core": "^8.6.0",
-    "@capacitor/ios": "^8.6.0",
+    "@capacitor/cli": "^8.6.2",
+    "@capacitor/core": "^8.6.2",
+    "@capacitor/ios": "^8.6.2",
     "@capacitor/status-bar": "^8.0.4",
     "md5": "^2.3.0"
   }
